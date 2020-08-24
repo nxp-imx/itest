@@ -1,0 +1,21 @@
+# V2XA lib test
+
+This is a small tools to test v2x api bridge on the seco_libs layer
+
+## Build
+
+make all
+
+make clean
+
+## Cross Platform aarch64
+
+make PREFIX=TOOLCHAIN_PATH ARCH=aarch64
+
+## Help
+
+Param:
+
+  -l list all tests
+
+  -t <test_name> run the test in param
