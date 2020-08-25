@@ -18,6 +18,7 @@ int v2x_ks_no_update_001(void);
 int v2x_ks_no_update_001_part2(void);
 int v2x_pub_key_recovery_001(void);
 int v2x_pub_key_recovery_001_part2(void);
+int v2x_cipher_aes_ecb_cbc_001(void);
 
 typedef struct{
         int (*tc_ptr)(void);
@@ -40,6 +41,7 @@ testsuite dxl_ts[] = {
 	{v2x_ks_no_update_001_part2, "v2x_ks_no_update_001_part2", DXL},
 	{v2x_pub_key_recovery_001, "v2x_pub_key_recovery_001", DXL},
 	{v2x_pub_key_recovery_001_part2, "v2x_pub_key_recovery_001_part2", DXL},
+	{v2x_cipher_aes_ecb_cbc_001, "v2x_cipher_aes_ecb_cbc_001", DXL},
         {NULL, NULL},
 };
 
