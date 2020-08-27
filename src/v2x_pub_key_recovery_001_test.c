@@ -66,17 +66,17 @@ int v2x_pub_key_recovery_001(void){
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
     for(i = 0; i < NB_ALGO; i++){
-	// PARAM KEY_GEN strict_update
-	gen_key_args.key_identifier = &ctx.key_id[i];
-	gen_key_args.out_size = size_pub_key[i];
-	gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
-	gen_key_args.key_type = algos[i];
-	gen_key_args.key_group = 1;
-	gen_key_args.key_info = 0U;
-	gen_key_args.out_key = ctx.pub_key[i];
+        // PARAM KEY_GEN strict_update
+        gen_key_args.key_identifier = &ctx.key_id[i];
+        gen_key_args.out_size = size_pub_key[i];
+        gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+        gen_key_args.key_type = algos[i];
+        gen_key_args.key_group = 1;
+        gen_key_args.key_info = 0U;
+        gen_key_args.out_key = ctx.pub_key[i];
 
-	// GEN KEY + STORE IN NVM
-	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+        // GEN KEY + STORE IN NVM
+        ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
     }
 
     // CLOSE SRV/SESSION
@@ -125,17 +125,16 @@ int v2x_pub_key_recovery_001_part2(void){
     ASSERT_EQUAL(hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv), HSM_NO_ERROR);
 
     for(i = 0; i < NB_ALGO; i++){
-	// RECOVERY PUB KEY
-	pub_k_rec_args.key_identifier = ctx.key_id[i];
-	pub_k_rec_args.out_key = recovered_key;
-	pub_k_rec_args.out_key_size = size_pub_key[i];;
-	pub_k_rec_args.key_type = algos[i];
-	pub_k_rec_args.flags = 0;
-	ASSERT_EQUAL(hsm_pub_key_recovery(sg0_key_store_serv, &pub_k_rec_args), HSM_NO_ERROR);
-	// CHECK IF THE RECOVERED PUB KEY IS EQUAL TO THE ONE GENERATED
-	ASSERT_EQUAL(memcmp(recovered_key, ctx.pub_key[i], size_pub_key[i]), 0);
+        // RECOVERY PUB KEY
+        pub_k_rec_args.key_identifier = ctx.key_id[i];
+        pub_k_rec_args.out_key = recovered_key;
+        pub_k_rec_args.out_key_size = size_pub_key[i];;
+        pub_k_rec_args.key_type = algos[i];
+        pub_k_rec_args.flags = 0;
+        ASSERT_EQUAL(hsm_pub_key_recovery(sg0_key_store_serv, &pub_k_rec_args), HSM_NO_ERROR);
+        // CHECK IF THE RECOVERED PUB KEY IS EQUAL TO THE ONE GENERATED
+        ASSERT_EQUAL(memcmp(recovered_key, ctx.pub_key[i], size_pub_key[i]), 0);
     }
-
 
     // CLOSE SRV/SESSION
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);

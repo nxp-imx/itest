@@ -73,57 +73,57 @@ int v2x_cipher_aes_ecb_cbc_001(void){
 
     for (msg_size = 16; msg_size <= 128; msg_size+= 16) {
 
-	// CIPHER ONE GO AES_128 ECB -> ENCRYPT
-	cipher_args.key_identifier = key_id_aes_128;
-	cipher_args.iv = iv;
-	cipher_args.iv_size = 0;
-	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
-	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
-	cipher_args.input = msg;
-	cipher_args.output = buff_encr;
-	cipher_args.input_size = msg_size;
-	cipher_args.output_size = msg_size;
-	ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        // CIPHER ONE GO AES_128 ECB -> ENCRYPT
+        cipher_args.key_identifier = key_id_aes_128;
+        cipher_args.iv = iv;
+        cipher_args.iv_size = 0;
+        cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
+        cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+        cipher_args.input = msg;
+        cipher_args.output = buff_encr;
+        cipher_args.input_size = msg_size;
+        cipher_args.output_size = msg_size;
+        ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
 
-	// CIPHER ONE GO AES_128 ECB -> DECRYPT
-	cipher_args.key_identifier = key_id_aes_128;
-	cipher_args.iv = iv;
-	cipher_args.iv_size = 0;
-	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
-	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
-	cipher_args.input = buff_encr;
-	cipher_args.output = buff_decr;
-	cipher_args.input_size = msg_size;
-	cipher_args.output_size = msg_size;
-	ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-	// CHECK DECRYPTED OUTPUT
-	ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
+        // CIPHER ONE GO AES_128 ECB -> DECRYPT
+        cipher_args.key_identifier = key_id_aes_128;
+        cipher_args.iv = iv;
+        cipher_args.iv_size = 0;
+        cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
+        cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+        cipher_args.input = buff_encr;
+        cipher_args.output = buff_decr;
+        cipher_args.input_size = msg_size;
+        cipher_args.output_size = msg_size;
+        ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        // CHECK DECRYPTED OUTPUT
+        ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-	// CIPHER ONE GO AES_128 CBC -> ENCRYPT
-	cipher_args.key_identifier = key_id_aes_128;
-	cipher_args.iv = iv;
-	cipher_args.iv_size = 16;
-	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CBC;
-	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
-	cipher_args.input = msg;
-	cipher_args.output = buff_encr;
-	cipher_args.input_size = msg_size;
-	cipher_args.output_size = msg_size;
-	ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        // CIPHER ONE GO AES_128 CBC -> ENCRYPT
+        cipher_args.key_identifier = key_id_aes_128;
+        cipher_args.iv = iv;
+        cipher_args.iv_size = 16;
+        cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CBC;
+        cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+        cipher_args.input = msg;
+        cipher_args.output = buff_encr;
+        cipher_args.input_size = msg_size;
+        cipher_args.output_size = msg_size;
+        ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
 
-	// CIPHER ONE GO AES_128 CBC -> DECRYPT
-	cipher_args.key_identifier = key_id_aes_128;
-	cipher_args.iv = iv;
-	cipher_args.iv_size = 16;
-	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CBC;
-	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
-	cipher_args.input = buff_encr;
-	cipher_args.output = buff_decr;
-	cipher_args.input_size = msg_size;
-	cipher_args.output_size = msg_size;
-	ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-	// CHECK DECRYPTED OUTPUT
-	ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
+        // CIPHER ONE GO AES_128 CBC -> DECRYPT
+        cipher_args.key_identifier = key_id_aes_128;
+        cipher_args.iv = iv;
+        cipher_args.iv_size = 16;
+        cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CBC;
+        cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+        cipher_args.input = buff_encr;
+        cipher_args.output = buff_decr;
+        cipher_args.input_size = msg_size;
+        cipher_args.output_size = msg_size;
+        ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        // CHECK DECRYPTED OUTPUT
+        ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
     }
 
     ASSERT_EQUAL(hsm_close_cipher_service(sg0_cipher_hdl), HSM_NO_ERROR);

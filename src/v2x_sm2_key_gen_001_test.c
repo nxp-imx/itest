@@ -50,25 +50,25 @@ int sm2_key_gen_001(void){
 
     // GEN 100 KEY IN KEY GROUP 1
     for (i = 0; i < 100; i++){
-	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+        ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
     }
 
     gen_key_args.key_group = 2;
     // GEN 100 KEY IN KEY GROUP 2
     for (i = 0; i < 100; i++){
-	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+        ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
     }
 
     gen_key_args.key_group = 3;
     // GEN 100 KEY IN KEY GROUP 3
     for (i = 0; i < 100; i++){
-	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+        ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
     }
 
     gen_key_args.key_group = 4;
     // GEN 100 KEY IN KEY GROUP 4
     for (i = 0; i < 100; i++){
-	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+        ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
     }
 
     ASSERT_EQUAL(hsm_close_key_management_service(sg0_key_mgmt_srv), HSM_NO_ERROR);
