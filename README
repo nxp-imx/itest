@@ -8,9 +8,7 @@ make all
 
 make clean
 
-## Cross Platform aarch64
-
-make PREFIX=TOOLCHAIN_PATH ARCH=aarch64
+make PREFIX=<TOOLCHAIN_PREFIX_PATH> ARCH=aarch64 HSM_PATH=<PATH_SECO_LIBS>
 
 ## Help
 
