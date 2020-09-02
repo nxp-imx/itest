@@ -9,7 +9,7 @@
 #define QM  0x2
 #define DXL 0x4
 
-int sm2_key_gen_001(void);
+int v2x_chunk_swap_001(void);
 int v2x_rng_srv_001(void);
 int v2x_ks_import_export_001(void);
 int v2x_ks_import_export_001_part2(void);
@@ -34,7 +34,7 @@ typedef struct{
 } contex;
 
 testsuite dxl_ts[] = {
-    {sm2_key_gen_001,                "sm2_key_gen_001",                DXL},
+    {v2x_chunk_swap_001,             "v2x_chunk_swap_001",             DXL},
     {v2x_rng_srv_001,                "v2x_rng_srv_001",                DXL},
     {v2x_ks_import_export_001,       "v2x_ks_import_export_001",       DXL},
     {v2x_ks_import_export_001_part2, "v2x_ks_import_export_001_part2", DXL},
