@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <time.h>
 #include <unistd.h>
 #include "test_api.h"
 
@@ -81,4 +80,16 @@ size_t randomize(void *out, size_t count){
     rout = fread(out, 1, count, fout); 
     fclose (fout);
     return rout;
+}
+
+uint32_t print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter)
+{
+    uint64_t time_us;
+
+    time_us = (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000u + (ts2->tv_nsec - ts1->tv_nsec)/1000;
+    (void)printf("%ld microseconds for %d iterations.\n", time_us, nb_iter);
+    (void)printf("%d operations per second.\n", (uint32_t)((uint64_t)1000000*(uint64_t)nb_iter/time_us));
+    uint32_t time_operation_us = (uint32_t)(time_us/nb_iter);
+    (void)printf("%d microseconds per operation (%d iterations).\n", time_operation_us, nb_iter);
+    return time_operation_us;
 }
