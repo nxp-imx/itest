@@ -98,5 +98,5 @@ int v2x_ks_bad_auth_001(void){
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
     ASSERT_NOT_EQUAL(stop_nvm_v2x(), NVM_STATUS_STOPPED);
 
-    return TRUE;
+    return TRUE_TEST;
 }

@@ -62,5 +62,5 @@ int v2x_rng_srv_001(void){
     ASSERT_EQUAL(hsm_close_session(sv0_sess), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sv1_sess), HSM_NO_ERROR);
 
-    return TRUE;
+    return TRUE_TEST;
 }

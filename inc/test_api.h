@@ -4,15 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <signal.h>
 #include "hsm_api.h"
 #include "seco_nvm.h"
 
-#define TRUE 1
-#define FALSE 0
-#define ASSERT_TRUE(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); return FALSE;}
-#define ASSERT_FALSE(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); return FALSE;}
-#define ASSERT_EQUAL(x, y) if ( x != y) {printf("assert_equal Fail ==> ");printf(#x);printf(" != ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); return FALSE;}
-#define ASSERT_NOT_EQUAL(x, y) if ( x == y) {printf("assert_not_equal Fail ==> ");printf(#x);printf(" == ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); return FALSE;}
+#define TRUE_TEST 1
+#define FALSE_TEST 0
+#define ASSERT_TRUE(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
+#define ASSERT_FALSE(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
+#define ASSERT_EQUAL(x, y) if ( x != y) {printf("assert_equal Fail ==> ");printf(#x);printf(" != ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
+#define ASSERT_NOT_EQUAL(x, y) if ( x == y) {printf("assert_not_equal Fail ==> ");printf(#x);printf(" == ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
 
 hsm_err_t start_nvm_v2x(void);
 hsm_err_t stop_nvm_v2x(void);

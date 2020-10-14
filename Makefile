@@ -10,9 +10,9 @@ PREFIX =
 CC := $(PREFIX)gcc
 AR := $(PREFIX)ar
 ARCH := x86_64
-CCFLAG := -lpthread -ldl -lz -Wall
+CCFLAG := -lpthread -ldl -lz -Wall -fopenmp
 LIBSTATIC := $(HSM_LIB)
-CCOBJFLAG := -c $(IDIR) -Wall
+CCOBJFLAG := -c $(IDIR) -Wall -fopenmp
 
 # path macros
 BIN_PATH := bin/$(ARCH)

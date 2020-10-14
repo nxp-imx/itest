@@ -22,9 +22,10 @@ int v2x_pub_key_recovery_001(void);
 int v2x_pub_key_recovery_001_part2(void);
 int v2x_cipher_aes_ecb_cbc_001(void);
 int v2x_pub_key_decompression_001(void);
-int v2x_cipher_ccm_perf(void);
 int v2x_auth_enc_test(void);
 int v2x_butterfly_key_exp_001(void);
+int v2x_parallel_sign_gen_ver_001(void);
+int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
 
 typedef struct{
@@ -54,6 +55,7 @@ testsuite dxl_ts[] = {
     {v2x_auth_enc_test,              "v2x_auth_enc_test",              DXL},
     {v2x_pub_key_decompression_001,  "v2x_pub_key_decompression_001",  DXL},
     {v2x_butterfly_key_exp_001,      "v2x_butterfly_key_exp_001",      DXL},
+    {v2x_parallel_sign_gen_ver_001,  "v2x_parallel_sign_gen_ver_001",  DXL},
     {v2x_cipher_ccm_perf,            "v2x_cipher_ccm_perf",            DXL},
     {v2x_sign_gen_verify_perf,       "v2x_sign_gen_verify_perf",       DXL},
     {NULL, NULL},
@@ -176,10 +178,10 @@ char *lava_test =\
           - ip addr\n\
           - mount /dev/mmcblk1p2 /mnt/\n\
           - cd /mnt/opt\n\
-          - cp -r v2x_hsm /etc/\n\
-          - rm -rf v2x_hsm\n\
+          - cp -r v2x_hsm /etc/ 2>/dev/null || :\n\
+          - rm -rf v2x_hsm 2>/dev/null || :\n\
           - lava-test-case v2x_fw_test --shell ./v2x_fw_test -t %s\n\
-          - cp -r /etc/v2x_hsm /mnt/opt\n\
+          - cp -r /etc/v2x_hsm /mnt/opt 2>/dev/null || :\n\
           - sync \n\
 ";
 
@@ -199,6 +201,14 @@ void print_test_suite(testsuite *ts){
     for ( i = 0; ts[i].tc_ptr != NULL; i++){
         printf("test %d: %s\n", i, ts[i].name);
     }
+}
+
+
+static void catch_failure(int signo) {
+     printf("FAIL\n");
+     printf("end of tests\n");
+     sleep(10);
+     exit(0);
 }
 
 int main(int argc, char *argv[]){
@@ -243,10 +253,13 @@ int main(int argc, char *argv[]){
         }
     }
     printf("Test Suite 1.0\n");
-    printf("testsuite %s\n", test_name);
     if (test_name == NULL){
         printf("no test in param...\n");
         print_test_suite(ts);
+        return 0;
+    }
+    if (signal(SIGINT, catch_failure) == SIG_ERR) {
+        fputs("An error occurred while setting a signal handler.\n", stderr);
         return 0;
     }
     for ( i = 0; ts[i].tc_ptr != NULL; i++){

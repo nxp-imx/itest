@@ -89,7 +89,7 @@ int v2x_pub_key_recovery_001(void){
 
     ASSERT_EQUAL(save_test_ctx(&ctx, sizeof(test_ctx_t), "v2x_pub_key_recovery_001_test_ctx.bin"), 1);
     
-    return TRUE;
+    return TRUE_TEST;
 }
 
 
@@ -143,5 +143,5 @@ int v2x_pub_key_recovery_001_part2(void){
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
     ASSERT_NOT_EQUAL(stop_nvm_v2x(), NVM_STATUS_STOPPED);
     
-    return TRUE;
+    return TRUE_TEST;
 }

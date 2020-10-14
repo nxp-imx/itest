@@ -172,5 +172,5 @@ int v2x_auth_enc_test(void){
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
 
-    return TRUE;
+    return TRUE_TEST;
 }
