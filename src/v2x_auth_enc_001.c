@@ -24,9 +24,11 @@ int v2x_auth_enc_test(void){
     uint8_t msg[1024];
     uint8_t iv[16];
     
-    uint32_t msg_size = 384;
+    uint32_t msg_size = 378;
     uint8_t aad[16] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
 
+    clear_v2x_nvm();
+    
     // INPUT BUFF AS RANDOM
     ASSERT_EQUAL(randomize(msg, 300), 300);
     ASSERT_EQUAL(randomize(iv, 16), 16);
@@ -169,6 +171,6 @@ int v2x_auth_enc_test(void){
     ASSERT_EQUAL(hsm_close_key_management_service(sg0_key_mgmt_srv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
-    
+
     return TRUE;
 }

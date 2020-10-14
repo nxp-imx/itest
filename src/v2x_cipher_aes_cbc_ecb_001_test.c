@@ -24,9 +24,14 @@ int v2x_cipher_aes_ecb_cbc_001(void){
     uint8_t iv[16];
     uint32_t msg_size;
 
+    clear_v2x_nvm();
+
     // INPUT BUFF AS RANDOM
     ASSERT_EQUAL(randomize(msg, 128), 128);
     ASSERT_EQUAL(randomize(iv, 16), 16);
+
+    // START NVM
+    ASSERT_NOT_EQUAL(start_nvm_v2x(), NVM_STATUS_STOPPED);
 
     // SG0
     args.session_priority = HSM_OPEN_SESSION_PRIORITY_HIGH;
@@ -98,7 +103,7 @@ int v2x_cipher_aes_ecb_cbc_001(void){
         // CHECK DECRYPTED OUTPUT
         ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-	// CIPHER ONE GO AES_128 CCM -> ENCRYPT
+        // CIPHER ONE GO AES_128 CCM -> ENCRYPT
         cipher_args.key_identifier = key_id_aes_128;
         cipher_args.iv = iv;
         cipher_args.iv_size = 12;
@@ -150,8 +155,8 @@ int v2x_cipher_aes_ecb_cbc_001(void){
         // CHECK DECRYPTED OUTPUT
         ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-	/*========================================================*/
-	// CIPHER ONE GO AES_192 ECB -> ENCRYPT
+        /*========================================================*/
+        // CIPHER ONE GO AES_192 ECB -> ENCRYPT
         cipher_args.key_identifier = key_id_aes_192;
         cipher_args.iv = iv;
         cipher_args.iv_size = 0;
@@ -177,7 +182,7 @@ int v2x_cipher_aes_ecb_cbc_001(void){
         // CHECK DECRYPTED OUTPUT
         ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-	// CIPHER ONE GO AES_192 CCM -> ENCRYPT
+        // CIPHER ONE GO AES_192 CCM -> ENCRYPT
         cipher_args.key_identifier = key_id_aes_192;
         cipher_args.iv = iv;
         cipher_args.iv_size = 12;
@@ -229,8 +234,8 @@ int v2x_cipher_aes_ecb_cbc_001(void){
         // CHECK DECRYPTED OUTPUT
         ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-	/*========================================================*/
-	// CIPHER ONE GO AES_256 ECB -> ENCRYPT
+        /*========================================================*/
+        // CIPHER ONE GO AES_256 ECB -> ENCRYPT
         cipher_args.key_identifier = key_id_aes_256;
         cipher_args.iv = iv;
         cipher_args.iv_size = 0;
@@ -256,7 +261,7 @@ int v2x_cipher_aes_ecb_cbc_001(void){
         // CHECK DECRYPTED OUTPUT
         ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-	// CIPHER ONE GO AES_256 CCM -> ENCRYPT
+        // CIPHER ONE GO AES_256 CCM -> ENCRYPT
         cipher_args.key_identifier = key_id_aes_256;
         cipher_args.iv = iv;
         cipher_args.iv_size = 12;
@@ -313,6 +318,7 @@ int v2x_cipher_aes_ecb_cbc_001(void){
     ASSERT_EQUAL(hsm_close_key_management_service(sg0_key_mgmt_srv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
-    
+    ASSERT_NOT_EQUAL(stop_nvm_v2x(), NVM_STATUS_STOPPED);
+
     return TRUE;
 }

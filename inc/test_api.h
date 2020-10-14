@@ -20,6 +20,7 @@ size_t save_test_ctx(void *ctx, size_t count, char *file);
 size_t load_test_ctx(void *ctx, size_t count, char *file);
 size_t randomize(void *out, size_t count);
 uint32_t print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter);
+uint32_t clear_v2x_nvm(void);
 
 #endif
 

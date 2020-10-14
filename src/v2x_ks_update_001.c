@@ -19,6 +19,8 @@ int v2x_ks_update_001(void){
     test_ctx_t ctx;
     uint8_t buff_out[1024];
 
+    clear_v2x_nvm();
+
     // START NVM
     ASSERT_NOT_EQUAL(start_nvm_v2x(), NVM_STATUS_STOPPED);
     
@@ -63,7 +65,6 @@ int v2x_ks_update_001(void){
     return TRUE;
 }
 
-extern uint32_t *get_chunk_size_err;
 int v2x_ks_update_001_part2(void){
 
     open_session_args_t args;
@@ -75,7 +76,6 @@ int v2x_ks_update_001_part2(void){
     hsm_hdl_t sg0_key_store_serv, sg0_key_mgmt_srv;
     test_ctx_t ctx;
     uint8_t buff_out[1024];
-    //uint32_t chunck_size = 0x30;
 
     // LOAD THE TEST CONTEXT
     ASSERT_EQUAL(load_test_ctx(&ctx, sizeof(test_ctx_t), "v2x_ks_update_test_ctx.bin"), 1);
@@ -110,7 +110,6 @@ int v2x_ks_update_001_part2(void){
     gen_key_args.key_info = 0U;
     gen_key_args.out_key = buff_out;
     // GEN SM4 KEY + STORE IN NVM
-    //get_chunk_size_err = &chunck_size;
     ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args) , HSM_NO_ERROR);
 
     // CLOSE SRV/SESSION

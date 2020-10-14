@@ -28,6 +28,8 @@ int v2x_ks_import_export_001(void){
     test_ctx_t ctx;
     uint16_t cipher_len = 512;
 
+    clear_v2x_nvm();
+
     // INPUT BUFF AS RANDOM
     ASSERT_EQUAL(randomize(ctx.clear_buff, cipher_len), cipher_len);
 

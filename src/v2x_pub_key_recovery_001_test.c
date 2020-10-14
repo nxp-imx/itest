@@ -44,6 +44,8 @@ int v2x_pub_key_recovery_001(void){
     test_ctx_t ctx;
     uint32_t i;
 
+    clear_v2x_nvm();
+
     // START NVM
     ASSERT_NOT_EQUAL(start_nvm_v2x(), NVM_STATUS_STOPPED);
     

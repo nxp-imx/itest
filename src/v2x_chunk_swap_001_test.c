@@ -25,7 +25,7 @@ int v2x_chunk_swap_001(void){
     uint8_t decrypt_buff[512];
     uint16_t cipher_len = 512;
 
-
+    clear_v2x_nvm();
 
     ASSERT_NOT_EQUAL(start_nvm_v2x(), NVM_STATUS_STOPPED);
     ASSERT_EQUAL(randomize(clear_buff, cipher_len), cipher_len);
@@ -69,13 +69,13 @@ int v2x_chunk_swap_001(void){
     // GEN 100 KEY IN KEY GROUP 1
     for (i = 0; i < 100; i++){
         ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
-	if (i == 0)
-	    key_id[0] = key_id_cur;
-	else if (i == 49)
-	    key_id[1] = key_id_cur;
-	else if (i == 99)
-	    key_id[2] = key_id_cur;
-	    
+        if (i == 0)
+            key_id[0] = key_id_cur;
+        else if (i == 49)
+            key_id[1] = key_id_cur;
+        else if (i == 99)
+            key_id[2] = key_id_cur;
+            
     }
 
     // CIPHER ONE GO
@@ -190,6 +190,6 @@ int v2x_chunk_swap_001(void){
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
     ASSERT_NOT_EQUAL(stop_nvm_v2x(), NVM_STATUS_STOPPED);
-    
+
     return TRUE;
 }
