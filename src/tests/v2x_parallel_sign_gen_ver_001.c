@@ -66,7 +66,7 @@ int v2x_parallel_sign_gen_ver_001(void){
     uint8_t msg_1[300];
     uint8_t sign_out_0[1024];
     uint8_t sign_out_1[1024];
-    uint32_t iter = 2000;
+    uint32_t iter = 300;
     uint32_t i;
 
     omp_set_num_threads(3);

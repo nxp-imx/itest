@@ -207,7 +207,7 @@ void print_test_suite(testsuite *ts){
 static void catch_failure(int signo) {
      printf("FAIL\n");
      printf("end of tests\n");
-     sleep(10);
+     sleep(2);
      exit(0);
 }
 
@@ -226,7 +226,6 @@ int main(int argc, char *argv[]){
         {
         case 't':
             test_name = optarg;
-            printf("testsuite %s\n", test_name);
             break;
         case 'v':
             printf("testsuite v1.0\n");
