@@ -136,6 +136,9 @@ actions:\n\
           - ip addr\n\
           - mount /dev/mmcblk1p2 /mnt/\n\
           - cd /mnt/opt\n\
+          - bash -c 'rm -rf v2x_test'\n\
+          - mkdir v2x_test\n\
+          - cd v2x_test\n\
           - lava-test-case get_test_suite --shell wget -t 2 --timeout=30 --no-check-certificate -q -O v2x_fw_test %s\n\
           - chmod +x v2x_fw_test\n\
           - sync\n\
@@ -177,11 +180,11 @@ char *lava_test =\
           - busybox udhcpc -i usb0\n\
           - ip addr\n\
           - mount /dev/mmcblk1p2 /mnt/\n\
-          - cd /mnt/opt\n\
-          - cp -r v2x_hsm /etc/ 2>/dev/null || :\n\
-          - rm -rf v2x_hsm 2>/dev/null || :\n\
+          - cd /mnt/opt/v2x_test\n\
+          - bash -c 'cp -r v2x_hsm /etc/ 2>/dev/null || :'\n\
+          - bash -c 'rm -rf v2x_hsm 2>/dev/null || :'\n\
           - lava-test-case v2x_fw_test --shell ./v2x_fw_test -t %s\n\
-          - cp -r /etc/v2x_hsm /mnt/opt 2>/dev/null || :\n\
+          - bash -c 'cp -r /etc/v2x_hsm /mnt/opt 2>/dev/null || :'\n\
           - sync \n\
 ";
 

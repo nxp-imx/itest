@@ -64,12 +64,12 @@ int v2x_parallel_sign_gen_ver_001(void){
     uint8_t pub_key_1[1024];
     uint8_t msg_0[300];
     uint8_t msg_1[300];
-    uint8_t sign_out_0[1024];
-    uint8_t sign_out_1[1024];
+    uint8_t sign_out_0[2][1024];
+    uint8_t sign_out_1[2][1024];
     uint32_t iter = 300;
     uint32_t i;
 
-    omp_set_num_threads(3);
+    omp_set_num_threads(6);
 
     // REMOVE NVM
     clear_v2x_nvm();
@@ -144,82 +144,111 @@ int v2x_parallel_sign_gen_ver_001(void){
     ASSERT_EQUAL(hsm_open_signature_verification_service(sv1_sess, &sig_ver_srv_args, &sv1_sig_ver_serv), HSM_NO_ERROR);
 
     for(i = 0; i < NB_ALGO; i++){
-	// PARAM KEY_GEN strict_update
-	gen_key_args.key_identifier = &key_id_0;
-	gen_key_args.out_size = size_pub_key[i];
-	gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
-	gen_key_args.key_type = algos[i];
-	gen_key_args.key_group = 1;
-	gen_key_args.key_info = 0U;
-	gen_key_args.out_key = pub_key_0;
-	// GEN KEY + STORE IN NVM
-	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
-	// PARAM KEY_GEN strict_update
-	gen_key_args.key_identifier = &key_id_1;
-	gen_key_args.out_size = size_pub_key[i];
-	gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
-	gen_key_args.key_type = algos[i];
-	gen_key_args.key_group = 1;
-	gen_key_args.key_info = 0U;
-	gen_key_args.out_key = pub_key_1;
+        // PARAM KEY_GEN strict_update
+        gen_key_args.key_identifier = &key_id_0;
+        gen_key_args.out_size = size_pub_key[i];
+        gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+        gen_key_args.key_type = algos[i];
+        gen_key_args.key_group = 1;
+        gen_key_args.key_info = 0U;
+        gen_key_args.out_key = pub_key_0;
+        // GEN KEY + STORE IN NVM
+        ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+        
+        // PARAM KEY_GEN strict_update
+        gen_key_args.key_identifier = &key_id_1;
+        gen_key_args.out_size = size_pub_key[i];
+        gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+        gen_key_args.key_type = algos[i];
+        gen_key_args.key_group = 1;
+        gen_key_args.key_info = 0U;
+        gen_key_args.out_key = pub_key_1;
+        // GEN KEY + STORE IN NVM
+        ASSERT_EQUAL(hsm_generate_key(sg1_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
-	// GEN KEY + STORE IN NVM
-	ASSERT_EQUAL(hsm_generate_key(sg1_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+	// GEN THE SIGN TO VERIFY ON SV0
+        sg0_sig_gen_args.key_identifier = key_id_0;
+        sg0_sig_gen_args.message = msg_0;
+        sg0_sig_gen_args.signature = sign_out_0[1];
+        sg0_sig_gen_args.message_size = 300;
+        sg0_sig_gen_args.signature_size = size_pub_key[i]+1;
+        sg0_sig_gen_args.scheme_id = algos_sign[i];
+        sg0_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
+        ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sg0_sig_gen_args), HSM_NO_ERROR);
+
+	// GEN THE SIGN TO VERIFY ON SV1
+        sg1_sig_gen_args.key_identifier = key_id_1;
+        sg1_sig_gen_args.message = msg_1;
+        sg1_sig_gen_args.signature = sign_out_1[1];
+        sg1_sig_gen_args.message_size = 300;
+        sg1_sig_gen_args.signature_size = size_pub_key[i]+1;
+        sg1_sig_gen_args.scheme_id = algos_sign[i];
+        sg1_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
+        ASSERT_EQUAL(hsm_generate_signature(sg1_sig_gen_serv, &sg1_sig_gen_args), HSM_NO_ERROR);
  
 #pragma omp parallel sections
-	{
+        {
 #pragma omp section
-	    {
-		uint32_t j;
-		for (j = 0; j < iter; j++) {
-		    sg0_sig_gen_args.key_identifier = key_id_0;
-		    sg0_sig_gen_args.message = msg_0;
-		    sg0_sig_gen_args.signature = sign_out_0;
-		    sg0_sig_gen_args.message_size = 300;
-		    sg0_sig_gen_args.signature_size = size_pub_key[i]+1;
-		    sg0_sig_gen_args.scheme_id = algos_sign[i];
-		    sg0_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
-		    ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sg0_sig_gen_args), HSM_NO_ERROR);
-	    
-		    sv0_sig_ver_args.key = pub_key_0;
-		    sv0_sig_ver_args.message = msg_0;
-		    sv0_sig_ver_args.signature = sign_out_0;
-		    sv0_sig_ver_args.key_size = size_pub_key[i];
-		    sv0_sig_ver_args.signature_size = size_pub_key[i]+1;
-		    sv0_sig_ver_args.message_size = 300;
-		    sv0_sig_ver_args.scheme_id = algos_sign[i];
-		    sv0_sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
-		    ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sv0_sig_ver_args, &status), HSM_NO_ERROR);
-		    ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
-		}
-	    }
-
+            {
+                uint32_t j;
+                for (j = 0; j < iter; j++) {
+                    sg0_sig_gen_args.key_identifier = key_id_0;
+                    sg0_sig_gen_args.message = msg_0;
+                    sg0_sig_gen_args.signature = sign_out_0[0];
+                    sg0_sig_gen_args.message_size = 300;
+                    sg0_sig_gen_args.signature_size = size_pub_key[i]+1;
+                    sg0_sig_gen_args.scheme_id = algos_sign[i];
+                    sg0_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
+                    ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sg0_sig_gen_args), HSM_NO_ERROR);
+                }
+            }
 #pragma omp section
-	    {
-		uint32_t j;
-		for (j = 0; j < iter; j++) {
-		    sg1_sig_gen_args.key_identifier = key_id_1;
-		    sg1_sig_gen_args.message = msg_1;
-		    sg1_sig_gen_args.signature = sign_out_1;
-		    sg1_sig_gen_args.message_size = 300;
-		    sg1_sig_gen_args.signature_size = size_pub_key[i]+1;
-		    sg1_sig_gen_args.scheme_id = algos_sign[i];
-		    sg1_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
-		    ASSERT_EQUAL(hsm_generate_signature(sg1_sig_gen_serv, &sg1_sig_gen_args), HSM_NO_ERROR);
-	    
-		    sv1_sig_ver_args.key = pub_key_1;
-		    sv1_sig_ver_args.message = msg_1;
-		    sv1_sig_ver_args.signature = sign_out_1;
-		    sv1_sig_ver_args.key_size = size_pub_key[i];
-		    sv1_sig_ver_args.signature_size = size_pub_key[i]+1;
-		    sv1_sig_ver_args.message_size = 300;
-		    sv1_sig_ver_args.scheme_id = algos_sign[i];
-		    sv1_sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
-		    ASSERT_EQUAL(hsm_verify_signature(sv1_sig_ver_serv, &sv1_sig_ver_args, &status), HSM_NO_ERROR);
-		    ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
-		}
-	    }
-	}
+            {
+                uint32_t j;
+                for (j = 0; j < iter; j++) {        
+                    sv0_sig_ver_args.key = pub_key_0;
+                    sv0_sig_ver_args.message = msg_0;
+                    sv0_sig_ver_args.signature = sign_out_0[1];
+                    sv0_sig_ver_args.key_size = size_pub_key[i];
+                    sv0_sig_ver_args.signature_size = size_pub_key[i]+1;
+                    sv0_sig_ver_args.message_size = 300;
+                    sv0_sig_ver_args.scheme_id = algos_sign[i];
+                    sv0_sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
+                    ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sv0_sig_ver_args, &status), HSM_NO_ERROR);
+                    ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
+                }
+            }
+#pragma omp section
+            {
+                uint32_t j;
+                for (j = 0; j < iter; j++) {
+                    sg1_sig_gen_args.key_identifier = key_id_1;
+                    sg1_sig_gen_args.message = msg_1;
+                    sg1_sig_gen_args.signature = sign_out_1[0];
+                    sg1_sig_gen_args.message_size = 300;
+                    sg1_sig_gen_args.signature_size = size_pub_key[i]+1;
+                    sg1_sig_gen_args.scheme_id = algos_sign[i];
+                    sg1_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
+                    ASSERT_EQUAL(hsm_generate_signature(sg1_sig_gen_serv, &sg1_sig_gen_args), HSM_NO_ERROR);
+                }
+            }
+#pragma omp section
+            {
+                uint32_t j;
+                for (j = 0; j < iter; j++) {
+                    sv1_sig_ver_args.key = pub_key_1;
+                    sv1_sig_ver_args.message = msg_1;
+                    sv1_sig_ver_args.signature = sign_out_1[1];
+                    sv1_sig_ver_args.key_size = size_pub_key[i];
+                    sv1_sig_ver_args.signature_size = size_pub_key[i]+1;
+                    sv1_sig_ver_args.message_size = 300;
+                    sv1_sig_ver_args.scheme_id = algos_sign[i];
+                    sv1_sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
+                    ASSERT_EQUAL(hsm_verify_signature(sv1_sig_ver_serv, &sv1_sig_ver_args, &status), HSM_NO_ERROR);
+                    ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
+                }
+            }
+        }
     }
     
     // CLOSE SRV/SESSION
