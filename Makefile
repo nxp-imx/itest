@@ -1,13 +1,15 @@
 
 HSM_PATH= ../imx8dxla0/seco_libs
 HSM_LIB= $(HSM_PATH)/*.a
+
+LIBS= lib/$(ARCH)
 HSM_INC= $(HSM_PATH)/include/hsm
 NVM_INC= $(HSM_PATH)/include
 
 IDIR = -I$(HSM_INC) -I$(NVM_INC) -Iinc
 
-CCFLAG := -l:libgomp.a -lpthread -ldl -lz -Wall
-LIBSTATIC := $(HSM_LIB)
+CCFLAG := -lpthread -ldl -lz -Wall
+LIBSTATIC := $(HSM_LIB) lib/$(ARCH)/libgomp.a
 CCOBJFLAG := -c $(IDIR) -Wall -fopenmp
 
 # path macros
