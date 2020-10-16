@@ -4,198 +4,28 @@
 #include <unistd.h>
 #include <getopt.h>
 #include "test_api.h"
+#include "8dxl_conf.h"
 
-#define QXP 0x1
-#define QM  0x2
-#define DXL 0x4
-
-int v2x_chunk_swap_001(void);
-int v2x_rng_srv_001(void);
-int v2x_ks_import_export_001(void);
-int v2x_ks_import_export_001_part2(void);
-int v2x_ks_bad_auth_001(void);
-int v2x_ks_no_update_001(void);
-int v2x_ks_no_update_001_part2(void);
-int v2x_ks_update_001(void);
-int v2x_ks_update_001_part2(void);
-int v2x_pub_key_recovery_001(void);
-int v2x_pub_key_recovery_001_part2(void);
-int v2x_cipher_aes_ecb_cbc_001(void);
-int v2x_pub_key_decompression_001(void);
-int v2x_auth_enc_test(void);
-int v2x_butterfly_key_exp_001(void);
-int v2x_parallel_sign_gen_ver_001(void);
-int v2x_cipher_ccm_perf(void);
-int v2x_sign_gen_verify_perf(void);
-
-typedef struct{
-    int (*tc_ptr)(void);
-    char *name;
-    int target;
-} testsuite;
-
-typedef struct{
-    int cur_test;
-    int nb_fails;
-} contex;
-
-testsuite dxl_ts[] = {
-    {v2x_chunk_swap_001,             "v2x_chunk_swap_001",             DXL},
-    {v2x_rng_srv_001,                "v2x_rng_srv_001",                DXL},
-    {v2x_ks_import_export_001,       "v2x_ks_import_export_001",       DXL},
-    {v2x_ks_import_export_001_part2, "v2x_ks_import_export_001_part2", DXL},
-    {v2x_ks_bad_auth_001,            "v2x_ks_bad_auth_001",            DXL},
-    {v2x_ks_no_update_001,           "v2x_ks_no_update_001",           DXL},
-    {v2x_ks_no_update_001_part2,     "v2x_ks_no_update_001_part2",     DXL},
-    {v2x_ks_update_001,              "v2x_ks_update_001",              DXL},
-    {v2x_ks_update_001_part2,        "v2x_ks_update_001_part2",        DXL},
-    {v2x_pub_key_recovery_001,       "v2x_pub_key_recovery_001",       DXL},
-    {v2x_pub_key_recovery_001_part2, "v2x_pub_key_recovery_001_part2", DXL},
-    {v2x_cipher_aes_ecb_cbc_001,     "v2x_cipher_aes_ecb_cbc_001",     DXL},
-    {v2x_auth_enc_test,              "v2x_auth_enc_test",              DXL},
-    {v2x_pub_key_decompression_001,  "v2x_pub_key_decompression_001",  DXL},
-    {v2x_butterfly_key_exp_001,      "v2x_butterfly_key_exp_001",      DXL},
-    {v2x_parallel_sign_gen_ver_001,  "v2x_parallel_sign_gen_ver_001",  DXL},
-    {v2x_cipher_ccm_perf,            "v2x_cipher_ccm_perf",            DXL},
-    {v2x_sign_gen_verify_perf,       "v2x_sign_gen_verify_perf",       DXL},
-    {NULL, NULL},
-};
-
-char *lava_get_test_suite =\
-    "\n\
-device_type: fsl-imx8dxl-evk-linux\n\
-tags:\n\
-- lifecycle-nxp-open\n\
-- daas_mougins\n\
-- stec\n\
-job_name: IMX8_DXL - v2x_fw_test\n\
-metadata:\n\
-  submitter: bamboo\n\
-timeouts:\n\
-  job:\n\
-    minutes: 240\n\
-  action:\n\
-    minutes: 60\n\
-  connection:\n\
-    minutes: 2\n\
-priority: medium\n\
-visibility: public\n\
-context:\n\
-  arch: arm64\n\
-  extra_kernel_args: quiet loglevel=3\n\
-  kernel_start_message: Welcome to Buildroot\n\
-actions:\n\
-- deploy:\n\
-    namespace: console\n\
-    timeout:\n\
-      minutes: 3\n\
-    to: tftp\n\
-    kernel:\n\
-      url: https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/Image/Image\n\
-      type: image\n\
-    ramdisk:\n\
-      url: https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/rootfs.cpio.gz/rootfs.cpio.gz\n\
-      compression: gz\n\
-    modules:\n\
-      url: https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/modules_lite.tar.bz2/modules_lite.tar.bz2\n\
-      compression: bz2\n\
-    dtb:\n\
-      url: https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/dtb/imx8dxl-evk.dtb\n\
-    os: oe\n\
-- boot:\n\
-    namespace: console\n\
-    method: u-boot\n\
-    failure_retry: 2\n\
-    commands: nfs\n\
-    auto_login:\n\
-      login_prompt: \"(.*) login:\"\n\
-      username: root\n\
-    prompts:\n\
-    - \"root@(.*):~#\"\n\
-    timeout:\n\
-      minutes: 2\n\
-- test:\n\
-    namespace: console\n\
-    connection-namespace: console\n\
-    timeout:\n\
-      minutes: 2\n\
-      skip: true\n\
-    definitions:\n\
-    - from: inline\n\
-      name: Get_v2x_fw_test\n\
-      path: inline/run_tests.yaml\n\
-      repository:\n\
-        metadata:\n\
-          name: Get_v2x_fw_test\n\
-          description: Download and flash test suite\n\
-          format: Lava-Test Test Definition 1.0\n\
-        run:\n\
-          steps:\n\
-          - modprobe g_ether\n\
-          - busybox udhcpc -i usb0\n\
-          - ip addr\n\
-          - mount /dev/mmcblk1p2 /mnt/\n\
-          - cd /mnt/opt\n\
-          - bash -c 'rm -rf v2x_test'\n\
-          - mkdir v2x_test\n\
-          - cd v2x_test\n\
-          - lava-test-case get_test_suite --shell wget -t 2 --timeout=30 --no-check-certificate -q -O v2x_fw_test %s\n\
-          - chmod +x v2x_fw_test\n\
-          - sync\n\
-\n\
-";
-
-char *lava_test =\
-    "\n\
-- boot:\n\
-    namespace: console\n\
-    method: u-boot\n\
-    failure_retry: 2\n\
-    commands: nfs\n\
-    auto_login:\n\
-      login_prompt: \"(.*) login:\"\n\
-      username: root\n\
-    prompts:\n\
-    - \"root@(.*):~#\"\n\
-    timeout:\n\
-      minutes: 2\n\
-- test:\n\
-    namespace: console\n\
-    connection-namespace: console\n\
-    timeout:\n\
-      minutes: 2\n\
-      skip: true\n\
-    definitions:\n\
-    - from: inline\n\
-      name: %s\n\
-      path: inline/run_tests.yaml\n\
-      repository:\n\
-        metadata:\n\
-          name: %s\n\
-          description: test %s\n\
-          format: Lava-Test Test Definition 1.0\n\
-        run:\n\
-          steps:\n\
-          - modprobe g_ether\n\
-          - busybox udhcpc -i usb0\n\
-          - ip addr\n\
-          - mount /dev/mmcblk1p2 /mnt/\n\
-          - cd /mnt/opt/v2x_test\n\
-          - bash -c 'cp -r v2x_hsm /etc/ 2>/dev/null || :'\n\
-          - bash -c 'rm -rf v2x_hsm 2>/dev/null || :'\n\
-          - lava-test-case v2x_fw_test --shell ./v2x_fw_test -t %s\n\
-          - bash -c 'cp -r /etc/v2x_hsm /mnt/opt 2>/dev/null || :'\n\
-          - sync \n\
-";
-
-void gen_lava_test(testsuite *ts, char *addr_ts){
+void gen_lava_test(testsuite *ts, char *ker_dl_link, char *ram_dl_link, char *mod_dl_link, char *dtb_dl_link, char *addr_ts, char *bootimg_dl_link){
 
     int i;
 
-    printf(lava_get_test_suite, addr_ts);
+    printf(lava_get_test_suite_dxl, ker_dl_link, ram_dl_link, mod_dl_link, dtb_dl_link, addr_ts);
+    if (bootimg_dl_link != NULL)
+        printf(lava_dl_flash_bootimg_dxl, bootimg_dl_link);
     for ( i = 0; ts[i].tc_ptr != NULL; i++){
-        printf(lava_test, ts[i].name, ts[i].name, ts[i].name, ts[i].name);
+        printf(lava_test_dxl, ts[i].name, ts[i].name, ts[i].name, ts[i].name);
     }
+}
+
+static void print_help(void) {
+
+    printf("Sentinel test suite linux\n\
+-h: print this help\n\
+-l: list all tests\n\
+-v: print test suite version\n\
+-b <bootimg download link>: to add in lava .yaml the bootimg link where lava can download the new bootimg to download\n\
+-g <test suite download link>: to generate the .yaml file for lava to run all tests, in param the link where lava can download this test suite\n");
 }
 
 void print_test_suite(testsuite *ts){
@@ -206,12 +36,11 @@ void print_test_suite(testsuite *ts){
     }
 }
 
-
 static void catch_failure(int signo) {
-     printf("FAIL\n");
-     printf("end of tests\n");
-     sleep(2);
-     exit(0);
+    printf("FAIL\n");
+    printf("end of tests\n");
+    sleep(2);
+    exit(0);
 }
 
 int main(int argc, char *argv[]){
@@ -220,11 +49,17 @@ int main(int argc, char *argv[]){
     int status = 0;
     testsuite *ts = dxl_ts;
     char *test_name = NULL;
+    char *ts_dl_link = NULL;
+    char *bootimg_dl_link = NULL;
+    char *ker_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/Image/Image";
+    char *ram_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/rootfs.cpio.gz/rootfs.cpio.gz";
+    char *mod_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/modules_lite.tar.bz2/modules_lite.tar.bz2";
+    char *dtb_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/dtb/imx8dxl-evk.dtb";
     int c;
         
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "lvg:t:")) != -1) {
+    while ((c = getopt (argc, argv, "hlvd:m:r:k:b:g:t:")) != -1) {
         switch (c)
         {
         case 't':
@@ -232,13 +67,31 @@ int main(int argc, char *argv[]){
             break;
         case 'v':
             printf("testsuite v1.0\n");
-            return 1;
+            return 0;
         case 'l':
             print_test_suite(ts);
-            return 1;
+            return 0;
         case 'g':
-            gen_lava_test(ts, optarg);
-            return 1;
+            ts_dl_link = optarg;
+            break;
+        case 'b':
+            bootimg_dl_link = optarg;
+            break;
+        case 'k':
+            ker_dl_link = optarg;
+            break;
+        case 'r':
+            ram_dl_link = optarg;
+            break;
+        case 'm':
+            mod_dl_link = optarg;
+            break;
+        case 'd':
+            dtb_dl_link = optarg;
+            break;
+        case 'h':
+            print_help();
+            return 0;
         case '?':
             if ((optopt == 't') || (optopt == 'g')){
                 fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -253,6 +106,11 @@ int main(int argc, char *argv[]){
         default:
             abort();
         }
+    }
+
+    if (ts_dl_link != NULL) {
+        gen_lava_test(ts, ker_dl_link, ram_dl_link, mod_dl_link, dtb_dl_link, ts_dl_link, bootimg_dl_link);
+	return 0;
     }
     printf("Test Suite 1.0\n");
     if (test_name == NULL){
@@ -278,5 +136,3 @@ int main(int argc, char *argv[]){
     printf("end of tests\n");
     return !status;
 }
-
-
