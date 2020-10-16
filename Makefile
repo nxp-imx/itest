@@ -5,10 +5,7 @@ HSM_INC= $(HSM_PATH)/include/hsm
 NVM_INC= $(HSM_PATH)/include
 
 IDIR = -I$(HSM_INC) -I$(NVM_INC) -Iinc
-PREFIX=
-CC= $(PREFIX)gcc
-AR= $(PREFIX)ar
-ARCH= x86_64
+
 CCFLAG := -l:libgomp.a -lpthread -ldl -lz -Wall
 LIBSTATIC := $(HSM_LIB)
 CCOBJFLAG := -c $(IDIR) -Wall -fopenmp
