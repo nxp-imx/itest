@@ -8,9 +8,9 @@ NVM_INC= $(HSM_PATH)/include
 
 IDIR = -I$(HSM_INC) -I$(NVM_INC) -Iinc
 
-CCFLAG := -lpthread -ldl -lz -Wall
+CCFLAG := -lpthread -ldl -lz -Wall -Wextra
 LIBSTATIC := $(HSM_LIB) lib/$(ARCH)/libgomp.a
-CCOBJFLAG := -c $(IDIR) -Wall -fopenmp
+CCOBJFLAG := -c $(IDIR) -Wall -Wextra -fopenmp
 
 # path macros
 BIN_PATH := bin/$(ARCH)
