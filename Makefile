@@ -1,4 +1,5 @@
 
+
 CURDIR := $(shell pwd)
 WORKSPACE := $(CURDIR)/..
 
@@ -13,10 +14,12 @@ LIBSTATIC := $(HSM_LIB) lib/$(ARCH)/libgomp.a
 CCOBJFLAG := -c $(IDIR) -Wall -Wextra -fopenmp
 
 # path macros
-BIN_PATH := $(CURDIR)/bin/$(ARCH)
-OBJ_PATH := $(CURDIR)/obj/$(ARCH)
+BINDIR := $(CURDIR)/bin
+OBJDIR := $(CURDIR)/obj
 SRC_PATH := $(CURDIR)/src
-# path tests ****
+BIN_PATH := $(BINDIR)/$(ARCH)
+OBJ_PATH := $(OBJDIR)/$(ARCH)
+# path tests
 SRC_TEST_PATH := $(CURDIR)/src/tests
 OBJ_TEST_PATH := $(CURDIR)/obj/$(ARCH)/tests
 
@@ -35,12 +38,9 @@ SRC_TEST := $(foreach x, $(SRC_TEST_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
 OBJ_TEST := $(addprefix $(OBJ_TEST_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC_TEST)))))
 
 # clean files list
-DISTCLEAN_LIST := $(OBJ) \
-                  $(OBJ_TEST) \
-                  $(OBJ_DEBUG)
-CLEAN_LIST := $(TARGET) \
-			  $(TARGET_DEBUG) \
-			  $(DISTCLEAN_LIST)
+CLEAN_LIST := $(TARGET)       \
+			  $(OBJ)          \
+			  $(OBJ_TEST)     \
 
 # create missing directory
 MKDIR_P := mkdir -p
@@ -50,10 +50,6 @@ OUT_DIR := ${BIN_PATH} ${OBJ_PATH} $(OBJ_TEST_PATH)
 ${OUT_DIR}:
 	${MKDIR_P} ${OUT_DIR}
 
-# default rule
-default: all
-
-.PHONY: directories
 directories: ${OUT_DIR}
 
 # non-phony targets
@@ -67,18 +63,12 @@ $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 $(OBJ_TEST_PATH)/%.o: $(SRC_TEST_PATH)/%.c*
 	$(CC) $(CCOBJFLAG) -o $@ $<
 
-# phony rules
-.PHONY: all
+default: all
+
 all: directories $(TARGET)
 
-.PHONY: clean
 clean:
-	@echo CLEAN $(CLEAN_LIST)
-	@rm -f $(CLEAN_LIST)
-	@rm -rf bin obj
+	@echo Cleaning this place...
+	@rm -rvf $(BINDIR) $(OBJDIR)
 
-.PHONY: distclean
-distclean:
-	@echo CLEAN $(CLEAN_LIST)
-	@rm -f $(DISTCLEAN_LIST)
-	@rm -rf bin obj
+.PHONY: all clean directories
