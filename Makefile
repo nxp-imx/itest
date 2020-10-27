@@ -1,24 +1,24 @@
 
-HSM_PATH= ../imx8dxla0/seco_libs
-HSM_LIB= $(HSM_PATH)/*.a
+CURDIR := $(shell pwd)
+WORKSPACE := $(CURDIR)/..
 
-LIBS= lib/$(ARCH)
-HSM_INC= $(HSM_PATH)/include/hsm
-NVM_INC= $(HSM_PATH)/include
-
-IDIR = -I$(HSM_INC) -I$(NVM_INC) -Iinc
+HSM_PATH ?= $(WORKSPACE)/seco_libs
+HSM_LIB := $(HSM_PATH)/*.a
+HSM_INC := $(HSM_PATH)/include/hsm
+NVM_INC := $(HSM_PATH)/include
+IDIR := -I$(HSM_INC) -I$(NVM_INC) -Iinc
 
 CCFLAG := -lpthread -ldl -lz -Wall -Wextra
 LIBSTATIC := $(HSM_LIB) lib/$(ARCH)/libgomp.a
 CCOBJFLAG := -c $(IDIR) -Wall -Wextra -fopenmp
 
 # path macros
-BIN_PATH := bin/$(ARCH)
-OBJ_PATH := obj/$(ARCH)
-SRC_PATH := src
+BIN_PATH := $(CURDIR)/bin/$(ARCH)
+OBJ_PATH := $(CURDIR)/obj/$(ARCH)
+SRC_PATH := $(CURDIR)/src
 # path tests ****
-SRC_TEST_PATH := src/tests
-OBJ_TEST_PATH := obj/$(ARCH)/tests
+SRC_TEST_PATH := $(CURDIR)/src/tests
+OBJ_TEST_PATH := $(CURDIR)/obj/$(ARCH)/tests
 
 # compile macros
 TARGET_NAME := v2x_fw_test
@@ -43,9 +43,9 @@ CLEAN_LIST := $(TARGET) \
 			  $(DISTCLEAN_LIST)
 
 # create missing directory
-MKDIR_P = mkdir -p
+MKDIR_P := mkdir -p
 
-OUT_DIR = ${BIN_PATH} ${OBJ_PATH} $(OBJ_TEST_PATH)
+OUT_DIR := ${BIN_PATH} ${OBJ_PATH} $(OBJ_TEST_PATH)
 
 ${OUT_DIR}:
 	${MKDIR_P} ${OUT_DIR}
