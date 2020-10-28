@@ -27,7 +27,7 @@ int v2x_cipher_ccm_perf(void){
     uint32_t msg_size = 384;
     uint32_t iter = 6000;
     uint32_t i;
-    struct timespec ts1, ts2;
+    timer_perf_t t_perf;
 
     clear_v2x_nvm();
 
@@ -92,12 +92,14 @@ int v2x_cipher_ccm_perf(void){
     cipher_args.output = buff_encr;
     cipher_args.input_size = msg_size;
     cipher_args.output_size = msg_size + 16;
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+
+    start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        timer_refresh(&t_perf);
     }
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-    print_perf(&ts1, &ts2, iter);
+    stop_timer(&t_perf, iter);
+    print_perf(&t_perf);
 
     printf("aes ccm key_aes_128 decrypt\n");
     // CIPHER ONE GO AES_128 CCM -> DECRYPT
@@ -110,12 +112,14 @@ int v2x_cipher_ccm_perf(void){
     cipher_args.output = buff_decr;
     cipher_args.input_size = msg_size + 16;
     cipher_args.output_size = msg_size;
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+
+    start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        timer_refresh(&t_perf);
     }
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-    print_perf(&ts1, &ts2, iter);
+    stop_timer(&t_perf, iter);
+    print_perf(&t_perf);
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
@@ -130,12 +134,14 @@ int v2x_cipher_ccm_perf(void){
     cipher_args.output = buff_encr;
     cipher_args.input_size = msg_size;
     cipher_args.output_size = msg_size + 16;
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+
+    start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        timer_refresh(&t_perf);
     }
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-    print_perf(&ts1, &ts2, iter);
+    stop_timer(&t_perf, iter);
+    print_perf(&t_perf);
 
     printf("aes ccm key_aes_192 decrypt\n");
     // CIPHER ONE GO AES_192 CCM -> DECRYPT
@@ -148,12 +154,14 @@ int v2x_cipher_ccm_perf(void){
     cipher_args.output = buff_decr;
     cipher_args.input_size = msg_size + 16;
     cipher_args.output_size = msg_size;
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+
+    start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        timer_refresh(&t_perf);
     }
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-    print_perf(&ts1, &ts2, iter);
+    stop_timer(&t_perf, iter);
+    print_perf(&t_perf);
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
@@ -168,12 +176,14 @@ int v2x_cipher_ccm_perf(void){
     cipher_args.output = buff_encr;
     cipher_args.input_size = msg_size;
     cipher_args.output_size = msg_size + 16;
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+
+    start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        timer_refresh(&t_perf);
     }
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-    print_perf(&ts1, &ts2, iter);
+    stop_timer(&t_perf, iter);
+    print_perf(&t_perf);
 
     printf("aes ccm key_aes_256 decrypt\n");
     // CIPHER ONE GO AES_256 CCM -> DECRYPT
@@ -186,12 +196,14 @@ int v2x_cipher_ccm_perf(void){
     cipher_args.output = buff_decr;
     cipher_args.input_size = msg_size + 16;
     cipher_args.output_size = msg_size;
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+
+    start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        timer_refresh(&t_perf);
     }
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-    print_perf(&ts1, &ts2, iter);
+    stop_timer(&t_perf, iter);
+    print_perf(&t_perf);
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
     
@@ -270,7 +282,7 @@ int v2x_sign_gen_verify_perf(void){
     uint8_t sign_out[1281024];
     uint32_t iter = 300;
     uint32_t i, j;
-    struct timespec ts1, ts2;
+    timer_perf_t t_perf;
 
     // REMOVE NVM
     clear_v2x_nvm();
@@ -326,7 +338,7 @@ int v2x_sign_gen_verify_perf(void){
         // GEN KEY + STORE IN NVM
         ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
-        (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+        start_timer(&t_perf);
         for (j = 0; j < iter; j++) {
             sig_gen_args.key_identifier = key_id;
             sig_gen_args.message = msg;
@@ -336,12 +348,13 @@ int v2x_sign_gen_verify_perf(void){
             sig_gen_args.scheme_id = algos_sign[i];
             sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
             ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sig_gen_args), HSM_NO_ERROR);
+            timer_refresh(&t_perf);
         }
-        (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+        stop_timer(&t_perf, iter);
         printf("sign gen input msg\n");
-        print_perf(&ts1, &ts2, iter);
-
-        (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+        print_perf(&t_perf);
+        
+        start_timer(&t_perf);
         for (j = 0; j < iter; j++) {
 
             sig_ver_args.key = pub_key;
@@ -353,13 +366,14 @@ int v2x_sign_gen_verify_perf(void){
             sig_ver_args.scheme_id = algos_sign[i];
             sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
             ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
+            timer_refresh(&t_perf);
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         }
-        (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+        stop_timer(&t_perf, iter);
         printf("sign verify input msg\n");
-        print_perf(&ts1, &ts2, iter);
+        print_perf(&t_perf);
 
-        (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+        start_timer(&t_perf);
         for (j = 0; j < iter; j++) {
             sig_gen_args.key_identifier = key_id;
             sig_gen_args.message = msg;
@@ -369,12 +383,13 @@ int v2x_sign_gen_verify_perf(void){
             sig_gen_args.scheme_id = algos_sign[i];
             sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST; 
             ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sig_gen_args), HSM_NO_ERROR);
+            timer_refresh(&t_perf);
         }
-        (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+        stop_timer(&t_perf, iter);
         printf("sign gen input dgst\n");
-        print_perf(&ts1, &ts2, iter);
+        print_perf(&t_perf);
 
-        (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+        start_timer(&t_perf);
         for (j = 0; j < iter; j++) {
 
             sig_ver_args.key = pub_key;
@@ -386,11 +401,12 @@ int v2x_sign_gen_verify_perf(void){
             sig_ver_args.scheme_id = algos_sign[i];
             sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_DIGEST;
             ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
+            timer_refresh(&t_perf);
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         }
-        (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+        stop_timer(&t_perf, iter);
         printf("sign verify input dgst\n");
-        print_perf(&ts1, &ts2, iter);
+        print_perf(&t_perf);
     }
     
     // CLOSE SRV/SESSION

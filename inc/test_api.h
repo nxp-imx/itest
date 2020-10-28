@@ -20,6 +20,18 @@
 #define ASSERT_EQUAL(x, y) if ( x != y) {printf("assert_equal Fail ==> ");printf(#x);printf(" != ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
 #define ASSERT_NOT_EQUAL(x, y) if ( x == y) {printf("assert_not_equal Fail ==> ");printf(#x);printf(" == ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
 
+typedef struct {
+    struct timespec ts1;
+    struct timespec ts2;
+    struct timespec ts_last;
+    uint64_t time_us;
+    uint64_t min_time_us;
+    uint64_t max_time_us;
+    uint32_t nb_iter;
+    uint32_t op_sec;
+    uint32_t t_per_op;
+} timer_perf_t;
+
 typedef struct{
     int (*tc_ptr)(void);
     char *name;
@@ -31,14 +43,21 @@ typedef struct{
     int nb_fails;
 } contex;
 
+/*==============NVM==============*/
 hsm_err_t start_nvm_seco(void);
 hsm_err_t start_nvm_v2x(void);
 hsm_err_t stop_nvm_v2x(void);
+uint32_t clear_v2x_nvm(void);
+/*===========TEST CTX============*/
 size_t save_test_ctx(void *ctx, size_t count, char *file);
 size_t load_test_ctx(void *ctx, size_t count, char *file);
 size_t randomize(void *out, size_t count);
-uint32_t print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter);
-uint32_t clear_v2x_nvm(void);
+/*==============PERF=============*/
+void start_timer(timer_perf_t *timer);
+void timer_refresh(timer_perf_t *timer);
+void stop_timer(timer_perf_t *timer, uint32_t nb_iter);
+uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
+void print_perf(timer_perf_t *timer);
 /*===============================*/
 
 /*==========Tests list===========*/

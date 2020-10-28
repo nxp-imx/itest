@@ -12,7 +12,7 @@ static pthread_t tid;
 
 static void *hsm_storage_thread(void *arg)
 {
-  seco_nvm_manager(*(uint8_t *)arg, &nvm_status);
+    seco_nvm_manager(*(uint8_t *)arg, &nvm_status);
     return (void *) NULL;
 }
 
@@ -90,21 +90,50 @@ size_t randomize(void *out, size_t count){
     return rout;
 }
 
-uint32_t print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter)
-{
-    uint64_t time_us;
-
-    time_us = (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000u + (ts2->tv_nsec - ts1->tv_nsec)/1000;
-    (void)printf("%ld microsec for %d iter.\n", time_us, nb_iter);
-    (void)printf("%d op/sec.\n", (uint32_t)((uint64_t)1000000*(uint64_t)nb_iter/time_us));
-    uint32_t time_operation_us = (uint32_t)(time_us/nb_iter);
-    (void)printf("%d microseconds/op.\n", time_operation_us);
-    return time_operation_us;
-}
-
 uint32_t clear_v2x_nvm(void) {
 
     system("rm -rf /etc/v2x_hsm");
     system("sync");
     return 0;
 }
+
+void start_timer(timer_perf_t *timer) {
+    timer->min_time_us = UINT64_MAX;
+    timer->max_time_us = 0U;
+    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts1);
+    timer->ts_last = timer->ts1;
+}
+
+// this function refresh the min and max elapse time
+void timer_refresh(timer_perf_t *timer) {
+    struct timespec ts_tmp;
+    uint64_t elapse_us;
+    
+    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts_tmp);
+    elapse_us = timespec_elapse_usec(&timer->ts_last, &ts_tmp);
+    if (elapse_us < timer->min_time_us)
+        timer->min_time_us = elapse_us;
+    if (elapse_us > timer->max_time_us)
+        timer->max_time_us = elapse_us;
+    timer->ts_last = ts_tmp;
+}
+
+void stop_timer(timer_perf_t *timer, uint32_t nb_iter) {
+    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts2);
+    timer->time_us = timespec_elapse_usec(&timer->ts1, &timer->ts2);
+    timer->op_sec = (uint32_t)((uint64_t)1000000*(uint64_t)nb_iter/timer->time_us);
+    timer->t_per_op = (uint32_t)(timer->time_us/nb_iter);
+    timer->nb_iter = nb_iter;
+}
+
+uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
+    return (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000u + (ts2->tv_nsec - ts1->tv_nsec)/1000;
+}
+
+void print_perf(timer_perf_t *timer) {
+    (void)printf("%lu microsec for %d iter.\n", timer->time_us, timer->nb_iter);
+    (void)printf("%u op/sec.\n", timer->op_sec);
+    (void)printf("%u microseconds/op.\n", timer->t_per_op);
+    (void)printf("Latency -> min=%luus max=%luus\n", timer->min_time_us, timer->max_time_us);
+}
+
