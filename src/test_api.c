@@ -57,7 +57,7 @@ size_t save_test_ctx(void *ctx, size_t count, char *file){
         printf("Fail to save test ctx\n");
         return 0;
     }
-    wout = fwrite(ctx, count, 1, fout); 
+    wout = fwrite(ctx, count, 1, fout);
     fclose (fout);
     return wout;
 }
@@ -71,7 +71,7 @@ size_t load_test_ctx(void *ctx, size_t count, char *file){
         printf("Fail to load test ctx\n");
         return 0;
     }
-    rout = fread(ctx, count, 1, fout); 
+    rout = fread(ctx, count, 1, fout);
     fclose (fout);
     return rout;
 }
@@ -85,7 +85,7 @@ size_t randomize(void *out, size_t count){
         printf("Fail to open /dev/urandom\n");
         return 0;
     }
-    rout = fread(out, 1, count, fout); 
+    rout = fread(out, 1, count, fout);
     fclose (fout);
     return rout;
 }

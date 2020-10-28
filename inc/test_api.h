@@ -17,8 +17,28 @@
 #define FALSE_TEST 0
 #define ASSERT_TRUE(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
 #define ASSERT_FALSE(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
-#define ASSERT_EQUAL(x, y) if ( x != y) {printf("assert_equal Fail ==> ");printf(#x);printf(" != ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
-#define ASSERT_NOT_EQUAL(x, y) if ( x == y) {printf("assert_not_equal Fail ==> ");printf(#x);printf(" == ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
+#define ASSERT_EQUAL(x, y) \
+    if ( (x) != (y)) { \
+        printf("assert_equal Fail ==> "); \
+        printf("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
+        printf(" @%s line:%d\n",__FILE__,__LINE__); \
+        while(1) raise(SIGINT); \
+    }
+#define ASSERT_NOT_EQUAL(x, y) \
+    if ( (x) == (y)) { \
+        printf("assert_not_equal Fail ==> "); \
+        printf("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
+        printf(" @%s line:%d\n",__FILE__,__LINE__); \
+        while(1) raise(SIGINT); \
+    }
+
+/** Calculate difference in ns between two timespec structs */
+#define CALCULATE_TIME_DIFF_NS(start, end, diff)        \
+do {                                                    \
+	diff = (end.tv_sec - start.tv_sec) * 1000000000u;   \
+	diff += end.tv_nsec;                                \
+	diff -= start.tv_nsec;                              \
+} while (0)
 
 typedef struct {
     struct timespec ts1; // for total iterations
@@ -79,6 +99,8 @@ int v2x_butterfly_key_exp_001(void);
 int v2x_parallel_sign_gen_ver_001(void);
 int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
+int v2x_perf_sig_ver_nistp256(void);
+int v2x_perf_sig_ver_nistp384(void);
 /*===============================*/
 
 #endif
