@@ -10,17 +10,17 @@ static pthread_t tid;
 #define TIMEOUT_START_NVM 10000
 #define T_NVM_WAIT 1000
 
-static void *v2x_hsm_storage_thread(void *arg)
+static void *hsm_storage_thread(void *arg)
 {
-    seco_nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM, &nvm_status);
+  seco_nvm_manager(*(uint8_t *)arg, &nvm_status);
     return (void *) NULL;
 }
 
-hsm_err_t start_nvm_v2x(void){
+static hsm_err_t start_nvm(uint8_t arg){
 
     int i = 0;
     nvm_status = NVM_STATUS_UNDEF;
-    (void)pthread_create(&tid, NULL, v2x_hsm_storage_thread, NULL);
+    (void)pthread_create(&tid, NULL, hsm_storage_thread, &arg);
     while (nvm_status <= NVM_STATUS_STARTING) {
         usleep(T_NVM_WAIT);
         if ((i += T_NVM_WAIT) > TIMEOUT_START_NVM){
@@ -29,6 +29,14 @@ hsm_err_t start_nvm_v2x(void){
         }
     }
     return nvm_status;
+}
+
+hsm_err_t start_nvm_v2x(void){
+    return start_nvm(NVM_FLAGS_V2X | NVM_FLAGS_HSM);
+}
+
+hsm_err_t start_nvm_seco(void){
+    return start_nvm(NVM_FLAGS_HSM);
 }
 
 hsm_err_t stop_nvm_v2x(void){

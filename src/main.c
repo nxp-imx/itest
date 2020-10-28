@@ -38,7 +38,7 @@ void print_test_suite(testsuite *ts){
 
 static void catch_failure(int signo) {
     printf("FAIL\n");
-    printf("end of tests\n");
+    printf("end of tests by signal %d\n", signo);
     sleep(2);
     exit(0);
 }

@@ -22,7 +22,7 @@ testsuite dxl_ts[] = {
     {v2x_parallel_sign_gen_ver_001,  "v2x_parallel_sign_gen_ver_001",  DXL},
     {v2x_cipher_ccm_perf,            "v2x_cipher_ccm_perf",            DXL},
     {v2x_sign_gen_verify_perf,       "v2x_sign_gen_verify_perf",       DXL},
-    {NULL, NULL},
+    {NULL, NULL, DXL},
 };
 
 const char *lava_get_test_suite_dxl =\

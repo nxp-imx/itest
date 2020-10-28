@@ -31,6 +31,7 @@ typedef struct{
     int nb_fails;
 } contex;
 
+hsm_err_t start_nvm_seco(void);
 hsm_err_t start_nvm_v2x(void);
 hsm_err_t stop_nvm_v2x(void);
 size_t save_test_ctx(void *ctx, size_t count, char *file);
