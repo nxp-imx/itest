@@ -1,8 +1,11 @@
 
+.PHONY: default
+default: all
 
 CURDIR := $(shell pwd)
 WORKSPACE := $(CURDIR)/..
 
+ARCH ?= arm64
 HSM_PATH ?= $(WORKSPACE)/seco_libs
 HSM_LIB := $(HSM_PATH)/*.a
 HSM_INC := $(HSM_PATH)/include/hsm
@@ -48,9 +51,7 @@ MKDIR_P := mkdir -p
 OUT_DIR := ${BIN_PATH} ${OBJ_PATH} $(OBJ_TEST_PATH)
 
 ${OUT_DIR}:
-	${MKDIR_P} ${OUT_DIR}
-
-directories: ${OUT_DIR}
+	@${MKDIR_P} ${OUT_DIR}
 
 # non-phony targets
 $(TARGET): $(OBJ) $(OBJ_TEST)
@@ -63,12 +64,18 @@ $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 $(OBJ_TEST_PATH)/%.o: $(SRC_TEST_PATH)/%.c*
 	$(CC) $(CCOBJFLAG) -o $@ $<
 
-default: all
+.PHONY: all clean directories check-env
 
-all: directories $(TARGET)
+check-env:
+ifeq ($(origin CC), default)
+	$(warning [WARNING] CC not set)
+endif
+
+all: check-env directories $(TARGET)
+
+directories: ${OUT_DIR}
 
 clean:
 	@echo Cleaning this place...
 	@rm -rvf $(BINDIR) $(OBJDIR)
 
-.PHONY: all clean directories
