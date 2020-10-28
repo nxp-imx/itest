@@ -4,11 +4,9 @@ This is a small tools to test v2x api bridge on the seco_libs layer
 
 ## Build
 
-make all
+$ make clean
 
-make clean
-
-make PREFIX=<TOOLCHAIN_PREFIX_PATH> ARCH=aarch64 HSM_PATH=<PATH_SECO_LIBS>
+$ make CC=<PATH_TO_TOOLCHAIN> ARCH=arm64 HSM_PATH=<PATH_SECO_LIBS>
 
 ## Help
 
