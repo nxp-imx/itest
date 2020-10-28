@@ -32,7 +32,7 @@ tags:\n\
 - lifecycle-nxp-open\n\
 - daas_mougins\n\
 - stec\n\
-job_name: IMX8_DXL - v2x_fw_test\n\
+job_name: IMX8_DXL - itest\n\
 metadata:\n\
   submitter: bamboo\n\
 timeouts:\n\
@@ -86,11 +86,11 @@ actions:\n\
       skip: true\n\
     definitions:\n\
     - from: inline\n\
-      name: Get_v2x_fw_test\n\
+      name: Get_itest\n\
       path: inline/run_tests.yaml\n\
       repository:\n\
         metadata:\n\
-          name: Get_v2x_fw_test\n\
+          name: Get_itest\n\
           description: Download and flash test suite\n\
           format: Lava-Test Test Definition 1.0\n\
         run:\n\
@@ -103,8 +103,8 @@ actions:\n\
           - bash -c 'rm -rf v2x_test'\n\
           - mkdir v2x_test\n\
           - cd v2x_test\n\
-          - lava-test-case get_test_suite --shell wget -t 2 --timeout=30 --no-check-certificate -q -O v2x_fw_test %s\n\
-          - chmod +x v2x_fw_test\n\
+          - lava-test-case get_test_suite --shell wget -t 2 --timeout=30 --no-check-certificate -q -O itest %s\n\
+          - chmod +x itest\n\
           - sync\n\
 \n\
 ";
@@ -147,7 +147,7 @@ const char *lava_test_dxl =\
           - cd /mnt/opt/v2x_test\n\
           - bash -c 'cp -r v2x_hsm /etc/ 2>/dev/null || :'\n\
           - bash -c 'rm -rf v2x_hsm 2>/dev/null || :'\n\
-          - lava-test-case v2x_fw_test --shell ./v2x_fw_test -t %s\n\
+          - lava-test-case itest --shell ./itest -t %s\n\
           - bash -c 'cp -r /etc/v2x_hsm /mnt/opt 2>/dev/null || :'\n\
           - sync \n\
 ";

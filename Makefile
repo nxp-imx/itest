@@ -27,7 +27,7 @@ SRC_TEST_PATH := $(CURDIR)/src/tests
 OBJ_TEST_PATH := $(CURDIR)/obj/$(ARCH)/tests
 
 # compile macros
-TARGET_NAME := v2x_fw_test
+TARGET_NAME := itest
 
 TARGET := $(BIN_PATH)/$(TARGET_NAME)
 MAIN_SRC := main.c
