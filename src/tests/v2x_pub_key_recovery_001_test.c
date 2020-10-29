@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 // requirement: able to recover the PUB key of all supported curves 
 
 #define NB_ALGO 8

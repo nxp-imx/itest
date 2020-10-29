@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
-#include "test_api.h"
+#include "itest.h"
 
 static uint32_t nvm_status;
 static pthread_t tid;

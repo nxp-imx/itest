@@ -1,6 +1,6 @@
 #ifndef DXL_CONF_H
 #define DXL_CONF_H
-#include "test_api.h"
+#include "itest.h"
 
 extern const char *lava_test_dxl;
 extern const char *lava_get_test_suite_dxl;

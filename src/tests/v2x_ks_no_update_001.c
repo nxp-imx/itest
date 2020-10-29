@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 // requirement: if max update = 0 the stored ks can't be updated
 
 typedef struct {

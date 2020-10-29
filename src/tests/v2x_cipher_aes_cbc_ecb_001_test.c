@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 // requirement: enc/decr with all aes algos
 
 int v2x_cipher_aes_ecb_cbc_001(void){

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
-#include "test_api.h"
+#include "itest.h"
 #include "8dxl_conf.h"
 
 void gen_lava_test(testsuite *ts, char *ker_dl_link, char *ram_dl_link, char *mod_dl_link, char *dtb_dl_link, char *addr_ts, char *bootimg_dl_link){

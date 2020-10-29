@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 // requirement: should be able to update a key with the same key type
 
 typedef struct {

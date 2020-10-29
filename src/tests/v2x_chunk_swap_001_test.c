@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 // requirement: one key group should be able to store 100 key
 
 static uint8_t SM2_IDENTIFIER[16] = {

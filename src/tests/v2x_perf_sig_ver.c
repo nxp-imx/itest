@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 #include "test_vectors/tv_verify_nistp256.h"
 #include "test_vectors/tv_verify_nistp384.h"
 
@@ -33,7 +33,7 @@ typedef struct {
 } v2x_perf_sig_ver_t;
 
 
-//TODO To be moved in test_api.h
+//TODO To be moved in itest.h
 /* Key sizes */
 #define KEY_ECDSA_SM2_SIZE              (0x40u)
 #define KEY_ECDSA_NIST_P256_SIZE        (0x40u)

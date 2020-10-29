@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 // requirement: rng srv can be open on all Mu
 
 int v2x_rng_srv_001(void){

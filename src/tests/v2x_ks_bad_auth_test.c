@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 // requirement: key store open should fail in case of bad auth_nonce val
 
 typedef struct {

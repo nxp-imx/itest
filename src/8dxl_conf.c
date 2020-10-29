@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "test_api.h"
+#include "itest.h"
 
 testsuite dxl_ts[] = {
     {v2x_chunk_swap_001,             "v2x_chunk_swap_001",             DXL},

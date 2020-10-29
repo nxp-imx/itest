@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
-#include "test_api.h"
+#include "itest.h"
 
 #define NB_ALGO 7
 static hsm_key_type_t algos[NB_ALGO] = {

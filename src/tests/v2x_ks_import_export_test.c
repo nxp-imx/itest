@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_api.h"
+#include "itest.h"
 // requirement: Reuse the sm4 key from ks for encryption and decryption using the same ks imported from NVM
 
 typedef struct {
