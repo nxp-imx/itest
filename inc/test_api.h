@@ -21,9 +21,9 @@
 #define ASSERT_NOT_EQUAL(x, y) if ( x == y) {printf("assert_not_equal Fail ==> ");printf(#x);printf(" == ");printf(#y);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
 
 typedef struct {
-    struct timespec ts1;
-    struct timespec ts2;
-    struct timespec ts_last;
+    struct timespec ts1; // for total iterations
+    struct timespec ts2; // for total iterations
+    struct timespec ts_last; // for latency
     uint64_t time_us;
     uint64_t min_time_us;
     uint64_t max_time_us;
@@ -54,7 +54,8 @@ size_t load_test_ctx(void *ctx, size_t count, char *file);
 size_t randomize(void *out, size_t count);
 /*==============PERF=============*/
 void start_timer(timer_perf_t *timer);
-void timer_refresh(timer_perf_t *timer);
+void timer_latency_start(timer_perf_t *timer);
+void timer_latency_stop(timer_perf_t *timer);
 void stop_timer(timer_perf_t *timer, uint32_t nb_iter);
 uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
 void print_perf(timer_perf_t *timer);

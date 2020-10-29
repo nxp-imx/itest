@@ -95,8 +95,9 @@ int v2x_cipher_ccm_perf(void){
 
     start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
+        timer_latency_start(&t_perf);
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        timer_refresh(&t_perf);
+        timer_latency_stop(&t_perf);
     }
     stop_timer(&t_perf, iter);
     print_perf(&t_perf);
@@ -115,8 +116,9 @@ int v2x_cipher_ccm_perf(void){
 
     start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
+        timer_latency_start(&t_perf);
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        timer_refresh(&t_perf);
+        timer_latency_stop(&t_perf);
     }
     stop_timer(&t_perf, iter);
     print_perf(&t_perf);
@@ -137,8 +139,9 @@ int v2x_cipher_ccm_perf(void){
 
     start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
+        timer_latency_start(&t_perf);
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        timer_refresh(&t_perf);
+        timer_latency_stop(&t_perf);
     }
     stop_timer(&t_perf, iter);
     print_perf(&t_perf);
@@ -157,8 +160,9 @@ int v2x_cipher_ccm_perf(void){
 
     start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
+        timer_latency_start(&t_perf);
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        timer_refresh(&t_perf);
+        timer_latency_stop(&t_perf);
     }
     stop_timer(&t_perf, iter);
     print_perf(&t_perf);
@@ -179,8 +183,9 @@ int v2x_cipher_ccm_perf(void){
 
     start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
+        timer_latency_start(&t_perf);
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        timer_refresh(&t_perf);
+        timer_latency_stop(&t_perf);
     }
     stop_timer(&t_perf, iter);
     print_perf(&t_perf);
@@ -199,8 +204,9 @@ int v2x_cipher_ccm_perf(void){
 
     start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
+        timer_latency_start(&t_perf);
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        timer_refresh(&t_perf);
+        timer_latency_stop(&t_perf);
     }
     stop_timer(&t_perf, iter);
     print_perf(&t_perf);
@@ -346,9 +352,10 @@ int v2x_sign_gen_verify_perf(void){
             sig_gen_args.message_size = 300;
             sig_gen_args.signature_size = size_pub_key[i]+1;
             sig_gen_args.scheme_id = algos_sign[i];
-            sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
+            sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE;
+            timer_latency_start(&t_perf);
             ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sig_gen_args), HSM_NO_ERROR);
-            timer_refresh(&t_perf);
+            timer_latency_stop(&t_perf);
         }
         stop_timer(&t_perf, iter);
         printf("sign gen input msg\n");
@@ -365,8 +372,9 @@ int v2x_sign_gen_verify_perf(void){
             sig_ver_args.message_size = 300;
             sig_ver_args.scheme_id = algos_sign[i];
             sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
+            timer_latency_start(&t_perf);
             ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
-            timer_refresh(&t_perf);
+            timer_latency_stop(&t_perf);
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         }
         stop_timer(&t_perf, iter);
@@ -381,9 +389,10 @@ int v2x_sign_gen_verify_perf(void){
             sig_gen_args.message_size = size_pub_key[i]/2;
             sig_gen_args.signature_size = size_pub_key[i]+1;
             sig_gen_args.scheme_id = algos_sign[i];
-            sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST; 
+            sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST;
+            timer_latency_start(&t_perf);
             ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sig_gen_args), HSM_NO_ERROR);
-            timer_refresh(&t_perf);
+            timer_latency_stop(&t_perf);
         }
         stop_timer(&t_perf, iter);
         printf("sign gen input dgst\n");
@@ -400,8 +409,9 @@ int v2x_sign_gen_verify_perf(void){
             sig_ver_args.message_size = size_pub_key[i]/2;
             sig_ver_args.scheme_id = algos_sign[i];
             sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_DIGEST;
+            timer_latency_start(&t_perf);
             ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
-            timer_refresh(&t_perf);
+            timer_latency_stop(&t_perf);
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         }
         stop_timer(&t_perf, iter);

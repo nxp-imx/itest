@@ -101,11 +101,14 @@ void start_timer(timer_perf_t *timer) {
     timer->min_time_us = UINT64_MAX;
     timer->max_time_us = 0U;
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts1);
-    timer->ts_last = timer->ts1;
 }
 
-// this function refresh the min and max elapse time
-void timer_refresh(timer_perf_t *timer) {
+void timer_latency_start(timer_perf_t *timer) {
+    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts_last);
+}
+
+// this function refresh the min and max latency time
+void timer_latency_stop(timer_perf_t *timer) {
     struct timespec ts_tmp;
     uint64_t elapse_us;
     
@@ -115,7 +118,6 @@ void timer_refresh(timer_perf_t *timer) {
         timer->min_time_us = elapse_us;
     if (elapse_us > timer->max_time_us)
         timer->max_time_us = elapse_us;
-    timer->ts_last = ts_tmp;
 }
 
 void stop_timer(timer_perf_t *timer, uint32_t nb_iter) {
@@ -131,9 +133,8 @@ uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
 }
 
 void print_perf(timer_perf_t *timer) {
-    (void)printf("%lu microsec for %d iter.\n", timer->time_us, timer->nb_iter);
-    (void)printf("%u op/sec.\n", timer->op_sec);
-    (void)printf("%u microseconds/op.\n", timer->t_per_op);
-    (void)printf("Latency -> min=%luus max=%luus\n", timer->min_time_us, timer->max_time_us);
+    printf("%lu microsec for %d iter.\n", timer->time_us, timer->nb_iter);
+    printf("%u op/sec.\n", timer->op_sec);
+    printf("%u microseconds/op.\n", timer->t_per_op);
+    printf("Latency -> min=%luus max=%luus\n", timer->min_time_us, timer->max_time_us);
 }
-
