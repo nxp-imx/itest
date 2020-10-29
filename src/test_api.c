@@ -97,32 +97,32 @@ uint32_t clear_v2x_nvm(void) {
     return 0;
 }
 
-void start_timer(timer_perf_t *timer) {
+void init_timer(timer_perf_t *timer) {
     timer->min_time_us = UINT64_MAX;
     timer->max_time_us = 0U;
+    timer->time_us = 0U;
+    timer->op_sec = 0U;
+    timer->t_per_op = 0U;
+    timer->nb_iter = 0U;
+}
+
+void start_timer(timer_perf_t *timer) {
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts1);
 }
 
-void timer_latency_start(timer_perf_t *timer) {
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts_last);
-}
+void stop_timer(timer_perf_t *timer) {
+    uint64_t latency_us;
 
-// this function refresh the min and max latency time
-void timer_latency_stop(timer_perf_t *timer) {
-    struct timespec ts_tmp;
-    uint64_t elapse_us;
-    
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts_tmp);
-    elapse_us = timespec_elapse_usec(&timer->ts_last, &ts_tmp);
-    if (elapse_us < timer->min_time_us)
-        timer->min_time_us = elapse_us;
-    if (elapse_us > timer->max_time_us)
-        timer->max_time_us = elapse_us;
-}
-
-void stop_timer(timer_perf_t *timer, uint32_t nb_iter) {
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts2);
-    timer->time_us = timespec_elapse_usec(&timer->ts1, &timer->ts2);
+    latency_us = timespec_elapse_usec(&timer->ts1, &timer->ts2);
+    timer->time_us += latency_us;
+    if (latency_us < timer->min_time_us)
+        timer->min_time_us = latency_us;
+    if (latency_us > timer->max_time_us)
+        timer->max_time_us = latency_us;
+}
+
+void finalize_timer(timer_perf_t *timer, uint32_t nb_iter) {
     timer->op_sec = (uint32_t)((uint64_t)1000000*(uint64_t)nb_iter/timer->time_us);
     timer->t_per_op = (uint32_t)(timer->time_us/nb_iter);
     timer->nb_iter = nb_iter;
@@ -132,9 +132,7 @@ uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
     return (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000u + (ts2->tv_nsec - ts1->tv_nsec)/1000;
 }
 
-void print_perf(timer_perf_t *timer) {
-    printf("%lu microsec for %d iter.\n", timer->time_us, timer->nb_iter);
-    printf("%u op/sec.\n", timer->op_sec);
-    printf("%u microseconds/op.\n", timer->t_per_op);
-    printf("Latency -> min=%luus max=%luus\n", timer->min_time_us, timer->max_time_us);
+void print_perf(timer_perf_t *timer, uint32_t nb_iter) {
+    finalize_timer(timer, nb_iter);
+    printf("nb op/sec=%u time_us/op=%u min_latency=%lu max_latency=%lu total_time=%lu us nb_iter=%d\n", timer->op_sec ,timer->t_per_op ,timer->min_time_us, timer->max_time_us, timer->time_us, timer->nb_iter);
 }
