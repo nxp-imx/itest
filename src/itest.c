@@ -114,8 +114,11 @@ void stop_timer(timer_perf_t *timer) {
     uint64_t latency_us;
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts2);
+    /* Compute the latency of a single operation */
     latency_us = timespec_elapse_usec(&timer->ts1, &timer->ts2);
+    /* Add the latency to the total */
     timer->time_us += latency_us;
+    /* Update min/max latency if lower/greater */
     if (latency_us < timer->min_time_us)
         timer->min_time_us = latency_us;
     if (latency_us > timer->max_time_us)
@@ -134,5 +137,10 @@ uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
 
 void print_perf(timer_perf_t *timer, uint32_t nb_iter) {
     finalize_timer(timer, nb_iter);
-    printf("nb op/sec=%u time_us/op=%u min_latency=%lu max_latency=%lu total_time=%lu us nb_iter=%d\n", timer->op_sec ,timer->t_per_op ,timer->min_time_us, timer->max_time_us, timer->time_us, timer->nb_iter);
+    printf("=== Perf ===\n");
+    printf("Op/s = %u, Max latency = %lu us\n",
+        timer->op_sec, timer->max_time_us);
+    printf("Average time single op = %u us, Min latency = %lu us, Total time = %lu us, Num of op = %d\n",
+        timer->t_per_op, timer->min_time_us, timer->time_us, timer->nb_iter);
+    printf("============\n)");
 }

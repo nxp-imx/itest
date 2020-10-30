@@ -1,51 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
+#include "v2x_perf.h"
 #include "test_vectors/tv_verify_nistp256.h"
 #include "test_vectors/tv_verify_nistp384.h"
 
 /* Number of iterations */
 #define NUM_OPERATIONS  (5000u)
-
-//TODO To be moved in v2x_perf.h
-
-/* KPI THREADSHOLDS */
-/* Op/sec */
-#define V2X_KPI_OP_SEC_SIG_VER_SM2          (2500u)
-#define V2X_KPI_OP_SEC_SIG_VER_P256         (2500u)
-#define V2X_KPI_OP_SEC_SIG_VER_P384         (1100u)
-/* Latency in us */
-#define V2X_KPI_LATENCY_US_SIG_VER_SM2      (5000u)
-#define V2X_KPI_LATENCY_US_SIG_VER_P256     (5000u)
-#define V2X_KPI_LATENCY_US_SIG_VER_P384     (5000u)
-
-/* Test data for signature verification perf test */
-typedef struct {
-    uint32_t kpi_latency;
-    uint32_t kpi_ops_per_sec;
-    uint32_t scheme_type;
-    uint32_t key_size;
-    uint32_t sig_size;
-    uint32_t dgst_size;
-    /* Pointer to the test vector */
-    test_data_verify_t *tv;
-    uint32_t tv_size;
-} v2x_perf_sig_ver_t;
-
-
-//TODO To be moved in itest.h
-/* Key sizes */
-#define KEY_ECDSA_SM2_SIZE              (0x40u)
-#define KEY_ECDSA_NIST_P256_SIZE        (0x40u)
-#define KEY_ECDSA_NIST_P384_SIZE        (0x60u)
-/* Signature sizes */
-#define SIGNATURE_ECDSA_SM2_SIZE        (0x40u)
-#define SIGNATURE_ECDSA_NIST_P256_SIZE  (0x40u)
-#define SIGNATURE_ECDSA_NIST_P384_SIZE  (0x60u)
-/* Digest sizes */
-#define DGST_SM3_SIZE        (0x20u)
-#define DGST_NIST_P256_SIZE  (0x20u)
-#define DGST_NIST_P384_SIZE  (0x30u)
 
 int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
 {
@@ -56,10 +17,7 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     hsm_verification_status_t status;
     uint32_t iter = NUM_OPERATIONS;
     uint32_t idx, idx_test = 0;
-    uint32_t operations;
-    struct timespec ts1, ts2;
-    uint64_t total_time = 0;
-    uint64_t max_latency = 0, temp_latency = 0;
+    timer_perf_t t_perf;
 
     /* Open session on SV0*/
     args.session_priority = HSM_OPEN_SESSION_PRIORITY_HIGH;
@@ -74,6 +32,7 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
 
     printf("\n=== Input: Message ===\n");
     memset(&sig_ver_args, 0, sizeof(sig_ver_args));
+    memset(&t_perf, 0, sizeof(t_perf));
 
     for (idx = 0; idx < iter; idx++) {
         /* Fill struct data */
@@ -86,18 +45,13 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
         sig_ver_args.scheme_id = td->scheme_type;
         sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
         /* Start the timer */
-        clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+        start_timer(&t_perf);
+        /* Call sig ver API */
         ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
-        /* End the timer */
-        clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-        /* Compute the latency of a single operation */
-        CALCULATE_TIME_DIFF_NS(ts1, ts2, temp_latency);
-        /* Update max latency if greater */
-        if (temp_latency > max_latency)
-            max_latency = temp_latency;
+        /* Stop the timer */
+        stop_timer(&t_perf);
+        /* Check verification result */
         ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
-        /* Add the latency to the total */
-        total_time += temp_latency;
         /* Restart if end of test vector is achieved */
         if (idx_test == (td->tv_size-1))
             idx_test = 0;
@@ -105,18 +59,15 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
             idx_test++;
     }
 
-    printf("MAX LATENCY = %ld us\n", max_latency/1000);
-    ASSERT_EQUAL((max_latency/1000) > (td->kpi_latency), 0);
-    operations = (uint32_t)((uint64_t)1000000000*((uint64_t)iter)/total_time);
-    printf("SIG VER = %d op/sec\n", operations);
-    ASSERT_EQUAL((operations) < (td->kpi_ops_per_sec), 0);
+    print_perf(&t_perf, iter);
+    ASSERT_EQUAL((t_perf.max_time_us > td->kpi_latency), 0);
+    ASSERT_EQUAL((t_perf.op_sec < td->kpi_ops_per_sec), 0);
 
     //TODO Check if we need to compute kpi with message digest
     printf("\n=== Input: Digest ===\n");
     memset(&sig_ver_args, 0, sizeof(sig_ver_args));
+    memset(&t_perf, 0, sizeof(t_perf));
     idx_test = 0;
-    max_latency = 0;
-    total_time = 0;
 
     for (idx = 0; idx < iter; idx++) {
         /* Fill struct data */
@@ -129,29 +80,20 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
         sig_ver_args.scheme_id = td->scheme_type;
         sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_DIGEST;
         /* Start the timer */
-        clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+        start_timer(&t_perf);
         ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
-        /* End the timer */
-        clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-        /* Compute the latency of a single operation */
-        CALCULATE_TIME_DIFF_NS(ts1, ts2, temp_latency);
-        /* Update max latency if greater */
-        if (temp_latency > max_latency)
-            max_latency = temp_latency;
+        /* Stop the timer */
+        stop_timer(&t_perf);
         ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
-        /* Add the latency to the total */
-        total_time += temp_latency;
         /* Restart if end of test vector is achieved */
         if (idx_test == (td->tv_size-1))
             idx_test = 0;
         else
             idx_test++;
     }
-    printf("MAX LATENCY = %ld us\n", max_latency/1000);
-    ASSERT_EQUAL((max_latency/1000) > (td->kpi_latency), 0);
-    operations = (uint32_t)((uint64_t)1000000000*((uint64_t)iter)/total_time);
-    printf("SIG VER = %d op/sec\n", operations);
-    ASSERT_EQUAL((operations) < (td->kpi_ops_per_sec), 0);
+    print_perf(&t_perf, iter);
+    ASSERT_EQUAL((t_perf.max_time_us > td->kpi_latency), 0);
+    ASSERT_EQUAL((t_perf.op_sec < td->kpi_ops_per_sec), 0);
 
     /* Close service and session */
     ASSERT_EQUAL(hsm_close_signature_verification_service(sv0_sig_ver_serv),

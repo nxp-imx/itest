@@ -1,5 +1,6 @@
 #ifndef TEST_API_H
 #define TEST_API_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,13 +33,18 @@
         while(1) raise(SIGINT); \
     }
 
-/** Calculate difference in ns between two timespec structs */
-#define CALCULATE_TIME_DIFF_NS(start, end, diff)        \
-do {                                                    \
-	diff = (end.tv_sec - start.tv_sec) * 1000000000u;   \
-	diff += end.tv_nsec;                                \
-	diff -= start.tv_nsec;                              \
-} while (0)
+/* Key sizes */
+#define KEY_ECDSA_SM2_SIZE              (0x40u)
+#define KEY_ECDSA_NIST_P256_SIZE        (0x40u)
+#define KEY_ECDSA_NIST_P384_SIZE        (0x60u)
+/* Signature sizes */
+#define SIGNATURE_ECDSA_SM2_SIZE        (0x40u)
+#define SIGNATURE_ECDSA_NIST_P256_SIZE  (0x40u)
+#define SIGNATURE_ECDSA_NIST_P384_SIZE  (0x60u)
+/* Digest sizes */
+#define DGST_SM3_SIZE        (0x20u)
+#define DGST_NIST_P256_SIZE  (0x20u)
+#define DGST_NIST_P384_SIZE  (0x30u)
 
 typedef struct {
     struct timespec ts1; // for total iterations

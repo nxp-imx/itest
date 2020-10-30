@@ -1,0 +1,30 @@
+#ifndef __V2X_PERF_H__
+#define __V2X_PERF_H__
+
+#include <stdint.h>
+#include "test_vectors/common.h"
+
+/* KPI THREADSHOLDS */
+/* Op/sec */
+#define V2X_KPI_OP_SEC_SIG_VER_SM2          (2500u)
+#define V2X_KPI_OP_SEC_SIG_VER_P256         (2500u)
+#define V2X_KPI_OP_SEC_SIG_VER_P384         (1100u)
+/* Latency in us */
+#define V2X_KPI_LATENCY_US_SIG_VER_SM2      (5000u)
+#define V2X_KPI_LATENCY_US_SIG_VER_P256     (5000u)
+#define V2X_KPI_LATENCY_US_SIG_VER_P384     (5000u)
+
+/* Test data for signature verification perf test */
+typedef struct {
+    uint32_t kpi_latency;
+    uint32_t kpi_ops_per_sec;
+    uint32_t scheme_type;
+    uint32_t key_size;
+    uint32_t sig_size;
+    uint32_t dgst_size;
+    /* Pointer to the test vector */
+    test_data_verify_t *tv;
+    uint32_t tv_size;
+} v2x_perf_sig_ver_t;
+
+#endif /* __V2X_PERF_H__*/

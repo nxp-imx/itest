@@ -2,10 +2,10 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#include <stdio.h>
 #include <stdint.h>
 
-#define MAX_KEY_SIZE                                                    (66)
+/* Max size is 48 byte for P384 */
+#define MAX_KEY_SIZE    (48)
 
 typedef struct {
     int curve;
@@ -15,13 +15,5 @@ typedef struct {
     uint8_t public_key[MAX_KEY_SIZE*2];
     uint8_t signature[MAX_KEY_SIZE*2];
 } test_data_verify_t;
-
-static inline double get_current_time(void) {
-    struct timespec now;
-
-    clock_gettime(CLOCK_REALTIME, &now);
-
-    return now.tv_sec + now.tv_nsec * 1E-9;
-}
 
 #endif /* __COMMON_H__ */
