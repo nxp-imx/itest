@@ -60,8 +60,8 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     }
 
     print_perf(&t_perf, iter);
-    ASSERT_EQUAL((t_perf.max_time_us > td->kpi_latency), 0);
-    ASSERT_EQUAL((t_perf.op_sec < td->kpi_ops_per_sec), 0);
+    ASSERT_EQUAL_W((t_perf.max_time_us > td->kpi_latency), 0);
+    ASSERT_EQUAL_W((t_perf.op_sec < td->kpi_ops_per_sec), 0);
 
     //TODO Check if we need to compute kpi with message digest
     printf("\n=== Input: Digest ===\n");
@@ -92,8 +92,8 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
             idx_test++;
     }
     print_perf(&t_perf, iter);
-    ASSERT_EQUAL((t_perf.max_time_us > td->kpi_latency), 0);
-    ASSERT_EQUAL((t_perf.op_sec < td->kpi_ops_per_sec), 0);
+    ASSERT_EQUAL_W((t_perf.max_time_us > td->kpi_latency), 0);
+    ASSERT_EQUAL_W((t_perf.op_sec < td->kpi_ops_per_sec), 0);
 
     /* Close service and session */
     ASSERT_EQUAL(hsm_close_signature_verification_service(sv0_sig_ver_serv),

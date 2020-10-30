@@ -36,6 +36,8 @@ void print_test_suite(testsuite *ts){
     }
 }
 
+itest_ctx_t itest_ctx;
+
 static void catch_failure(int signo) {
     printf("FAIL\n");
     printf("end of tests by signal %d\n", signo);
@@ -43,51 +45,63 @@ static void catch_failure(int signo) {
     exit(0);
 }
 
+static void catch_failure_continue(int signo) {
+    (void)(signo);
+    itest_ctx.nb_assert_fails++;
+}
+
+static void itest_init(void) {
+    itest_ctx.test_name = NULL;
+    itest_ctx.nb_assert_fails = 0;
+    itest_ctx.ts = dxl_ts; // dxl_ts as default
+
+    itest_ctx.ker_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/Image/Image";
+    itest_ctx.ram_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/rootfs.cpio.gz/rootfs.cpio.gz";
+    itest_ctx.mod_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/modules_lite.tar.bz2/modules_lite.tar.bz2";
+    itest_ctx.dtb_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/dtb/imx8dxl-evk.dtb";
+    itest_ctx.ts_dl_link = NULL;
+    itest_ctx.bootimg_dl_link = NULL;
+
+}
+
 int main(int argc, char *argv[]){
         
     int i = 0;
     int status = 0;
-    testsuite *ts = dxl_ts;
-    char *test_name = NULL;
-    char *ts_dl_link = NULL;
-    char *bootimg_dl_link = NULL;
-    char *ker_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/Image/Image";
-    char *ram_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/rootfs.cpio.gz/rootfs.cpio.gz";
-    char *mod_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/modules_lite.tar.bz2/modules_lite.tar.bz2";
-    char *dtb_dl_link = "https://bamboo1.sw.nxp.com/browse/IM-LBLKFA2/latest/artifact/shared/dtb/imx8dxl-evk.dtb";
     int c;
-        
+
+    itest_init();
     opterr = 0;
 
     while ((c = getopt (argc, argv, "hlvd:m:r:k:b:g:t:")) != -1) {
         switch (c)
         {
         case 't':
-            test_name = optarg;
+            itest_ctx.test_name = optarg;
             break;
         case 'v':
             printf("testsuite v1.0\n");
             return 0;
         case 'l':
-            print_test_suite(ts);
+            print_test_suite(itest_ctx.ts);
             return 0;
         case 'g':
-            ts_dl_link = optarg;
+            itest_ctx.ts_dl_link = optarg;
             break;
         case 'b':
-            bootimg_dl_link = optarg;
+            itest_ctx.bootimg_dl_link = optarg;
             break;
         case 'k':
-            ker_dl_link = optarg;
+            itest_ctx.ker_dl_link = optarg;
             break;
         case 'r':
-            ram_dl_link = optarg;
+            itest_ctx.ram_dl_link = optarg;
             break;
         case 'm':
-            mod_dl_link = optarg;
+            itest_ctx.mod_dl_link = optarg;
             break;
         case 'd':
-            dtb_dl_link = optarg;
+            itest_ctx.dtb_dl_link = optarg;
             break;
         case 'h':
             print_help();
@@ -108,26 +122,27 @@ int main(int argc, char *argv[]){
         }
     }
 
-    if (ts_dl_link != NULL) {
-        gen_lava_test(ts, ker_dl_link, ram_dl_link, mod_dl_link, dtb_dl_link, ts_dl_link, bootimg_dl_link);
-	return 0;
-    }
-    printf("Test Suite 1.0\n");
-    if (test_name == NULL){
-        printf("no test in param...\n");
-        print_test_suite(ts);
+    if (itest_ctx.ts_dl_link != NULL) {
+        gen_lava_test(itest_ctx.ts, itest_ctx.ker_dl_link, itest_ctx.ram_dl_link, itest_ctx.mod_dl_link, itest_ctx.dtb_dl_link, itest_ctx.ts_dl_link, itest_ctx.bootimg_dl_link);
         return 0;
     }
-    if (signal(SIGINT, catch_failure) == SIG_ERR) {
+    printf("Test Suite 1.0\n");
+    if (itest_ctx.test_name == NULL){
+        printf("no test in param...\n");
+        print_test_suite(itest_ctx.ts);
+        return 0;
+    }
+    if ((signal(SIGINT, catch_failure) == SIG_ERR)
+        || (signal(SIGUSR1, catch_failure_continue) == SIG_ERR)) {
         fputs("An error occurred while setting a signal handler.\n", stderr);
         return 0;
     }
-    for ( i = 0; ts[i].tc_ptr != NULL; i++){
-        if (!strcmp(ts[i].name, test_name)){
-            printf("%s: ", ts[i].name);
-            status = ts[i].tc_ptr();
-            if (!status){
-                printf("FAIL\n");
+    for ( i = 0; itest_ctx.ts[i].tc_ptr != NULL; i++){
+        if (!strcmp(itest_ctx.ts[i].name, itest_ctx.test_name)){
+            printf("%s: ", itest_ctx.ts[i].name);
+            status = itest_ctx.ts[i].tc_ptr();
+            if (!status || (itest_ctx.nb_assert_fails > 0)){
+                printf("FAIL ===> %d assest fails\n", itest_ctx.nb_assert_fails);
             }
             else
                 printf("PASS\n");

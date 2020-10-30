@@ -16,22 +16,45 @@
 
 #define TRUE_TEST 1
 #define FALSE_TEST 0
-#define ASSERT_TRUE(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
-#define ASSERT_FALSE(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGINT);}
+
+/*======================ASSERT FAILURE ABORT======================*/
+#define ASSERT_TRUE(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
+#define ASSERT_FALSE(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
 #define ASSERT_EQUAL(x, y) \
     if ( (x) != (y)) { \
         printf("assert_equal Fail ==> "); \
         printf("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
         printf(" @%s line:%d\n",__FILE__,__LINE__); \
-        while(1) raise(SIGINT); \
+        raise(SIGINT); \
+        while(1); \
     }
 #define ASSERT_NOT_EQUAL(x, y) \
     if ( (x) == (y)) { \
         printf("assert_not_equal Fail ==> "); \
         printf("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
         printf(" @%s line:%d\n",__FILE__,__LINE__); \
-        while(1) raise(SIGINT); \
+        raise(SIGINT); \
+        while(1); \
     }
+
+/*======================ASSERT FAILURE CONTINUE======================*/
+#define ASSERT_TRUE_W(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
+#define ASSERT_FALSE_W(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
+#define ASSERT_EQUAL_W(x, y) \
+    if ( (x) != (y)) { \
+        printf("assert_equal Fail ==> "); \
+        printf("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
+        printf(" @%s line:%d\n",__FILE__,__LINE__); \
+        raise(SIGUSR1); \
+    }
+#define ASSERT_NOT_EQUAL_W(x, y) \
+    if ( (x) == (y)) { \
+        printf("assert_not_equal Fail ==> "); \
+        printf("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
+        printf(" @%s line:%d\n",__FILE__,__LINE__); \
+        raise(SIGUSR1); \
+    }
+
 
 /* Key sizes */
 #define KEY_ECDSA_SM2_SIZE              (0x40u)
@@ -64,9 +87,17 @@ typedef struct{
 } testsuite;
 
 typedef struct{
-    int cur_test;
-    int nb_fails;
-} contex;
+    char *test_name;
+    int nb_assert_fails;
+    testsuite *ts;
+
+    char *ker_dl_link;
+    char *ram_dl_link;
+    char *mod_dl_link;
+    char *dtb_dl_link;
+    char *ts_dl_link;
+    char *bootimg_dl_link;
+} itest_ctx_t;
 
 /*==============NVM==============*/
 hsm_err_t start_nvm_seco(void);
