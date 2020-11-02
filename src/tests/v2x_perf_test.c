@@ -99,7 +99,9 @@ int v2x_cipher_ccm_perf(void){
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
         stop_timer(&t_perf);
     }
-    print_perf(&t_perf, iter);
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
 
     printf("aes ccm key_aes_128 decrypt\n");
     // CIPHER ONE GO AES_128 CCM -> DECRYPT
@@ -119,7 +121,9 @@ int v2x_cipher_ccm_perf(void){
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
         stop_timer(&t_perf);
     }
-    print_perf(&t_perf, iter);
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
@@ -141,7 +145,9 @@ int v2x_cipher_ccm_perf(void){
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
         stop_timer(&t_perf);
     }
-    print_perf(&t_perf, iter);
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
 
     printf("aes ccm key_aes_192 decrypt\n");
     // CIPHER ONE GO AES_192 CCM -> DECRYPT
@@ -161,7 +167,9 @@ int v2x_cipher_ccm_perf(void){
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
         stop_timer(&t_perf);
     }
-    print_perf(&t_perf, iter);
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
@@ -183,7 +191,9 @@ int v2x_cipher_ccm_perf(void){
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
         stop_timer(&t_perf);
     }
-    print_perf(&t_perf, iter);
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
 
     printf("aes ccm key_aes_256 decrypt\n");
     // CIPHER ONE GO AES_256 CCM -> DECRYPT
@@ -203,7 +213,9 @@ int v2x_cipher_ccm_perf(void){
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
         stop_timer(&t_perf);
     }
-    print_perf(&t_perf, iter);
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
     
@@ -352,7 +364,9 @@ int v2x_sign_gen_verify_perf(void){
             stop_timer(&t_perf);
         }
         printf("sign gen input msg\n");
-        print_perf(&t_perf, iter);
+        /* Finalize time to get stats */
+        finalize_timer(&t_perf, iter);
+        print_perf(&t_perf);
         
         init_timer(&t_perf);
         for (j = 0; j < iter; j++) {
@@ -371,7 +385,9 @@ int v2x_sign_gen_verify_perf(void){
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         }
         printf("sign verify input msg\n");
-        print_perf(&t_perf, iter);
+        /* Finalize time to get stats */
+        finalize_timer(&t_perf, iter);
+        print_perf(&t_perf);
 
         init_timer(&t_perf);
         for (j = 0; j < iter; j++) {
@@ -387,7 +403,9 @@ int v2x_sign_gen_verify_perf(void){
             stop_timer(&t_perf);
         }
         printf("sign gen input dgst\n");
-        print_perf(&t_perf, iter);
+        /* Finalize time to get stats */
+        finalize_timer(&t_perf, iter);
+        print_perf(&t_perf);
 
         init_timer(&t_perf);
         for (j = 0; j < iter; j++) {
@@ -406,7 +424,9 @@ int v2x_sign_gen_verify_perf(void){
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         }
         printf("sign verify input dgst\n");
-        print_perf(&t_perf, iter);
+        /* Finalize time to get stats */
+        finalize_timer(&t_perf, iter);
+        print_perf(&t_perf);
     }
     
     // CLOSE SRV/SESSION

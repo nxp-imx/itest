@@ -59,12 +59,13 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
         else
             idx_test++;
     }
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    /* Check KPI are matched */
+    ITEST_CHECK_KPI_LATENCY(t_perf.max_time_us, td->kpi_latency);
+    ITEST_CHECK_KPI_OPS(t_perf.op_sec, td->kpi_ops_per_sec);
 
-    print_perf(&t_perf, iter);
-    ASSERT_EQUAL_W((t_perf.max_time_us > td->kpi_latency), 0);
-    ASSERT_EQUAL_W((t_perf.op_sec < td->kpi_ops_per_sec), 0);
-
-    printf("\n=== Input: Digest ===\n");
+    printf("=== Input: Digest ===\n");
     memset(&sig_ver_args, 0, sizeof(sig_ver_args));
     memset(&t_perf, 0, sizeof(t_perf));
     idx_test = 0;
@@ -91,9 +92,11 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
         else
             idx_test++;
     }
-    print_perf(&t_perf, iter);
-    ASSERT_EQUAL_W((t_perf.max_time_us > td->kpi_latency), 0);
-    ASSERT_EQUAL_W((t_perf.op_sec < td->kpi_ops_per_sec), 0);
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    /* Check KPI are matched */
+    ITEST_CHECK_KPI_LATENCY(t_perf.max_time_us, td->kpi_latency);
+    ITEST_CHECK_KPI_OPS(t_perf.op_sec, td->kpi_ops_per_sec);
 
     /* Close service and session */
     ASSERT_EQUAL(hsm_close_signature_verification_service(sv0_sig_ver_serv),

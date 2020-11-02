@@ -135,8 +135,7 @@ uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
     return (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000u + (ts2->tv_nsec - ts1->tv_nsec)/1000;
 }
 
-void print_perf(timer_perf_t *timer, uint32_t nb_iter) {
-    finalize_timer(timer, nb_iter);
+void print_perf(timer_perf_t *timer) {
     printf("=== Perf ===\n");
     printf("Op/s = %u, Max latency = %lu us\n",
         timer->op_sec, timer->max_time_us);

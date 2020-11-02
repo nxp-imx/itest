@@ -55,6 +55,19 @@
         raise(SIGUSR1); \
     }
 
+#define ITEST_CHECK_KPI_LATENCY(got, thr) \
+do { \
+    printf("KPI: Max Latency [us]: %d/%d (Got/Threshold)\n", (uint32_t)got, (uint32_t)thr); \
+    ASSERT_EQUAL_W((got) > (thr), 0); \
+} \
+while(0)
+
+#define ITEST_CHECK_KPI_OPS(got, thr) \
+do { \
+    printf("KPI: Operations per second: %d/%d (Got/Threshold)\n", (uint32_t)got, (uint32_t)thr); \
+    ASSERT_EQUAL_W((got) < (thr), 0); \
+} \
+while(0)
 
 /* Key sizes */
 #define KEY_ECDSA_SM2_SIZE              (0x40u)
@@ -114,7 +127,7 @@ void start_timer(timer_perf_t *timer);
 void stop_timer(timer_perf_t *timer);
 void finalize_timer(timer_perf_t *timer, uint32_t nb_iter);
 uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
-void print_perf(timer_perf_t *timer, uint32_t nb_iter);
+void print_perf(timer_perf_t *timer);
 /*===============================*/
 
 /*==========Tests list===========*/
