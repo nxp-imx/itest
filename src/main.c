@@ -6,6 +6,13 @@
 #include "itest.h"
 #include "8dxl_conf.h"
 
+#define ITEST_VERSION "2.0"
+
+static inline void print_version()
+{
+    printf("itest %s\n", ITEST_VERSION);
+}
+
 void gen_lava_test(testsuite *ts, char *ker_dl_link, char *ram_dl_link, char *mod_dl_link, char *dtb_dl_link, char *addr_ts, char *bootimg_dl_link){
 
     int i;
@@ -20,12 +27,15 @@ void gen_lava_test(testsuite *ts, char *ker_dl_link, char *ram_dl_link, char *mo
 
 static void print_help(void) {
 
-    printf("Sentinel test suite linux\n\
--h: print this help\n\
--l: list all tests\n\
--v: print test suite version\n\
--b <bootimg download link>: to add in lava .yaml the bootimg link where lava can download the new bootimg to download\n\
--g <test suite download link>: to generate the .yaml file for lava to run all tests, in param the link where lava can download this test suite\n");
+    printf("\nitest Help Menu:\n\n\
+$ ./itest [OPTION] <argument>\n\n\
+OPTIONS:\n\
+  -h: Print this help\n\
+  -v: Print test suite version\n\
+  -l: List all tests\n\
+  -t <test_name> : Run test test_name\n\
+  -b <bootimg download link>: Add in lava .yaml the bootimg link where lava can download the new bootimg to download\n\
+  -g <test suite download link>: Generate the .yaml file for lava to run all tests, in param the link where lava can download this test suite\n");
 }
 
 void print_test_suite(testsuite *ts){
@@ -80,7 +90,7 @@ int main(int argc, char *argv[]){
             itest_ctx.test_name = optarg;
             break;
         case 'v':
-            printf("testsuite v1.0\n");
+            print_version();
             return 0;
         case 'l':
             print_test_suite(itest_ctx.ts);
@@ -109,12 +119,11 @@ int main(int argc, char *argv[]){
         case '?':
             if ((optopt == 't') || (optopt == 'g')){
                 fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-                fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+                print_help();
             }
             else{
-                fprintf (stderr,
-                         "Unknown option character -%c.\n",
-                         optopt);
+                fprintf (stderr, "Unknown option character -%c.\n", optopt);
+                print_help();
                 return 0;
             }
         default:
@@ -126,9 +135,10 @@ int main(int argc, char *argv[]){
         gen_lava_test(itest_ctx.ts, itest_ctx.ker_dl_link, itest_ctx.ram_dl_link, itest_ctx.mod_dl_link, itest_ctx.dtb_dl_link, itest_ctx.ts_dl_link, itest_ctx.bootimg_dl_link);
         return 0;
     }
-    printf("Test Suite 1.0\n");
+    /* Print itest version at the beginning of the test */
+    print_version();
     if (itest_ctx.test_name == NULL){
-        printf("no test in param...\n");
+        printf("No tests provided! Please, insert a test:\n");
         print_test_suite(itest_ctx.ts);
         return 0;
     }
@@ -139,15 +149,19 @@ int main(int argc, char *argv[]){
     }
     for ( i = 0; itest_ctx.ts[i].tc_ptr != NULL; i++){
         if (!strcmp(itest_ctx.ts[i].name, itest_ctx.test_name)){
-            printf("%s: ", itest_ctx.ts[i].name);
+            printf("#######################################################\n");
+            printf("# Running test: %s\n", itest_ctx.ts[i].name);
+            printf("#######################################################\n");
             status = itest_ctx.ts[i].tc_ptr();
+            printf("#######################################################\n");
             if (!status || (itest_ctx.nb_assert_fails > 0)){
-                printf("FAIL ===> %d assest fails\n", itest_ctx.nb_assert_fails);
+                printf("%s: FAIL ===> %d fails\n",
+                    itest_ctx.test_name, itest_ctx.nb_assert_fails);
             }
             else
-                printf("PASS\n");
+                printf("%s: PASS\n", itest_ctx.test_name);
         }
     }
-    printf("end of tests\n");
+    printf("itest done!\n");
     return !status;
 }

@@ -142,5 +142,5 @@ void print_perf(timer_perf_t *timer, uint32_t nb_iter) {
         timer->op_sec, timer->max_time_us);
     printf("Average time single op = %u us, Min latency = %lu us, Total time = %lu us, Num of op = %d\n",
         timer->t_per_op, timer->min_time_us, timer->time_us, timer->nb_iter);
-    printf("============\n)");
+    printf("============\n");
 }

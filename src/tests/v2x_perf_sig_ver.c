@@ -31,7 +31,7 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     ASSERT_EQUAL(hsm_open_signature_verification_service(sv0_sess,
         &sig_ver_srv_args, &sv0_sig_ver_serv), HSM_NO_ERROR);
 
-    printf("\n=== Input: Message ===\n");
+    printf("=== Input: Message ===\n");
     memset(&sig_ver_args, 0, sizeof(sig_ver_args));
     memset(&t_perf, 0, sizeof(t_perf));
 
