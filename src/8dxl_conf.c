@@ -22,9 +22,12 @@ testsuite dxl_ts[] = {
     {v2x_parallel_sign_gen_ver_001,  "v2x_parallel_sign_gen_ver_001",  DXL},
     {v2x_cipher_ccm_perf,            "v2x_cipher_ccm_perf",            DXL},
     {v2x_sign_gen_verify_perf,       "v2x_sign_gen_verify_perf",       DXL},
-    {v2x_perf_sig_ver_nistp256,      "v2x_perf_sig_ver_nistp256",      DXL},
-    {v2x_perf_sig_ver_nistp384,      "v2x_perf_sig_ver_nistp384",      DXL},
-    {v2x_perf_sig_ver_sm2,           "v2x_perf_sig_ver_sm2",           DXL},
+    {v2x_perf_sig_ver_nistp256_ops,  "v2x_perf_sig_ver_nistp256_ops",  DXL},
+    {v2x_perf_sig_ver_nistp384_ops,  "v2x_perf_sig_ver_nistp384_ops",  DXL},
+    {v2x_perf_sig_ver_sm2_ops,       "v2x_perf_sig_ver_sm2_ops",       DXL},
+    {v2x_perf_sig_ver_nistp256_lat,  "v2x_perf_sig_ver_nistp256_lat",  DXL},
+    {v2x_perf_sig_ver_nistp384_lat,  "v2x_perf_sig_ver_nistp384_lat",  DXL},
+    {v2x_perf_sig_ver_sm2_lat,       "v2x_perf_sig_ver_sm2_lat",       DXL},
     {NULL, NULL, DXL},
 };
 

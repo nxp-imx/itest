@@ -62,8 +62,10 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     /* Finalize time to get stats */
     finalize_timer(&t_perf, iter);
     /* Check KPI are matched */
-    ITEST_CHECK_KPI_LATENCY(t_perf.max_time_us, td->kpi_latency);
-    ITEST_CHECK_KPI_OPS(t_perf.op_sec, td->kpi_ops_per_sec);
+    if (td->test_type == LAT_TEST)
+       ITEST_CHECK_KPI_LATENCY(t_perf.max_time_us, td->kpi_latency);
+    else
+       ITEST_CHECK_KPI_OPS(t_perf.op_sec, td->kpi_ops_per_sec);
 
     printf("=== Input: Digest ===\n");
     memset(&sig_ver_args, 0, sizeof(sig_ver_args));
@@ -94,9 +96,11 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     }
     /* Finalize time to get stats */
     finalize_timer(&t_perf, iter);
-    /* Check KPI are matched */
-    ITEST_CHECK_KPI_LATENCY(t_perf.max_time_us, td->kpi_latency);
-    ITEST_CHECK_KPI_OPS(t_perf.op_sec, td->kpi_ops_per_sec);
+    /* Check KPI are matched for current test type */
+    if (td->test_type == LAT_TEST)
+       ITEST_CHECK_KPI_LATENCY(t_perf.max_time_us, td->kpi_latency);
+    else
+       ITEST_CHECK_KPI_OPS(t_perf.op_sec, td->kpi_ops_per_sec);
 
     /* Close service and session */
     ASSERT_EQUAL(hsm_close_signature_verification_service(sv0_sig_ver_serv),
@@ -106,7 +110,7 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     return TRUE_TEST;
 }
 
-int v2x_perf_sig_ver_nistp256()
+static int v2x_perf_sig_ver_nistp256(perf_test_t test_type)
 {
     v2x_perf_sig_ver_t test_data;
 
@@ -118,11 +122,12 @@ int v2x_perf_sig_ver_nistp256()
     test_data.dgst_size = DGST_NIST_P256_SIZE;
     test_data.tv = test_data_nistp256;
     test_data.tv_size = test_data_size_nistp256;
+    test_data.test_type = test_type;
 
     return v2x_perf_signature_verification(&test_data);
 }
 
-int v2x_perf_sig_ver_nistp384()
+static int v2x_perf_sig_ver_nistp384(perf_test_t test_type)
 {
     v2x_perf_sig_ver_t test_data;
 
@@ -134,11 +139,12 @@ int v2x_perf_sig_ver_nistp384()
     test_data.dgst_size = DGST_NIST_P384_SIZE;
     test_data.tv = test_data_nistp384;
     test_data.tv_size = test_data_size_nistp384;
+    test_data.test_type = test_type;
 
     return v2x_perf_signature_verification(&test_data);
 }
 
-int v2x_perf_sig_ver_sm2()
+static int v2x_perf_sig_ver_sm2(perf_test_t test_type)
 {
     v2x_perf_sig_ver_t test_data;
 
@@ -150,6 +156,49 @@ int v2x_perf_sig_ver_sm2()
     test_data.dgst_size = DGST_SM3_SIZE;
     test_data.tv = test_data_sm2;
     test_data.tv_size = test_data_size_sm2;
+    test_data.test_type = test_type;
 
     return v2x_perf_signature_verification(&test_data);
+}
+
+int v2x_perf_sig_ver_nistp256_ops()
+{
+    perf_test_t type_test = OPS_TEST;
+
+    return v2x_perf_sig_ver_nistp256(type_test);
+}
+
+int v2x_perf_sig_ver_nistp256_lat()
+{
+    perf_test_t type_test = LAT_TEST;
+
+    return v2x_perf_sig_ver_nistp256(type_test);
+}
+
+int v2x_perf_sig_ver_nistp384_ops()
+{
+    perf_test_t type_test = OPS_TEST;
+
+    return v2x_perf_sig_ver_nistp384(type_test);
+}
+
+int v2x_perf_sig_ver_nistp384_lat()
+{
+    perf_test_t type_test = LAT_TEST;
+
+    return v2x_perf_sig_ver_nistp384(type_test);
+}
+
+int v2x_perf_sig_ver_sm2_ops()
+{
+    perf_test_t type_test = OPS_TEST;
+
+    return v2x_perf_sig_ver_sm2(type_test);
+}
+
+int v2x_perf_sig_ver_sm2_lat()
+{
+    perf_test_t type_test = LAT_TEST;
+
+    return v2x_perf_sig_ver_sm2(type_test);
 }

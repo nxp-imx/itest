@@ -14,6 +14,12 @@
 #define V2X_KPI_LATENCY_US_SIG_VER_P256     (5000u)
 #define V2X_KPI_LATENCY_US_SIG_VER_P384     (5000u)
 
+/* Type of perf test: Latency or Operation per second */
+typedef enum {
+    LAT_TEST = 0, /* Latency measure */
+    OPS_TEST,     /* Operations/sec measure */
+} perf_test_t;
+
 /* Test data for signature verification perf test */
 typedef struct {
     uint32_t kpi_latency;
@@ -25,6 +31,7 @@ typedef struct {
     /* Pointer to the test vector */
     test_data_verify_t *tv;
     uint32_t tv_size;
+    perf_test_t test_type;
 } v2x_perf_sig_ver_t;
 
 #endif /* __V2X_PERF_H__*/
