@@ -4,6 +4,7 @@
 #include "v2x_perf.h"
 #include "test_vectors/tv_verify_nistp256.h"
 #include "test_vectors/tv_verify_nistp384.h"
+#include "test_vectors/tv_verify_sm2.h"
 
 /* Number of iterations */
 #define NUM_OPERATIONS  (5000u)
@@ -63,7 +64,6 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     ASSERT_EQUAL_W((t_perf.max_time_us > td->kpi_latency), 0);
     ASSERT_EQUAL_W((t_perf.op_sec < td->kpi_ops_per_sec), 0);
 
-    //TODO Check if we need to compute kpi with message digest
     printf("\n=== Input: Digest ===\n");
     memset(&sig_ver_args, 0, sizeof(sig_ver_args));
     memset(&t_perf, 0, sizeof(t_perf));
@@ -135,19 +135,18 @@ int v2x_perf_sig_ver_nistp384()
     return v2x_perf_signature_verification(&test_data);
 }
 
-//TODO Add SM2
-//int v2x_perf_sig_ver_sm2()
-//{
-//    v2x_perf_sig_ver_t test_data;
-//
-//    test_data.kpi_latency = V2X_KPI_LATENCY_US_SIG_VER_SM2;
-//    test_data.kpi_ops_per_sec = V2X_KPI_OP_SEC_SIG_VER_SM2;
-//    test_data.scheme_type = HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3;
-//    test_data.key_size = KEY_ECDSA_SM2_SIZE;
-//    test_data.sig_size = SIGNATURE_ECDSA_SM2_SIZE;
-//    test_data.dgst_size = DGST_SM3_SIZE;
-//    test_data.tv = test_data_sm2;
-//    test_data.tv_size = test_data_size_sm2;
-//
-//    return v2x_perf_signature_verification(&test_data);
-//}
+int v2x_perf_sig_ver_sm2()
+{
+    v2x_perf_sig_ver_t test_data;
+
+    test_data.kpi_latency = V2X_KPI_LATENCY_US_SIG_VER_SM2;
+    test_data.kpi_ops_per_sec = V2X_KPI_OP_SEC_SIG_VER_SM2;
+    test_data.scheme_type = HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3;
+    test_data.key_size = KEY_ECDSA_SM2_SIZE;
+    test_data.sig_size = SIGNATURE_ECDSA_SM2_SIZE;
+    test_data.dgst_size = DGST_SM3_SIZE;
+    test_data.tv = test_data_sm2;
+    test_data.tv_size = test_data_size_sm2;
+
+    return v2x_perf_signature_verification(&test_data);
+}
