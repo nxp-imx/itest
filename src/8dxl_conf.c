@@ -28,6 +28,15 @@ testsuite dxl_ts[] = {
     {v2x_perf_sig_ver_nistp256_lat,  "v2x_perf_sig_ver_nistp256_lat",  DXL},
     {v2x_perf_sig_ver_nistp384_lat,  "v2x_perf_sig_ver_nistp384_lat",  DXL},
     {v2x_perf_sig_ver_sm2_lat,       "v2x_perf_sig_ver_sm2_lat",       DXL},
+    {v2x_perf_sig_ver_nistp256,      "v2x_sig_ver_perf_nistp256",      DXL},
+    {v2x_perf_sig_ver_nistp384,      "v2x_sig_ver_perf_nistp384",      DXL},
+    {v2x_perf_sig_gen_sm2_fp_256_sm3,"v2x_perf_sig_gen_sm2_fp_256_sm3",DXL},
+    {v2x_perf_sig_gen_nistp256_sha256,"v2x_perf_sig_gen_nistp256_sha256",DXL},
+    {v2x_perf_sig_gen_nistp384_sha384,"v2x_perf_sig_gen_nistp384_sha384",DXL},
+    {v2x_perf_sig_gen_brainpool_r1p256_sha256,"v2x_perf_sig_gen_brainpool_r1p256_sha256",DXL},
+    {v2x_perf_sig_gen_brainpool_r1p384_sha384,"v2x_perf_sig_gen_brainpool_r1p384_sha384",DXL},
+    {v2x_perf_sig_gen_brainpool_t1p256_sha256,"v2x_perf_sig_gen_brainpool_t1p256_sha256",DXL},
+    {v2x_perf_sig_gen_brainpool_t1p384_sha384,"v2x_perf_sig_gen_brainpool_t1p384_sha384",DXL},
     {NULL, NULL, DXL},
 };
 

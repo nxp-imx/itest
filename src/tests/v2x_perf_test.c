@@ -291,7 +291,7 @@ int v2x_sign_gen_verify_perf(void){
     hsm_verification_status_t status;
     uint8_t pub_key[1024];
     uint8_t msg[300];
-    uint8_t sign_out[1281024];
+    uint8_t sign_out[1024];
     uint32_t iter = 300;
     uint32_t i, j;
     timer_perf_t t_perf;
