@@ -70,21 +70,21 @@ do { \
 while(0)
 
 /* Key sizes */
-#define KEY_ECDSA_SM2_SIZE                      (0x40u)
-#define KEY_ECDSA_NIST_P256_SIZE                (0x40u)
-#define KEY_ECDSA_NIST_P384_SIZE                (0x60u)
-#define KEY_ECDSA_BRAINPOOL_R1_256_SHA_256_SIZE (0x40u)
-#define KEY_ECDSA_BRAINPOOL_R1_384_SHA_384_SIZE (0x60u)
-#define KEY_ECDSA_BRAINPOOL_T1_256_SHA_256_SIZE (0x40u)
-#define KEY_ECDSA_BRAINPOOL_T1_384_SHA_384_SIZE (0x60u)
+#define KEY_ECDSA_SM2_SIZE                    (0x40u)
+#define KEY_ECDSA_NIST_P256_SIZE              (0x40u)
+#define KEY_ECDSA_NIST_P384_SIZE              (0x60u)
+#define KEY_ECDSA_BRAINPOOL_R1_256_SIZE       (0x40u)
+#define KEY_ECDSA_BRAINPOOL_R1_384_SIZE       (0x60u)
+#define KEY_ECDSA_BRAINPOOL_T1_256_SIZE       (0x40u)
+#define KEY_ECDSA_BRAINPOOL_T1_384_SIZE       (0x60u)
 /* Signature sizes */
-#define SIGNATURE_ECDSA_SM2_SIZE                      (0x40u)
-#define SIGNATURE_ECDSA_NIST_P256_SIZE                (0x40u)
-#define SIGNATURE_ECDSA_NIST_P384_SIZE                (0x60u)
-#define SIGNATURE_ECDSA_BRAINPOOL_R1_256_SHA_256_SIZE (0x40u)
-#define SIGNATURE_ECDSA_BRAINPOOL_R1_384_SHA_384_SIZE (0x60u)
-#define SIGNATURE_ECDSA_BRAINPOOL_T1_256_SHA_256_SIZE (0x40u)
-#define SIGNATURE_ECDSA_BRAINPOOL_T1_384_SHA_384_SIZE (0x60u)
+#define SIGNATURE_ECDSA_SM2_SIZE              (0x40u)
+#define SIGNATURE_ECDSA_NIST_P256_SIZE        (0x40u)
+#define SIGNATURE_ECDSA_NIST_P384_SIZE        (0x60u)
+#define SIGNATURE_ECDSA_BRAINPOOL_R1_256_SIZE (0x40u)
+#define SIGNATURE_ECDSA_BRAINPOOL_R1_384_SIZE (0x60u)
+#define SIGNATURE_ECDSA_BRAINPOOL_T1_256_SIZE (0x40u)
+#define SIGNATURE_ECDSA_BRAINPOOL_T1_384_SIZE (0x60u)
 /* Digest sizes */
 #define DGST_SM3_SIZE        (0x20u)
 #define DGST_NIST_P256_SIZE  (0x20u)
@@ -165,15 +165,20 @@ int v2x_perf_sig_ver_sm2_ops(void);
 int v2x_perf_sig_ver_nistp256_lat(void);
 int v2x_perf_sig_ver_nistp384_lat(void);
 int v2x_perf_sig_ver_sm2_lat(void);
-int v2x_perf_sig_ver_nistp256(void);
-int v2x_perf_sig_ver_nistp384(void);
-int v2x_perf_sig_gen_sm2_fp_256_sm3(void);
-int v2x_perf_sig_gen_nistp256_sha256(void);
-int v2x_perf_sig_gen_nistp384_sha384(void);
-int v2x_perf_sig_gen_brainpool_r1p256_sha256(void);
-int v2x_perf_sig_gen_brainpool_r1p384_sha384(void);
-int v2x_perf_sig_gen_brainpool_t1p256_sha256(void);
-int v2x_perf_sig_gen_brainpool_t1p384_sha384(void);
+int v2x_perf_sig_gen_nistp256_ops(void);
+int v2x_perf_sig_gen_nistp256_lat(void);
+int v2x_perf_sig_gen_nistp384_ops(void);
+int v2x_perf_sig_gen_nistp384_lat(void);
+int v2x_perf_sig_gen_sm2_ops(void);
+int v2x_perf_sig_gen_sm2_lat(void);
+int v2x_perf_sig_gen_brainpool_r1p256_ops(void);
+int v2x_perf_sig_gen_brainpool_r1p256_lat(void);
+int v2x_perf_sig_gen_brainpool_r1p384_ops(void);
+int v2x_perf_sig_gen_brainpool_r1p384_lat(void);
+int v2x_perf_sig_gen_brainpool_t1p256_ops(void);
+int v2x_perf_sig_gen_brainpool_t1p256_lat(void);
+int v2x_perf_sig_gen_brainpool_t1p384_ops(void);
+int v2x_perf_sig_gen_brainpool_t1p384_lat(void);
 /*===============================*/
 
 #endif
