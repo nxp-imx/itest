@@ -8,9 +8,20 @@
 
 #define ITEST_VERSION "2.0"
 
+/* Used to store total test run and test failures */
+static int total_run = 0, fails = 0;
+
 static inline void print_version()
 {
     printf("itest %s\n", ITEST_VERSION);
+}
+
+static inline void print_stats()
+{
+    printf("+------------------------------------------------------\n");
+    printf("Tests Run  : %d\n", total_run);
+    printf("Tests Fail : %d\n", fails);
+    printf("itest done!\n");
 }
 
 void gen_lava_test(testsuite *ts, char *ker_dl_link, char *ram_dl_link, char *mod_dl_link, char *dtb_dl_link, char *addr_ts, char *bootimg_dl_link){
@@ -42,17 +53,18 @@ void print_test_suite(testsuite *ts){
     int i;
         
     for ( i = 0; ts[i].tc_ptr != NULL; i++){
-        printf("test %d: %s\n", i, ts[i].name);
+        printf("%s\n", ts[i].name);
     }
 }
 
 itest_ctx_t itest_ctx;
 
 static void catch_failure(int signo) {
-    printf("FAIL\n");
-    printf("end of tests by signal %d\n", signo);
+    fails++;
+    printf("FAIL: tests interrupted by signal %d\n", signo);
+    print_stats();
     sleep(2);
-    exit(0);
+    exit(signo);
 }
 
 static void catch_failure_continue(int signo) {
@@ -152,16 +164,19 @@ int main(int argc, char *argv[]){
             printf("#######################################################\n");
             printf("# Running test: %s\n", itest_ctx.ts[i].name);
             printf("#######################################################\n");
+            total_run++;
             status = itest_ctx.ts[i].tc_ptr();
             printf("#######################################################\n");
             if (!status || (itest_ctx.nb_assert_fails > 0)){
                 printf("%s: FAIL ===> %d fails\n",
                     itest_ctx.test_name, itest_ctx.nb_assert_fails);
+                fails++;
             }
             else
                 printf("%s: PASS\n", itest_ctx.test_name);
         }
     }
-    printf("itest done!\n");
-    return !status;
+    print_stats();
+
+    return fails;
 }
