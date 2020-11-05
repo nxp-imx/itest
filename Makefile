@@ -4,16 +4,17 @@ default: all
 
 CURDIR := $(shell pwd)
 WORKSPACE := $(CURDIR)/..
+OPENSSL_VER := 1.1.1h
 
 ARCH ?= arm64
 HSM_PATH ?= $(WORKSPACE)/seco_libs
 HSM_LIB := $(HSM_PATH)/*.a
 HSM_INC := $(HSM_PATH)/include/hsm
 NVM_INC := $(HSM_PATH)/include
-IDIR := -I$(HSM_INC) -I$(NVM_INC) -Iinc
+IDIR := -I$(HSM_INC) -I$(NVM_INC) -Iinc -Ilib/openssl-$(OPENSSL_VER)
 
 CCFLAG := -lpthread -ldl -lz -Wall -Wextra
-LIBSTATIC := $(HSM_LIB) lib/$(ARCH)/libgomp.a
+LIBSTATIC := $(HSM_LIB) lib/$(ARCH)/libgomp.a lib/$(ARCH)/libcrypto.a lib/$(ARCH)/libssl.a
 CCOBJFLAG := -c $(IDIR) -Wall -Wextra -fopenmp
 
 # path macros
