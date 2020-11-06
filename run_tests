@@ -1,0 +1,86 @@
+#!/bin/bash
+
+if [ "0" != $# ] && [ "-s" == $1 ]
+then
+    export SETUP=1
+    shift
+fi
+
+if [ "0" == $# ]
+then
+    test="-h"
+else
+    test=$1
+fi
+
+set +e
+
+# Set script dir
+scriptdir=$(find . -name scripts -type d)
+
+# Sanity tests
+mus=$(ls /dev/seco_mu*)
+if [ -z "${mus}" ]; then
+    echo "ERROR: MISSING MU DEVICES. Does this kernel have a seco driver?"
+    exit 2
+fi
+
+# Keep count of fails
+fails=0
+
+# Set up the setup.sh and teardown.sh scripts, if specified
+if [ ${SETUP} ]
+then
+    setup=${scriptdir}/setup.sh
+    teardown=${scriptdir}/teardown.sh
+else
+    setup=""
+    teardown=""
+fi
+
+if [ ! -z "${setup}" ] && [ -f ${setup} ]
+then
+    echo "----------------------------------------------------------------------"
+    echo "Executing ${setup}"
+    echo "----------------------------------------------------------------------"
+    source ${setup}
+    if [ "$?" != "0" ]; then
+        (( fails++ ))
+    fi
+fi
+
+
+
+if [ -z "${test}" ] && [ ! -z "${setup}" ] && [ ! -z "${teardown}" ]; then
+    echo "ERROR: No tests found"
+    exit 253
+fi
+
+run_test="./itest -t"
+run_test="$run_test ${test}"
+
+echo "----------------------------------------------------------------------"
+echo "Running testsuite ${test}"
+echo "----------------------------------------------------------------------"
+echo $run_test
+echo ""
+$run_test
+
+if [ "$?" != "0" ]; then
+    (( fails++ ))
+fi
+
+# Execute the teardown.sh script, if it exists
+if [ ! -z "${teardown}" ] && [ -f ${teardown} ]
+then
+    echo "----------------------------------------------------------------------"
+    echo "Executing ${teardown}"
+    echo "----------------------------------------------------------------------"
+    source ${teardown}
+    if [ "$?" != "0" ]; then
+        (( fails++ ))
+    fi
+fi
+
+exit ${fails}
+
