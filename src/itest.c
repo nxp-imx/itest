@@ -1,11 +1,16 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <pthread.h>
 #include <unistd.h>
 #include "itest.h"
 
 static uint32_t nvm_status;
 static pthread_t tid;
+static char ITEST_CTX_PATH[] = "/etc/itest/";
 
 #define TIMEOUT_START_NVM 10000
 #define T_NVM_WAIT 1000
@@ -48,31 +53,59 @@ hsm_err_t stop_nvm_v2x(void){
 }
 
 
-size_t save_test_ctx(void *ctx, size_t count, char *file){
+size_t save_test_ctx(void *ctx, size_t count, char *file)
+{
+    int fd;
+    int32_t wout = 0;
+    char file_and_path[64];
+    int nb;
+    struct stat st = {0};
 
-    FILE *fout = fopen (file,"w");
-    size_t wout = 0;
-    if (fout == NULL)
-    {
-        printf("Fail to save test ctx\n");
+    if (stat(ITEST_CTX_PATH, &st) == -1) {
+        mkdir(ITEST_CTX_PATH, 0777);
+    }
+    nb = snprintf(file_and_path, 64, "%s%s", ITEST_CTX_PATH, file);
+    if (nb <= 0) {
+        printf("Fail to compose file path\n");
         return 0;
     }
-    wout = fwrite(ctx, count, 1, fout);
-    fclose (fout);
+    printf("Saving context to file %s\n", file_and_path);
+    fd = open(file_and_path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
+    if (fd >= 0) {
+        /* Write the data. */
+        wout = (int32_t)write(fd, ctx, count);
+        printf("%d bytes written\n", wout);
+        system("sync");
+        close(fd);
+    } else
+        printf("Failed to save test ctx\n");
+
     return wout;
 }
 
-size_t load_test_ctx(void *ctx, size_t count, char *file){
+size_t load_test_ctx(void *ctx, size_t count, char *file)
+{
+    int fd;
+    int32_t rout = 0;
+    char file_and_path[64];
+    int nb;
 
-    FILE *fout = fopen (file,"r");
-    size_t rout = 0;
-    if (fout == NULL)
-    {
-        printf("Fail to load test ctx\n");
+    nb = snprintf(file_and_path, 64, "%s%s", ITEST_CTX_PATH, file);
+    if (nb <= 0) {
+        printf("Fail to compose file path\n");
         return 0;
     }
-    rout = fread(ctx, count, 1, fout);
-    fclose (fout);
+    printf("Loading context from file %s\n", file_and_path);
+    /* Open the file as read only. */
+    fd = open(file_and_path, O_RDONLY);
+    if (fd >= 0) {
+        /* Read the data. */
+        rout = (int32_t)read(fd, ctx, count);
+        printf("%d bytes read\n", rout);
+        (void)close(fd);
+    } else
+        printf("Failed to load test ctx\n");
+
     return rout;
 }
 

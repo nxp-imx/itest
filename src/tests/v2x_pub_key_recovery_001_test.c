@@ -87,7 +87,7 @@ int v2x_pub_key_recovery_001(void){
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
     ASSERT_NOT_EQUAL(stop_nvm_v2x(), NVM_STATUS_STOPPED);
 
-    ASSERT_EQUAL(save_test_ctx(&ctx, sizeof(test_ctx_t), "v2x_pub_key_recovery_001_test_ctx.bin"), 1);
+    ASSERT_NOT_EQUAL(save_test_ctx(&ctx, sizeof(test_ctx_t), "v2x_pub_key_recovery_001_test_ctx.bin"), 0);
     
     return TRUE_TEST;
 }
@@ -107,7 +107,7 @@ int v2x_pub_key_recovery_001_part2(void){
     uint8_t recovered_key[1024];
 
     // LOAD THE TEXT CONTEXT
-    ASSERT_EQUAL(load_test_ctx(&ctx, sizeof(test_ctx_t), "v2x_pub_key_recovery_001_test_ctx.bin"), 1);
+    ASSERT_NOT_EQUAL(load_test_ctx(&ctx, sizeof(test_ctx_t), "v2x_pub_key_recovery_001_test_ctx.bin"), 0);
 
     // START NVM
     ASSERT_NOT_EQUAL(start_nvm_v2x(), NVM_STATUS_STOPPED);   
