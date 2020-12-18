@@ -4,7 +4,7 @@
 #include "v2x_perf.h"
 
 /* Number of iterations */
-#define NUM_OPERATIONS  (5000u)
+#define NUM_OPERATIONS  (2000u)
 #define MSG_SIZE        (300u)
 
 int v2x_perf_signature_generation(v2x_perf_sig_gen_t *td)
