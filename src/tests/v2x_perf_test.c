@@ -81,7 +81,7 @@ int v2x_cipher_ccm_perf(void){
     gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
     ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
-    printf("aes ccm key_aes_128 encrypt\n");
+    ITEST_LOG("aes ccm key_aes_128 encrypt\n");
     // CIPHER ONE GO AES_128 CCM -> ENCRYPT
     cipher_args.key_identifier = key_id_aes_128;
     cipher_args.iv = iv;
@@ -103,7 +103,7 @@ int v2x_cipher_ccm_perf(void){
     finalize_timer(&t_perf, iter);
     print_perf(&t_perf);
 
-    printf("aes ccm key_aes_128 decrypt\n");
+    ITEST_LOG("aes ccm key_aes_128 decrypt\n");
     // CIPHER ONE GO AES_128 CCM -> DECRYPT
     cipher_args.key_identifier = key_id_aes_128;
     cipher_args.iv = iv;
@@ -127,7 +127,7 @@ int v2x_cipher_ccm_perf(void){
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-    printf("aes ccm key_aes_192 encrypt\n");
+    ITEST_LOG("aes ccm key_aes_192 encrypt\n");
     // CIPHER ONE GO AES_192 CCM -> ENCRYPT
     cipher_args.key_identifier = key_id_aes_192;
     cipher_args.iv = iv;
@@ -149,7 +149,7 @@ int v2x_cipher_ccm_perf(void){
     finalize_timer(&t_perf, iter);
     print_perf(&t_perf);
 
-    printf("aes ccm key_aes_192 decrypt\n");
+    ITEST_LOG("aes ccm key_aes_192 decrypt\n");
     // CIPHER ONE GO AES_192 CCM -> DECRYPT
     cipher_args.key_identifier = key_id_aes_192;
     cipher_args.iv = iv;
@@ -173,7 +173,7 @@ int v2x_cipher_ccm_perf(void){
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-    printf("aes ccm key_aes_256 encrypt\n");
+    ITEST_LOG("aes ccm key_aes_256 encrypt\n");
     // CIPHER ONE GO AES_256 CCM -> ENCRYPT
     cipher_args.key_identifier = key_id_aes_256;
     cipher_args.iv = iv;
@@ -195,7 +195,7 @@ int v2x_cipher_ccm_perf(void){
     finalize_timer(&t_perf, iter);
     print_perf(&t_perf);
 
-    printf("aes ccm key_aes_256 decrypt\n");
+    ITEST_LOG("aes ccm key_aes_256 decrypt\n");
     // CIPHER ONE GO AES_256 CCM -> DECRYPT
     cipher_args.key_identifier = key_id_aes_256;
     cipher_args.iv = iv;
@@ -337,7 +337,7 @@ int v2x_sign_gen_verify_perf(void){
     ASSERT_EQUAL(hsm_open_signature_verification_service(sv0_sess, &sig_ver_srv_args, &sv0_sig_ver_serv), HSM_NO_ERROR);
 
     for(i = 0; i < NB_ALGO; i++){
-        printf("\n======algo: %s=====\n", algos_str[i]);
+        ITEST_LOG("\n======algo: %s=====\n", algos_str[i]);
         // PARAM KEY_GEN strict_update
         gen_key_args.key_identifier = &key_id;
         gen_key_args.out_size = size_pub_key[i];
@@ -363,7 +363,7 @@ int v2x_sign_gen_verify_perf(void){
             ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sig_gen_args), HSM_NO_ERROR);
             stop_timer(&t_perf);
         }
-        printf("sign gen input msg\n");
+        ITEST_LOG("sign gen input msg\n");
         /* Finalize time to get stats */
         finalize_timer(&t_perf, iter);
         print_perf(&t_perf);
@@ -384,7 +384,7 @@ int v2x_sign_gen_verify_perf(void){
             stop_timer(&t_perf);
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         }
-        printf("sign verify input msg\n");
+        ITEST_LOG("sign verify input msg\n");
         /* Finalize time to get stats */
         finalize_timer(&t_perf, iter);
         print_perf(&t_perf);
@@ -402,7 +402,7 @@ int v2x_sign_gen_verify_perf(void){
             ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sig_gen_args), HSM_NO_ERROR);
             stop_timer(&t_perf);
         }
-        printf("sign gen input dgst\n");
+        ITEST_LOG("sign gen input dgst\n");
         /* Finalize time to get stats */
         finalize_timer(&t_perf, iter);
         print_perf(&t_perf);
@@ -423,7 +423,7 @@ int v2x_sign_gen_verify_perf(void){
             stop_timer(&t_perf);
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         }
-        printf("sign verify input dgst\n");
+        ITEST_LOG("sign verify input dgst\n");
         /* Finalize time to get stats */
         finalize_timer(&t_perf, iter);
         print_perf(&t_perf);

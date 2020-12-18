@@ -23,53 +23,53 @@ void outputLog(const char *const format, ...);
 #define ITEST_LOG(...)  outputLog(__VA_ARGS__)
 
 /*======================ASSERT FAILURE ABORT======================*/
-#define ASSERT_TRUE(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
-#define ASSERT_FALSE(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
+#define ASSERT_TRUE(x)  if (!x) {ITEST_LOG("Fail ==> #x expected True => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
+#define ASSERT_FALSE(x) if (x) {ITEST_LOG("Fail ==> #x expected False => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
 #define ASSERT_EQUAL(x, y) \
     if ( (x) != (y)) { \
-        printf("assert_equal Fail ==> "); \
-        printf("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
-        printf(" @%s line:%d\n",__FILE__,__LINE__); \
+        ITEST_LOG("assert_equal Fail ==> "); \
+        ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
+        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
         raise(SIGINT); \
         while(1); \
     }
 #define ASSERT_NOT_EQUAL(x, y) \
     if ( (x) == (y)) { \
-        printf("assert_not_equal Fail ==> "); \
-        printf("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
-        printf(" @%s line:%d\n",__FILE__,__LINE__); \
+        ITEST_LOG("assert_not_equal Fail ==> "); \
+        ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
+        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
         raise(SIGINT); \
         while(1); \
     }
 
 /*======================ASSERT FAILURE CONTINUE======================*/
-#define ASSERT_TRUE_W(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
-#define ASSERT_FALSE_W(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
+#define ASSERT_TRUE_W(x)  if (!x) {ITEST_LOG("Fail ==> #x expected True => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
+#define ASSERT_FALSE_W(x) if (x) {ITEST_LOG("Fail ==> #x expected False => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
 #define ASSERT_EQUAL_W(x, y) \
     if ( (x) != (y)) { \
-        printf("assert_equal Fail ==> "); \
-        printf("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
-        printf(" @%s line:%d\n",__FILE__,__LINE__); \
+        ITEST_LOG("assert_equal Fail ==> "); \
+        ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
+        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
         raise(SIGUSR1); \
     }
 #define ASSERT_NOT_EQUAL_W(x, y) \
     if ( (x) == (y)) { \
-        printf("assert_not_equal Fail ==> "); \
-        printf("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
-        printf(" @%s line:%d\n",__FILE__,__LINE__); \
+        ITEST_LOG("assert_not_equal Fail ==> "); \
+        ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
+        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
         raise(SIGUSR1); \
     }
 
 #define ITEST_CHECK_KPI_LATENCY(got, thr) \
 do { \
-    printf("KPI: Max Latency [us]: %d/%d (Got/Threshold)\n", (uint32_t)got, (uint32_t)thr); \
+    ITEST_LOG("KPI: Max Latency [us]: %d/%d (Got/Threshold)\n", (uint32_t)got, (uint32_t)thr); \
     ASSERT_EQUAL_W((got) > (thr), 0); \
 } \
 while(0)
 
 #define ITEST_CHECK_KPI_OPS(got, thr) \
 do { \
-    printf("KPI: Operations per second: %d/%d (Got/Threshold)\n", (uint32_t)got, (uint32_t)thr); \
+    ITEST_LOG("KPI: Operations per second: %d/%d (Got/Threshold)\n", (uint32_t)got, (uint32_t)thr); \
     ASSERT_EQUAL_W((got) < (thr), 0); \
 } \
 while(0)

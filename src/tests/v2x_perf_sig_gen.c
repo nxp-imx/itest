@@ -63,7 +63,7 @@ int v2x_perf_signature_generation(v2x_perf_sig_gen_t *td)
     // GEN KEY + STORE IN NVM
     ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
     
-    printf("\n=== Input: Message ===\n");
+    ITEST_LOG("\n=== Input: Message ===\n");
     memset(&sig_gen_args, 0, sizeof(sig_gen_args));
     memset(&t_perf, 0, sizeof(t_perf));
     init_timer(&t_perf);
@@ -98,7 +98,7 @@ int v2x_perf_signature_generation(v2x_perf_sig_gen_t *td)
        ITEST_CHECK_KPI_OPS(t_perf.op_sec, td->kpi_ops_per_sec);
 
     //TODO Check if we need to compute kpi with message digest
-    printf("\n=== Input: Digest ===\n");
+    ITEST_LOG("\n=== Input: Digest ===\n");
     memset(&sig_gen_args, 0, sizeof(sig_gen_args));
     memset(&t_perf, 0, sizeof(t_perf));
     init_timer(&t_perf);

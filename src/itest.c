@@ -78,19 +78,19 @@ size_t save_test_ctx(void *ctx, size_t count, char *file)
     }
     nb = snprintf(file_and_path, 64, "%s%s", ITEST_CTX_PATH, file);
     if (nb <= 0) {
-        printf("Fail to compose file path\n");
+        ITEST_LOG("Fail to compose file path\n");
         return 0;
     }
-    printf("Saving context to file %s\n", file_and_path);
+    ITEST_LOG("Saving context to file %s\n", file_and_path);
     fd = open(file_and_path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
     if (fd >= 0) {
         /* Write the data. */
         wout = (int32_t)write(fd, ctx, count);
-        printf("%d bytes written\n", wout);
+        ITEST_LOG("%d bytes written\n", wout);
         system("sync");
         close(fd);
     } else
-        printf("Failed to save test ctx\n");
+        ITEST_LOG("Failed to save test ctx\n");
 
     return wout;
 }
@@ -104,19 +104,19 @@ size_t load_test_ctx(void *ctx, size_t count, char *file)
 
     nb = snprintf(file_and_path, 64, "%s%s", ITEST_CTX_PATH, file);
     if (nb <= 0) {
-        printf("Fail to compose file path\n");
+        ITEST_LOG("Fail to compose file path\n");
         return 0;
     }
-    printf("Loading context from file %s\n", file_and_path);
+    ITEST_LOG("Loading context from file %s\n", file_and_path);
     /* Open the file as read only. */
     fd = open(file_and_path, O_RDONLY);
     if (fd >= 0) {
         /* Read the data. */
         rout = (int32_t)read(fd, ctx, count);
-        printf("%d bytes read\n", rout);
+        ITEST_LOG("%d bytes read\n", rout);
         (void)close(fd);
     } else
-        printf("Failed to load test ctx\n");
+        ITEST_LOG("Failed to load test ctx\n");
 
     return rout;
 }
@@ -127,7 +127,7 @@ size_t randomize(void *out, size_t count){
     size_t rout = 0;
     if (fout == NULL)
     {
-        printf("Fail to open /dev/urandom\n");
+        ITEST_LOG("Fail to open /dev/urandom\n");
         return 0;
     }
     rout = fread(out, 1, count, fout);
@@ -181,10 +181,10 @@ uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
 }
 
 void print_perf(timer_perf_t *timer) {
-    printf("=== Perf ===\n");
-    printf("Op/s = %u, Max latency = %lu us\n",
+    ITEST_LOG("=== Perf ===\n");
+    ITEST_LOG("Op/s = %u, Max latency = %lu us\n",
         timer->op_sec, timer->max_time_us);
-    printf("Average time single op = %u us, Min latency = %lu us, Total time = %lu us, Num of op = %d\n",
+    ITEST_LOG("Average time single op = %u us, Min latency = %lu us, Total time = %lu us, Num of op = %d\n",
         timer->t_per_op, timer->min_time_us, timer->time_us, timer->nb_iter);
-    printf("============\n");
+    ITEST_LOG("============\n");
 }

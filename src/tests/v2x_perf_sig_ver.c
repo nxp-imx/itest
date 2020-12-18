@@ -31,7 +31,7 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     ASSERT_EQUAL(hsm_open_signature_verification_service(sv0_sess,
         &sig_ver_srv_args, &sv0_sig_ver_serv), HSM_NO_ERROR);
 
-    printf("=== Input: Message ===\n");
+    ITEST_LOG("=== Input: Message ===\n");
     memset(&sig_ver_args, 0, sizeof(sig_ver_args));
     memset(&t_perf, 0, sizeof(t_perf));
 
@@ -67,7 +67,7 @@ int v2x_perf_signature_verification(v2x_perf_sig_ver_t *td)
     else
        ITEST_CHECK_KPI_OPS(t_perf.op_sec, td->kpi_ops_per_sec);
 
-    printf("=== Input: Digest ===\n");
+    ITEST_LOG("=== Input: Digest ===\n");
     memset(&sig_ver_args, 0, sizeof(sig_ver_args));
     memset(&t_perf, 0, sizeof(t_perf));
     idx_test = 0;

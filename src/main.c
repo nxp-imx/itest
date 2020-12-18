@@ -13,32 +13,32 @@ static int total_run = 0, fails = 0;
 
 static inline void print_version()
 {
-    printf("itest %s\n", ITEST_VERSION);
+    ITEST_LOG("itest %s\n", ITEST_VERSION);
 }
 
 static inline void print_stats()
 {
-    printf("+------------------------------------------------------\n");
-    printf("Tests Run  : %d\n", total_run);
-    printf("Tests Fail : %d\n", fails);
-    printf("itest done!\n");
+    ITEST_LOG("+------------------------------------------------------\n");
+    ITEST_LOG("Tests Run  : %d\n", total_run);
+    ITEST_LOG("Tests Fail : %d\n", fails);
+    ITEST_LOG("itest done!\n");
 }
 
 void gen_lava_test(testsuite *ts, char *ker_dl_link, char *ram_dl_link, char *mod_dl_link, char *dtb_dl_link, char *addr_ts, char *bootimg_dl_link){
 
     int i;
 
-    printf(lava_get_test_suite_dxl, ker_dl_link, ram_dl_link, mod_dl_link, dtb_dl_link, addr_ts);
+    ITEST_LOG(lava_get_test_suite_dxl, ker_dl_link, ram_dl_link, mod_dl_link, dtb_dl_link, addr_ts);
     if (bootimg_dl_link != NULL)
-        printf(lava_dl_flash_bootimg_dxl, bootimg_dl_link);
+        ITEST_LOG(lava_dl_flash_bootimg_dxl, bootimg_dl_link);
     for ( i = 0; ts[i].tc_ptr != NULL; i++){
-        printf(lava_test_dxl, ts[i].name, ts[i].name, ts[i].name, ts[i].name);
+        ITEST_LOG(lava_test_dxl, ts[i].name, ts[i].name, ts[i].name, ts[i].name);
     }
 }
 
 static void print_help(void) {
 
-    printf("\nitest Help Menu:\n\n\
+    ITEST_LOG("\nitest Help Menu:\n\n\
 $ ./itest [OPTION] <argument>\n\n\
 OPTIONS:\n\
   -h: Print this help\n\
@@ -53,7 +53,7 @@ void print_test_suite(testsuite *ts){
     int i;
         
     for ( i = 0; ts[i].tc_ptr != NULL; i++){
-        printf("%s\n", ts[i].name);
+        ITEST_LOG("%s\n", ts[i].name);
     }
 }
 
@@ -61,7 +61,7 @@ itest_ctx_t itest_ctx;
 
 static void catch_failure(int signo) {
     fails++;
-    printf("FAIL: tests interrupted by signal %d\n", signo);
+    ITEST_LOG("FAIL: tests interrupted by signal %d\n", signo);
     print_stats();
     sleep(2);
     exit(signo);
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]){
     /* Print itest version at the beginning of the test */
     print_version();
     if (itest_ctx.test_name == NULL){
-        printf("No tests provided! Please, insert a test:\n");
+        ITEST_LOG("No tests provided! Please, insert a test:\n");
         print_test_suite(itest_ctx.ts);
         return 0;
     }
@@ -161,19 +161,19 @@ int main(int argc, char *argv[]){
     }
     for ( i = 0; itest_ctx.ts[i].tc_ptr != NULL; i++){
         if (!strcmp(itest_ctx.ts[i].name, itest_ctx.test_name)){
-            printf("#######################################################\n");
-            printf("# Running test: %s\n", itest_ctx.ts[i].name);
-            printf("#######################################################\n");
+            ITEST_LOG("#######################################################\n");
+            ITEST_LOG("# Running test: %s\n", itest_ctx.ts[i].name);
+            ITEST_LOG("#######################################################\n");
             total_run++;
             status = itest_ctx.ts[i].tc_ptr();
-            printf("#######################################################\n");
+            ITEST_LOG("#######################################################\n");
             if (!status || (itest_ctx.nb_assert_fails > 0)){
-                printf("%s: FAIL ===> %d fails\n",
+                ITEST_LOG("%s: FAIL ===> %d fails\n",
                     itest_ctx.test_name, itest_ctx.nb_assert_fails);
                 fails++;
             }
             else
-                printf("%s: PASS\n", itest_ctx.test_name);
+                ITEST_LOG("%s: PASS\n", itest_ctx.test_name);
         }
     }
     print_stats();
