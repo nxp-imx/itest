@@ -17,6 +17,11 @@
 #define TRUE_TEST 1
 #define FALSE_TEST 0
 
+/* Log macros and functions */
+void outputLog(const char *const format, ...);
+
+#define ITEST_LOG(...)  outputLog(__VA_ARGS__)
+
 /*======================ASSERT FAILURE ABORT======================*/
 #define ASSERT_TRUE(x)  if (!x) {printf("Fail ==> #x expected True => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
 #define ASSERT_FALSE(x) if (x) {printf("Fail ==> #x expected False => " );printf(#x);printf(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}

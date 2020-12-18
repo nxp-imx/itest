@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include "itest.h"
+#include <stdarg.h>
 
 static uint32_t nvm_status;
 static pthread_t tid;
@@ -14,6 +15,17 @@ static char ITEST_CTX_PATH[] = "/etc/itest/";
 
 #define TIMEOUT_START_NVM 10000
 #define T_NVM_WAIT 1000
+
+/* Log function */
+void outputLog(const char *const format, ...)
+{
+	va_list ap;
+
+	va_start(ap, format);
+	vprintf(format, ap);
+	va_end(ap);
+	fflush(stdout);
+}
 
 static void *hsm_storage_thread(void *arg)
 {
