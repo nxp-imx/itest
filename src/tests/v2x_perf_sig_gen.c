@@ -29,6 +29,8 @@ int v2x_perf_signature_generation(v2x_perf_sig_gen_t *td)
 
     // INPUT BUFF AS RANDOM
     ASSERT_EQUAL(randomize(msg_input, 2*MSG_SIZE), 2*MSG_SIZE);
+    // START NVM
+    ASSERT_NOT_EQUAL(start_nvm_v2x(), NVM_STATUS_STOPPED);   
 
     /* Open session on SG0*/
     args.session_priority = HSM_OPEN_SESSION_PRIORITY_HIGH;
@@ -42,7 +44,10 @@ int v2x_perf_signature_generation(v2x_perf_sig_gen_t *td)
     key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
     key_store_srv_args.signed_message = NULL;
     key_store_srv_args.signed_msg_size = 0;
-    ASSERT_EQUAL(hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv), HSM_NO_ERROR);
+    if (hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv) != HSM_NO_ERROR) {
+        key_store_srv_args.flags = 0U;
+        ASSERT_EQUAL(hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv), HSM_NO_ERROR);
+    }
 
     // KEY MGMNT SG0
     key_mgmt_srv_args.flags = 0;
@@ -137,6 +142,7 @@ int v2x_perf_signature_generation(v2x_perf_sig_gen_t *td)
     ASSERT_EQUAL(hsm_close_signature_generation_service(sg0_sig_gen_serv),
         HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
+    ASSERT_NOT_EQUAL(stop_nvm_v2x(), NVM_STATUS_STOPPED);
     
     return TRUE_TEST;
 }
