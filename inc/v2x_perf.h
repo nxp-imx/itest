@@ -33,11 +33,12 @@
 
 #define V2X_KPI_LATENCY_US_SIG_GEN_SM2              (5000u)
 #define V2X_KPI_LATENCY_US_SIG_GEN_P256             (5000u)
-#define V2X_KPI_LATENCY_US_SIG_GEN_P384             (130000u)
+#define V2X_KPI_LATENCY_US_SIG_GEN_P384             (5000u)
 #define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_R1_256 (5000u)
-#define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_R1_384 (13000u)
+#define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_R1_384 (5000u)
 #define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_T1_256 (5000u)
-#define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_T1_384 (13000u)
+#define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_T1_384 (5000u)
+
 /* Type of perf test: Latency or Operation per second */
 typedef enum {
     LAT_TEST = 0, /* Latency measure */
