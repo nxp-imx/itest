@@ -4,6 +4,10 @@
 #include "v2x_perf.h"
 #include "test_vectors/tv_verify_nistp256.h"
 #include "test_vectors/tv_verify_nistp384.h"
+#include "test_vectors/tv_verify_bp256r1.h"
+#include "test_vectors/tv_verify_bp384r1.h"
+#include "test_vectors/tv_verify_bp256t1.h"
+#include "test_vectors/tv_verify_bp384t1.h"
 #include "test_vectors/tv_verify_sm2.h"
 
 /* Number of iterations */
@@ -161,6 +165,75 @@ static int v2x_perf_sig_ver_sm2(perf_test_t test_type)
     return v2x_perf_signature_verification(&test_data);
 }
 
+/*==========================================*/
+static int v2x_perf_sig_ver_brainpool_r1p256(perf_test_t test_type)
+{
+    v2x_perf_sig_ver_t test_data;
+
+    test_data.kpi_latency =V2X_KPI_LATENCY_US_SIG_VER_BRAINPOOL_R1_256;
+    test_data.kpi_ops_per_sec = V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_R1_256;
+    test_data.scheme_type = HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256;
+    test_data.key_size = KEY_ECDSA_BRAINPOOL_R1_256_SIZE;
+    test_data.sig_size = SIGNATURE_ECDSA_BRAINPOOL_R1_256_SIZE;
+    test_data.dgst_size = DGST_SHA_256_SIZE;
+    test_data.tv = test_data_bp256r1;
+    test_data.tv_size = test_data_size_bp256r1;
+    test_data.test_type = test_type;
+    
+    return v2x_perf_signature_verification(&test_data);
+}
+
+static int v2x_perf_sig_ver_brainpool_r1p384(perf_test_t test_type)
+{
+    v2x_perf_sig_ver_t test_data;
+
+    test_data.kpi_latency =V2X_KPI_LATENCY_US_SIG_VER_BRAINPOOL_R1_384;
+    test_data.kpi_ops_per_sec = V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_R1_384;
+    test_data.scheme_type = HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384;
+    test_data.key_size = KEY_ECDSA_BRAINPOOL_R1_384_SIZE;
+    test_data.sig_size = SIGNATURE_ECDSA_BRAINPOOL_R1_384_SIZE;
+    test_data.dgst_size = DGST_SHA_384_SIZE;
+    test_data.tv = test_data_bp384r1;
+    test_data.tv_size = test_data_size_bp384r1;
+    test_data.test_type = test_type;
+    
+    return v2x_perf_signature_verification(&test_data);
+}
+
+static int v2x_perf_sig_ver_brainpool_t1p256(perf_test_t test_type)
+{
+    v2x_perf_sig_ver_t test_data;
+
+    test_data.kpi_latency =V2X_KPI_LATENCY_US_SIG_VER_BRAINPOOL_T1_256;
+    test_data.kpi_ops_per_sec = V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_T1_256;
+    test_data.scheme_type = HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256;
+    test_data.key_size = KEY_ECDSA_BRAINPOOL_T1_256_SIZE;
+    test_data.sig_size = SIGNATURE_ECDSA_BRAINPOOL_T1_256_SIZE;
+    test_data.dgst_size = DGST_SHA_256_SIZE;
+    test_data.tv = test_data_bp256t1;
+    test_data.tv_size = test_data_size_bp256t1;
+    test_data.test_type = test_type;
+    
+    return v2x_perf_signature_verification(&test_data);
+}
+
+static int v2x_perf_sig_ver_brainpool_t1p384(perf_test_t test_type)
+{
+    v2x_perf_sig_ver_t test_data;
+
+    test_data.kpi_latency =V2X_KPI_LATENCY_US_SIG_VER_BRAINPOOL_T1_384;
+    test_data.kpi_ops_per_sec = V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_T1_384;
+    test_data.scheme_type = HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384;
+    test_data.key_size = KEY_ECDSA_BRAINPOOL_T1_384_SIZE;
+    test_data.sig_size = SIGNATURE_ECDSA_BRAINPOOL_T1_384_SIZE;
+    test_data.dgst_size = DGST_SHA_384_SIZE;
+    test_data.tv = test_data_bp384t1;
+    test_data.tv_size = test_data_size_bp384t1;
+    test_data.test_type = test_type;
+    
+    return v2x_perf_signature_verification(&test_data);
+}
+
 int v2x_perf_sig_ver_nistp256_ops()
 {
     perf_test_t type_test = OPS_TEST;
@@ -201,4 +274,60 @@ int v2x_perf_sig_ver_sm2_lat()
     perf_test_t type_test = LAT_TEST;
 
     return v2x_perf_sig_ver_sm2(type_test);
+}
+
+int v2x_perf_sig_ver_brainpool_r1p256_ops(void)
+{
+    perf_test_t type_test = OPS_TEST;
+
+    return v2x_perf_sig_ver_brainpool_r1p256(type_test);
+}
+
+int v2x_perf_sig_ver_brainpool_r1p256_lat(void)
+{
+    perf_test_t type_test = LAT_TEST;
+
+    return v2x_perf_sig_ver_brainpool_r1p256(type_test);
+}
+
+int v2x_perf_sig_ver_brainpool_r1p384_ops(void)
+{
+    perf_test_t type_test = OPS_TEST;
+
+    return v2x_perf_sig_ver_brainpool_r1p384(type_test);
+}
+
+int v2x_perf_sig_ver_brainpool_r1p384_lat(void)
+{
+    perf_test_t type_test = LAT_TEST;
+
+    return v2x_perf_sig_ver_brainpool_r1p384(type_test);
+}
+
+int v2x_perf_sig_ver_brainpool_t1p256_ops(void)
+{
+    perf_test_t type_test = OPS_TEST;
+
+    return v2x_perf_sig_ver_brainpool_t1p256(type_test);
+}
+
+int v2x_perf_sig_ver_brainpool_t1p256_lat(void)
+{
+    perf_test_t type_test = LAT_TEST;
+
+    return v2x_perf_sig_ver_brainpool_t1p256(type_test);
+}
+
+int v2x_perf_sig_ver_brainpool_t1p384_ops(void)
+{
+    perf_test_t type_test = OPS_TEST;
+
+    return v2x_perf_sig_ver_brainpool_t1p384(type_test);
+}
+
+int v2x_perf_sig_ver_brainpool_t1p384_lat(void)
+{
+    perf_test_t type_test = LAT_TEST;
+
+    return v2x_perf_sig_ver_brainpool_t1p384(type_test);
 }

@@ -164,12 +164,6 @@ int v2x_butterfly_key_exp_001(void);
 int v2x_parallel_sign_gen_ver_001(void);
 int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
-int v2x_perf_sig_ver_nistp256_ops(void);
-int v2x_perf_sig_ver_nistp384_ops(void);
-int v2x_perf_sig_ver_sm2_ops(void);
-int v2x_perf_sig_ver_nistp256_lat(void);
-int v2x_perf_sig_ver_nistp384_lat(void);
-int v2x_perf_sig_ver_sm2_lat(void);
 int v2x_perf_sig_gen_nistp256_ops(void);
 int v2x_perf_sig_gen_nistp256_lat(void);
 int v2x_perf_sig_gen_nistp384_ops(void);
@@ -184,6 +178,20 @@ int v2x_perf_sig_gen_brainpool_t1p256_ops(void);
 int v2x_perf_sig_gen_brainpool_t1p256_lat(void);
 int v2x_perf_sig_gen_brainpool_t1p384_ops(void);
 int v2x_perf_sig_gen_brainpool_t1p384_lat(void);
+int v2x_perf_sig_ver_nistp256_ops(void);
+int v2x_perf_sig_ver_nistp384_ops(void);
+int v2x_perf_sig_ver_sm2_ops(void);
+int v2x_perf_sig_ver_nistp256_lat(void);
+int v2x_perf_sig_ver_nistp384_lat(void);
+int v2x_perf_sig_ver_sm2_lat(void);
+int v2x_perf_sig_ver_brainpool_r1p256_ops(void);
+int v2x_perf_sig_ver_brainpool_r1p256_lat(void);
+int v2x_perf_sig_ver_brainpool_r1p384_ops(void);
+int v2x_perf_sig_ver_brainpool_r1p384_lat(void);
+int v2x_perf_sig_ver_brainpool_t1p256_ops(void);
+int v2x_perf_sig_ver_brainpool_t1p256_lat(void);
+int v2x_perf_sig_ver_brainpool_t1p384_ops(void);
+int v2x_perf_sig_ver_brainpool_t1p384_lat(void);
 /*===============================*/
 
 #endif
