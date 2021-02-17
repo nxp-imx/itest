@@ -9,8 +9,10 @@
 #include "itest.h"
 #include <stdarg.h>
 
-static uint32_t nvm_status;
-static pthread_t tid;
+static uint32_t nvm_status_v2x = NVM_STATUS_STOPPED;
+static uint32_t nvm_status_seco = NVM_STATUS_STOPPED;
+static pthread_t tid_v2x;
+static pthread_t tid_seco;
 static char ITEST_CTX_PATH[] = "/etc/itest/";
 
 #define TIMEOUT_START_NVM 10000
@@ -29,39 +31,50 @@ void outputLog(const char *const format, ...)
 
 static void *hsm_storage_thread(void *arg)
 {
-    seco_nvm_manager(*(uint8_t *)arg, &nvm_status);
+    if(*(uint8_t *)arg == (NVM_FLAGS_V2X | NVM_FLAGS_HSM))
+	seco_nvm_manager(*(uint8_t *)arg, &nvm_status_v2x);
+    else
+	seco_nvm_manager(*(uint8_t *)arg, &nvm_status_seco);
     return (void *) NULL;
 }
 
-static hsm_err_t start_nvm(uint8_t arg){
+static hsm_err_t start_nvm(uint8_t arg, uint32_t *nvm_status, pthread_t *tid){
 
     int i = 0;
-    nvm_status = NVM_STATUS_UNDEF;
-    (void)pthread_create(&tid, NULL, hsm_storage_thread, &arg);
-    while (nvm_status <= NVM_STATUS_STARTING) {
+    *nvm_status = NVM_STATUS_UNDEF;
+    (void)pthread_create(tid, NULL, hsm_storage_thread, &arg);
+    while (*nvm_status <= NVM_STATUS_STARTING) {
         usleep(T_NVM_WAIT);
         if ((i += T_NVM_WAIT) > TIMEOUT_START_NVM){
-            nvm_status = NVM_STATUS_UNDEF;
+            *nvm_status = NVM_STATUS_UNDEF;
             break;
         }
     }
-    return nvm_status;
+    return *nvm_status;
 }
 
 hsm_err_t start_nvm_v2x(void){
-    return start_nvm(NVM_FLAGS_V2X | NVM_FLAGS_HSM);
+    return start_nvm(NVM_FLAGS_V2X | NVM_FLAGS_HSM, &nvm_status_v2x, &tid_v2x);
 }
 
 hsm_err_t start_nvm_seco(void){
-    return start_nvm(NVM_FLAGS_HSM);
+    return start_nvm(NVM_FLAGS_HSM, &nvm_status_seco, &tid_seco);
 }
 
 hsm_err_t stop_nvm_v2x(void){
-    if (nvm_status != NVM_STATUS_STOPPED) {
-        pthread_cancel(tid);
+    if (nvm_status_v2x != NVM_STATUS_STOPPED) {
+        pthread_cancel(tid_v2x);
     }
     seco_nvm_close_session();
-    return nvm_status;
+    return nvm_status_v2x;
+}
+
+hsm_err_t stop_nvm_seco(void){
+    if (nvm_status_seco != NVM_STATUS_STOPPED) {
+        pthread_cancel(tid_seco);
+    }
+    seco_nvm_close_session();
+    return nvm_status_seco;
 }
 
 
@@ -138,6 +151,13 @@ size_t randomize(void *out, size_t count){
 uint32_t clear_v2x_nvm(void) {
 
     system("rm -rf /etc/v2x_hsm");
+    system("sync");
+    return 0;
+}
+
+uint32_t clear_seco_nvm(void) {
+
+    system("rm -rf /etc/seco_hsm");
     system("sync");
     return 0;
 }
