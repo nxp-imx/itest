@@ -13,9 +13,9 @@ HSM_INC := $(HSM_PATH)/include/hsm
 NVM_INC := $(HSM_PATH)/include
 IDIR := -I$(HSM_INC) -I$(NVM_INC) -Iinc -Ilib/openssl-$(OPENSSL_VER)
 
-CCFLAG := -lpthread -ldl -lz -Wall -Wextra
+CCFLAG := -lpthread -ldl -lz -Wall -Wextra -Werror
 LIBSTATIC := $(HSM_LIB) lib/$(ARCH)/libgomp.a lib/$(ARCH)/libcrypto.a lib/$(ARCH)/libssl.a
-CCOBJFLAG := -c $(IDIR) -Wall -Wextra -fopenmp
+CCOBJFLAG := -c $(IDIR) -Wall -Wextra -Werror -fopenmp
 
 # path macros
 BINDIR := $(CURDIR)/bin
