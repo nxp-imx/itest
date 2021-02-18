@@ -133,6 +133,7 @@ hsm_err_t start_nvm_v2x(void);
 hsm_err_t stop_nvm_v2x(void);
 hsm_err_t stop_nvm_seco(void);
 uint32_t clear_v2x_nvm(void);
+uint32_t clear_seco_nvm(void);
 /*===========TEST CTX============*/
 size_t save_test_ctx(void *ctx, size_t count, char *file);
 size_t load_test_ctx(void *ctx, size_t count, char *file);
@@ -163,6 +164,7 @@ int v2x_pub_key_decompression_001(void);
 int v2x_auth_enc_test(void);
 int v2x_butterfly_key_exp_001(void);
 int v2x_parallel_sign_gen_ver_001(void);
+int v2x_parallel_sign_gen_key_gen_001(void);
 int v2x_parallel_stress_v2xp_001(void);
 int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
