@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
-// requirement: if max update = 0 the stored ks can't be updated
+// requirement: if max update = 0 the stored max update is the nb hsm of bits
 
 typedef struct {
     uint8_t cipher_buff[2048];
@@ -142,7 +142,7 @@ int v2x_ks_no_update_001_part2(void){
     gen_key_args.key_info = 0U;
     gen_key_args.out_key = NULL;
     // GEN SM4 KEY + STORE IN NVM
-    ASSERT_NOT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
     //OPEN CIPHER SG0
     cipher_srv_args.flags = 0U;
