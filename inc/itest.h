@@ -196,6 +196,9 @@ int v2x_perf_sig_ver_brainpool_t1p256_ops(void);
 int v2x_perf_sig_ver_brainpool_t1p256_lat(void);
 int v2x_perf_sig_ver_brainpool_t1p384_ops(void);
 int v2x_perf_sig_ver_brainpool_t1p384_lat(void);
+int seco_ks_import_export_001(void);
+int seco_ks_import_export_001_part2(void);
+int seco_ks_bad_auth_001(void);
 /*===============================*/
 
 #endif

@@ -52,6 +52,9 @@ testsuite dxl_ts[] = {
     {v2x_perf_sig_ver_sm2_lat,               "v2x_perf_sig_ver_sm2_lat",               DXL},
     {v2x_perf_sig_ver_nistp256_lat,          "v2x_perf_sig_ver_nistp256_lat",          DXL},
     {v2x_perf_sig_ver_nistp384_lat,          "v2x_perf_sig_ver_nistp384_lat",          DXL},
+    {seco_ks_import_export_001,              "seco_ks_import_export_001",              DXL},
+    {seco_ks_import_export_001_part2,        "seco_ks_import_export_001_part2",        DXL},
+    {seco_ks_bad_auth_001,                   "seco_ks_bad_auth_001",                   DXL},
     
 
     
