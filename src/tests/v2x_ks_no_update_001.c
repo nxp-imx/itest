@@ -108,6 +108,7 @@ int v2x_ks_no_update_001_part2(void){
     uint8_t decrypt_buff[2048];
     test_ctx_t ctx;
     uint16_t cipher_len = 512;
+    uint32_t key_id;
 
     // LOAD THE TEXT CONTEXT
     ASSERT_NOT_EQUAL(load_test_ctx(&ctx, sizeof(test_ctx_t), "v2x_ks_max_update_0_test_ctx.bin"), 0);
@@ -134,7 +135,7 @@ int v2x_ks_no_update_001_part2(void){
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
     // PARAM SM4 KEY_GEN strict_update
-    gen_key_args.key_identifier = &ctx.key_id;
+    gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 0;
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
     gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
