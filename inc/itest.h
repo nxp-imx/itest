@@ -166,6 +166,7 @@ int v2x_butterfly_key_exp_001(void);
 int v2x_parallel_sign_gen_ver_001(void);
 int v2x_parallel_sign_gen_key_gen_001(void);
 int v2x_parallel_stress_v2xp_001(void);
+int v2x_prepare_signature_001(void);
 int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
 int v2x_perf_sig_gen_nistp256_ops(void);

@@ -24,6 +24,7 @@ testsuite dxl_ts[] = {
     //{v2x_parallel_stress_v2xp_001,           "v2x_parallel_stress_v2xp_001",           DXL},
     {v2x_cipher_ccm_perf,                    "v2x_cipher_ccm_perf",                    DXL},
     {v2x_sign_gen_verify_perf,               "v2x_sign_gen_verify_perf",               DXL},
+    {v2x_prepare_signature_001,              "v2x_prepare_signature_001",              DXL},
     {v2x_perf_sig_gen_nistp256_ops,          "v2x_perf_sig_gen_nistp256_ops",          DXL},
     {v2x_perf_sig_gen_nistp256_lat,          "v2x_perf_sig_gen_nistp256_lat",          DXL},
     {v2x_perf_sig_gen_nistp384_ops,          "v2x_perf_sig_gen_nistp384_ops",          DXL},
