@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "itest.h"
 
-// perf test of various algo
+// auth encrypt test iv full generated + iv not fully generated
 
 int v2x_auth_enc_test(void){
 
@@ -22,10 +22,10 @@ int v2x_auth_enc_test(void){
     uint8_t buff_encr[1024];
     uint8_t buff_decr[1024];
     uint8_t msg[1024];
-    uint8_t iv[16];
     
     uint32_t msg_size = 378;
     uint8_t aad[16] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+    uint8_t *iv = &buff_encr[msg_size + 16U];
 
     clear_v2x_nvm();
     
@@ -55,6 +55,7 @@ int v2x_auth_enc_test(void){
     key_mgmt_srv_args.flags = 0;
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
+    // ======================== FULL IV GENERATED ========================
     gen_key_args.key_identifier = &key_id_aes_128;
     gen_key_args.out_size = 0;
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
@@ -62,7 +63,6 @@ int v2x_auth_enc_test(void){
     gen_key_args.key_group = 1;
     gen_key_args.key_info = 0U;
     gen_key_args.out_key = NULL;
-
     // GEN KEY AES_128
     ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
     
@@ -79,15 +79,15 @@ int v2x_auth_enc_test(void){
     // AUTH ENC KEY AES128 -> ENCRYPT
     auth_enc_args.key_identifier = key_id_aes_128;
     auth_enc_args.iv = iv;
-    auth_enc_args.iv_size = 12U;
+    auth_enc_args.iv_size = 0U;
     auth_enc_args.aad = aad;
     auth_enc_args.aad_size = 16U;
     auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
     auth_enc_args.input = msg;
     auth_enc_args.output = buff_encr;
     auth_enc_args.input_size = msg_size;
-    auth_enc_args.output_size = msg_size + 16U;
+    auth_enc_args.output_size = msg_size + 16U + 12U;
     ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
 
     // AUTH ENC KEY AES128 -> DECRYPT
@@ -109,15 +109,15 @@ int v2x_auth_enc_test(void){
     // AUTH ENC KEY AES192 -> ENCRYPT
     auth_enc_args.key_identifier = key_id_aes_192;
     auth_enc_args.iv = iv;
-    auth_enc_args.iv_size = 12U;
+    auth_enc_args.iv_size = 0U;
     auth_enc_args.aad = aad;
     auth_enc_args.aad_size = 16U;
     auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
     auth_enc_args.input = msg;
     auth_enc_args.output = buff_encr;
     auth_enc_args.input_size = msg_size;
-    auth_enc_args.output_size = msg_size + 16U;
+    auth_enc_args.output_size = msg_size + 16U + 12U;
     ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
 
     // AUTH ENC KEY AES192 -> DECRYPT
@@ -140,15 +140,134 @@ int v2x_auth_enc_test(void){
     // AUTH ENC KEY AES256 -> ENCRYPT
     auth_enc_args.key_identifier = key_id_aes_256;
     auth_enc_args.iv = iv;
+    auth_enc_args.iv_size = 0U;
+    auth_enc_args.aad = aad;
+    auth_enc_args.aad_size = 16U;
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
+    auth_enc_args.input = msg;
+    auth_enc_args.output = buff_encr;
+    auth_enc_args.input_size = msg_size;
+    auth_enc_args.output_size = msg_size + 16U + 12U;
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
+
+    // AUTH ENC KEY AES256 -> DECRYPT
+    auth_enc_args.key_identifier = key_id_aes_256;
+    auth_enc_args.iv = iv;
     auth_enc_args.iv_size = 12U;
     auth_enc_args.aad = aad;
     auth_enc_args.aad_size = 16U;
     auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+    auth_enc_args.input = buff_encr;
+    auth_enc_args.output = buff_decr;
+    auth_enc_args.input_size = msg_size + 16U;
+    auth_enc_args.output_size = msg_size;
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
+    // CHECK DECRYPTED OUTPUT
+    ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
+
+    // ======================== NOT FULL IV GENERATED ========================
+    // INPUT BUFF AS RANDOM
+    ASSERT_EQUAL(randomize(msg, 300), 300);
+    ASSERT_EQUAL(randomize(iv, 16), 16);
+
+    gen_key_args.key_identifier = &key_id_aes_128;
+    gen_key_args.out_size = 0;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_AES_128;
+    gen_key_args.key_group = 1;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = NULL;
+    // GEN KEY AES_128
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+    
+    // GEN KEY AES_192
+    gen_key_args.key_identifier = &key_id_aes_192;
+    gen_key_args.key_type = HSM_KEY_TYPE_AES_192;
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+
+    // GEN KEY AES_256
+    gen_key_args.key_identifier = &key_id_aes_256;
+    gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+
+    // AUTH ENC KEY AES128 -> ENCRYPT
+    auth_enc_args.key_identifier = key_id_aes_128;
+    auth_enc_args.iv = iv;
+    auth_enc_args.iv_size = 4U;
+    auth_enc_args.aad = aad;
+    auth_enc_args.aad_size = 16U;
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
     auth_enc_args.input = msg;
     auth_enc_args.output = buff_encr;
     auth_enc_args.input_size = msg_size;
-    auth_enc_args.output_size = msg_size + 16U;
+    auth_enc_args.output_size = msg_size + 16U + 12U;
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
+    // BAD PARAM TEST
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT;
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_INVALID_PARAM);
+
+    // AUTH ENC KEY AES128 -> DECRYPT
+    auth_enc_args.key_identifier = key_id_aes_128;
+    auth_enc_args.iv = iv;
+    auth_enc_args.iv_size = 12U;
+    auth_enc_args.aad = aad;
+    auth_enc_args.aad_size = 16U;
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+    auth_enc_args.input = buff_encr;
+    auth_enc_args.output = buff_decr;
+    auth_enc_args.input_size = msg_size + 16U;
+    auth_enc_args.output_size = msg_size;
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
+    // CHECK DECRYPTED OUTPUT
+    ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
+
+    // AUTH ENC KEY AES192 -> ENCRYPT
+    auth_enc_args.key_identifier = key_id_aes_192;
+    auth_enc_args.iv = iv;
+    auth_enc_args.iv_size = 4U;
+    auth_enc_args.aad = aad;
+    auth_enc_args.aad_size = 16U;
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
+    auth_enc_args.input = msg;
+    auth_enc_args.output = buff_encr;
+    auth_enc_args.input_size = msg_size;
+    auth_enc_args.output_size = msg_size + 16U + 12U;
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
+
+    // AUTH ENC KEY AES192 -> DECRYPT
+    auth_enc_args.key_identifier = key_id_aes_192;
+    auth_enc_args.iv = iv;
+    auth_enc_args.iv_size = 12U;
+    auth_enc_args.aad = aad;
+    auth_enc_args.aad_size = 16U;
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+    auth_enc_args.input = buff_encr;
+    auth_enc_args.output = buff_decr;
+    auth_enc_args.input_size = msg_size + 16U;
+    auth_enc_args.output_size = msg_size;
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
+    // CHECK DECRYPTED OUTPUT
+    ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
+
+
+    // AUTH ENC KEY AES256 -> ENCRYPT
+    auth_enc_args.key_identifier = key_id_aes_256;
+    auth_enc_args.iv = iv;
+    auth_enc_args.iv_size = 4U;
+    auth_enc_args.aad = aad;
+    auth_enc_args.aad_size = 16U;
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
+    auth_enc_args.input = msg;
+    auth_enc_args.output = buff_encr;
+    auth_enc_args.input_size = msg_size;
+    auth_enc_args.output_size = msg_size + 16U + 12U;
     ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
 
     // AUTH ENC KEY AES256 -> DECRYPT
@@ -167,7 +286,6 @@ int v2x_auth_enc_test(void){
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
     
-    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_management_service(sg0_key_mgmt_srv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
