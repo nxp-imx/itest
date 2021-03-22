@@ -26,6 +26,9 @@ OBJ_PATH := $(OBJDIR)/$(ARCH)
 # path tests
 SRC_TEST_PATH := $(CURDIR)/src/tests
 OBJ_TEST_PATH := $(CURDIR)/obj/$(ARCH)/tests
+# path crypto
+SRC_CRYPTO_PATH := $(CURDIR)/src/crypto_utils
+OBJ_CRYPTO_PATH := $(CURDIR)/obj/$(ARCH)/crypto_utils
 
 # compile macros
 TARGET_NAME := itest
@@ -41,21 +44,26 @@ OBJ := $(addprefix $(OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
 SRC_TEST := $(foreach x, $(SRC_TEST_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
 OBJ_TEST := $(addprefix $(OBJ_TEST_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC_TEST)))))
 
+# src_crypto files & obj crypto files ****
+SRC_CRYPTO := $(foreach x, $(SRC_CRYPTO_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
+OBJ_CRYPTO := $(addprefix $(OBJ_CRYPTO_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC_CRYPTO)))))
+
 # clean files list
 CLEAN_LIST := $(TARGET)       \
 			  $(OBJ)          \
 			  $(OBJ_TEST)     \
+			  $(OBJ_CRYPTO)   \
 
 # create missing directory
 MKDIR_P := mkdir -p
 
-OUT_DIR := ${BIN_PATH} ${OBJ_PATH} $(OBJ_TEST_PATH)
+OUT_DIR := ${BIN_PATH} ${OBJ_PATH} $(OBJ_TEST_PATH) $(OBJ_CRYPTO_PATH)
 
 ${OUT_DIR}:
 	@${MKDIR_P} ${OUT_DIR}
 
 # non-phony targets
-$(TARGET): $(OBJ) $(OBJ_TEST)
+$(TARGET): $(OBJ) $(OBJ_TEST) $(OBJ_CRYPTO)
 	$(CC) -o $@ $? $(LIBSTATIC) $(CCFLAG)
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
@@ -63,6 +71,9 @@ $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 
 # generate rules for tests files ****
 $(OBJ_TEST_PATH)/%.o: $(SRC_TEST_PATH)/%.c*
+	$(CC) $(CCOBJFLAG) -o $@ $<
+# generate rules for crypto files ****
+$(OBJ_CRYPTO_PATH)/%.o: $(SRC_CRYPTO_PATH)/%.c*
 	$(CC) $(CCOBJFLAG) -o $@ $<
 
 .PHONY: all clean directories check-env
