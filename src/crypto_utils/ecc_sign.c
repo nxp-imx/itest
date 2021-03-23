@@ -36,7 +36,6 @@ static EC_KEY *EC_KEY_bin2key(int curve, unsigned char *inpub, int size_pub, uns
     return eckey;
 }
 
-// need to call OPENSSL_free() to clean the memory allocation after calling this function
 static int EC_KEY_key2bin(EC_KEY *eckey, unsigned char *outpub, int *size_pub, unsigned char *outpriv, int *size_priv) {
 
     const BIGNUM *priv;
@@ -118,6 +117,11 @@ int generate_signature(int curve, unsigned char *privk, int size_privk, unsigned
     const BIGNUM *ps = NULL;
 
     do {
+        // TODO: plug sm2 on the sign gen
+        if (curve == NID_sm2) {
+            ret = 0;
+            break;
+        }
         if (privk == NULL || size_privk == 0 || in == NULL || out_sign == NULL) {
             ITEST_LOG("generate_signature bad param...\n");
             break;            
@@ -174,6 +178,11 @@ int verify_signature(int curve, unsigned char *pubk, int size_pubk, unsigned cha
     BIGNUM *ps = NULL;
 
     do {
+        // TODO: plug sm2 on the verify
+        if (curve == NID_sm2) {
+            ret = 1;
+            break;
+        }
         if ((privk == NULL && pubk == NULL) || (privk != NULL && size_privk == 0) ||\
             (pubk != NULL && size_pubk == 0) || in == NULL || sign == NULL || sign_size == 0) {
             ITEST_LOG("verify_signature bad param...\n");
