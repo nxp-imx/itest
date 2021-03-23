@@ -170,6 +170,7 @@ int v2x_prepare_signature_001(void);
 int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
 int v2x_hash_one_go_all_001(void);
+int openssl_sanity(void);
 int v2x_perf_sig_gen_nistp256_ops(void);
 int v2x_perf_sig_gen_nistp256_lat(void);
 int v2x_perf_sig_gen_nistp384_ops(void);

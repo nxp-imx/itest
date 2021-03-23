@@ -3,11 +3,11 @@
 #include "itest.h"
 
 
-int hash_one_go(char *in, unsigned char *out, char *dgst_type, int size)
+int hash_one_go(unsigned char *in, unsigned char *out, char *dgst_type, int size)
 {
     EVP_MD_CTX *mdctx;
     const EVP_MD *md;
-    unsigned int md_len;
+    unsigned int md_len = 0;
 
     OpenSSL_add_all_digests();
 

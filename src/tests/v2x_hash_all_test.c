@@ -83,7 +83,7 @@ int v2x_hash_one_go_all_001(void){
             ASSERT_EQUAL(randomize(dgst_in_buff, size_input), size_input);
             ASSERT_EQUAL(hsm_hash_one_go(sv0_hash_serv, &hash_args), HSM_NO_ERROR);
             // GEN EXPECTED DIGEST (OPENSSL)
-            ASSERT_EQUAL(hash_one_go((char *)dgst_in_buff, (char *) dgst_expected, algos_str[i], size_input), dgst_size[i]);
+            ASSERT_EQUAL(hash_one_go((unsigned char *)dgst_in_buff, (unsigned char *) dgst_expected, algos_str[i], size_input), dgst_size[i]);
             // CHECK HASH OUTPUT
             ASSERT_EQUAL(memcmp(dgst_out_buff, dgst_expected, dgst_size[i]), 0);
 
@@ -92,7 +92,7 @@ int v2x_hash_one_go_all_001(void){
             ASSERT_EQUAL(randomize(dgst_in_buff, size_input), size_input);
             ASSERT_EQUAL(hsm_hash_one_go(sv1_hash_serv, &hash_args), HSM_NO_ERROR);
             // GEN EXPECTED DIGEST (OPENSSL)
-            ASSERT_EQUAL(hash_one_go((char *)dgst_in_buff, (char *) dgst_expected, algos_str[i], size_input), dgst_size[i]);
+            ASSERT_EQUAL(hash_one_go((unsigned char *)dgst_in_buff, (unsigned char *) dgst_expected, algos_str[i], size_input), dgst_size[i]);
             // CHECK HASH OUTPUT
             ASSERT_EQUAL(memcmp(dgst_out_buff, dgst_expected, dgst_size[i]), 0);
         }
