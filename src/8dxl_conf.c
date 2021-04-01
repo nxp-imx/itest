@@ -19,13 +19,20 @@ testsuite dxl_ts[] = {
     {v2x_auth_enc_test,                      "v2x_auth_enc_test",                      DXL},
     {v2x_pub_key_decompression_001,          "v2x_pub_key_decompression_001",          DXL},
     {v2x_butterfly_key_exp_001,              "v2x_butterfly_key_exp_001",              DXL},
-    //{v2x_parallel_sign_gen_key_gen_001,      "v2x_parallel_sign_gen_key_gen_001",      DXL},
+    //{v2x_parallel_sign_gen_key_gen_001,      "v2x_parallel_sign_gen_key_gen_001",      DXL},  NVM issue in // stress test
     {v2x_parallel_sign_gen_ver_001,          "v2x_parallel_sign_gen_ver_001",          DXL},
-    //{v2x_parallel_stress_v2xp_001,           "v2x_parallel_stress_v2xp_001",           DXL},
+    {v2x_rex_stress_v2xp_001,                "v2x_rex_stress_v2xp_001",                DXL},
     {v2x_cipher_ccm_perf,                    "v2x_cipher_ccm_perf",                    DXL},
     {v2x_sign_gen_verify_perf,               "v2x_sign_gen_verify_perf",               DXL},
     {v2x_prepare_signature_001,              "v2x_prepare_signature_001",              DXL},
     {v2x_hash_one_go_all_001,                "v2x_hash_one_go_all_001",                DXL},
+    {v2x_ks_create_bad_id_001,               "v2x_ks_create_bad_id_001",               DXL},
+    {v2x_ping_all_mu,                        "v2x_ping_all_mu",                        DXL},
+
+    {seco_ks_import_export_001,              "seco_ks_import_export_001",              DXL},
+    {seco_ks_import_export_001_part2,        "seco_ks_import_export_001_part2",        DXL},
+    {seco_ks_bad_auth_001,                   "seco_ks_bad_auth_001",                   DXL},
+    
     {v2x_perf_sig_gen_nistp256_ops,          "v2x_perf_sig_gen_nistp256_ops",          DXL},
     {v2x_perf_sig_gen_nistp256_lat,          "v2x_perf_sig_gen_nistp256_lat",          DXL},
     {v2x_perf_sig_gen_nistp384_ops,          "v2x_perf_sig_gen_nistp384_ops",          DXL},
@@ -54,12 +61,7 @@ testsuite dxl_ts[] = {
     {v2x_perf_sig_ver_sm2_lat,               "v2x_perf_sig_ver_sm2_lat",               DXL},
     {v2x_perf_sig_ver_nistp256_lat,          "v2x_perf_sig_ver_nistp256_lat",          DXL},
     {v2x_perf_sig_ver_nistp384_lat,          "v2x_perf_sig_ver_nistp384_lat",          DXL},
-    {seco_ks_import_export_001,              "seco_ks_import_export_001",              DXL},
-    {seco_ks_import_export_001_part2,        "seco_ks_import_export_001_part2",        DXL},
-    {seco_ks_bad_auth_001,                   "seco_ks_bad_auth_001",                   DXL},
     //{openssl_sanity,                         "openssl_sanity",                         DXL},
-    
-
     
     {NULL, NULL, DXL},
 };

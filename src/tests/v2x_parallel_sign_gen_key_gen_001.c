@@ -146,6 +146,18 @@ int v2x_parallel_sign_gen_key_gen_001(void){
     ASSERT_EQUAL(hsm_open_signature_verification_service(sv1_sess, &sig_ver_srv_args, &sv1_sig_ver_serv), HSM_NO_ERROR);
 
     for(i = 0; i < NB_ALGO; i++){
+
+        // CREATE a dummy key
+        gen_key_args.key_identifier = &dummy_32;
+        gen_key_args.out_size = size_pub_key[i];
+        gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+        gen_key_args.key_type = algos[i];
+        gen_key_args.key_group = 1;
+        gen_key_args.key_info = 0U;
+        gen_key_args.out_key = dummy_key;
+        // GEN KEY + STORE IN NVM
+        ASSERT_EQUAL(hsm_generate_key(sg1_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+
         // PARAM KEY_GEN strict_update
         gen_key_args.key_identifier = &key_id_0;
         gen_key_args.out_size = size_pub_key[i];
@@ -226,7 +238,7 @@ int v2x_parallel_sign_gen_key_gen_001(void){
                 for (j = 0; j < iter; j++) {
 		            gen_key_args.key_identifier = &dummy_32;
 		            gen_key_args.out_size = size_pub_key[i];
-                    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+                    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_UPDATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
                     gen_key_args.key_type = algos[i];
                     gen_key_args.key_group = 1;
                     gen_key_args.key_info = 0U;

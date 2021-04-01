@@ -7,6 +7,7 @@
 #include <time.h>
 #include <signal.h>
 #include "hsm_api.h"
+#include "../src/seco_os_abs.h"
 #include "seco_nvm.h"
 
 /*===========Test API============*/
@@ -145,7 +146,10 @@ void stop_timer(timer_perf_t *timer);
 void finalize_timer(timer_perf_t *timer, uint32_t nb_iter);
 uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
 void print_perf(timer_perf_t *timer);
-/*===============================*/
+/*==========LOW LEVEL API========*/
+uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi);
+uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id);
+uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi);
 
 /*==========Tests list===========*/
 int v2x_chunk_swap_001(void);
@@ -165,11 +169,12 @@ int v2x_auth_enc_test(void);
 int v2x_butterfly_key_exp_001(void);
 int v2x_parallel_sign_gen_ver_001(void);
 int v2x_parallel_sign_gen_key_gen_001(void);
-int v2x_parallel_stress_v2xp_001(void);
+int v2x_rex_stress_v2xp_001(void);
 int v2x_prepare_signature_001(void);
 int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
 int v2x_hash_one_go_all_001(void);
+int v2x_ks_create_bad_id_001(void);
 int openssl_sanity(void);
 int v2x_perf_sig_gen_nistp256_ops(void);
 int v2x_perf_sig_gen_nistp256_lat(void);
@@ -203,6 +208,6 @@ int seco_ks_import_export_001(void);
 int seco_ks_import_export_001_part2(void);
 int seco_ks_bad_auth_001(void);
 /*===============================*/
-
+int v2x_ping_all_mu(void);
 #endif
 

@@ -4,7 +4,7 @@
 #include "itest.h"
 // requirement: test the rex and scheduler on v2xp 
 
-int v2x_parallel_stress_v2xp_001(void){
+int v2x_rex_stress_v2xp_001(void){
 
     open_session_args_t args;
     open_svc_rng_args_t rng_srv_args;

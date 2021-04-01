@@ -208,3 +208,99 @@ void print_perf(timer_perf_t *timer) {
         timer->t_per_op, timer->min_time_us, timer->time_us, timer->nb_iter);
     ITEST_LOG("============\n");
 }
+
+/*==========LOW LEVEL TESTING LINUX ABSTRACTION==========*/
+
+#define NB_MU 8
+
+struct ll_mu_t {
+    uint32_t fd;
+    struct seco_mu_params mu_info;
+    struct seco_os_abs_hdl *hdl;
+};
+
+static uint32_t mu_id2lib_muid(uint32_t mu_id) {
+    uint32_t mu_lib_id = 0;
+    switch (mu_id) {
+    case MU_CHANNEL_SECO_SHE:
+        mu_lib_id = 0;
+        break;
+    case MU_CHANNEL_SECO_HSM:
+        mu_lib_id = 1;
+        break;
+    case MU_CHANNEL_SECO_HSM_2ND:
+        mu_lib_id = 2;
+        break;
+    case MU_CHANNEL_V2X_SV0:
+        mu_lib_id = 3;
+        break;
+    case MU_CHANNEL_V2X_SV1:
+        mu_lib_id = 4;
+        break;
+    case MU_CHANNEL_V2X_SHE:
+        mu_lib_id = 5;
+        break;
+    case MU_CHANNEL_V2X_SG0:
+        mu_lib_id = 6;
+        break;
+    case MU_CHANNEL_V2X_SG1:
+        mu_lib_id = 7;
+        break;
+    default:
+        mu_lib_id = 0;
+        break;
+    }
+    return mu_lib_id;
+}
+static struct ll_mu_t mu_list[NB_MU];
+uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi) {
+    uint32_t count = 0;
+    uint32_t mu_lib_id = mu_id2lib_muid(mu_id);
+    uint32_t i;
+
+    nmi = 0; // no nmi control on linux userspace
+
+    if (mu_list[mu_lib_id].hdl == NULL) {
+        mu_list[mu_lib_id].hdl = seco_os_abs_open_mu_channel(mu_id, &mu_list[mu_lib_id].mu_info);
+        if (mu_list[mu_lib_id].hdl == NULL)
+            return count;
+    }
+
+    count = seco_os_abs_send_mu_message(mu_list[mu_lib_id].hdl, msg, size);
+    printf("send msg (mu %d, nmi %d, count %d) -> ", mu_lib_id, nmi, count);
+    for (i = 0; i < size/sizeof(uint32_t); i++) {
+        printf("0x%x ", msg[i]);
+    }
+    printf("\n");
+    return count;
+}
+uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id) {
+    uint32_t count = 0;
+    uint32_t mu_lib_id = mu_id2lib_muid(mu_id);
+    uint32_t i;
+
+    if (mu_list[mu_lib_id].hdl == NULL) {
+        mu_list[mu_lib_id].hdl = seco_os_abs_open_mu_channel(mu_id, &mu_list[mu_lib_id].mu_info);
+        if (mu_list[mu_lib_id].hdl == NULL)
+            return count;
+    }
+
+    count = seco_os_abs_read_mu_message(mu_list[mu_lib_id].hdl, msg, size);
+    printf("rcv msg (mu %d, count %d)          -> ", mu_lib_id, count);
+    for (i = 0; i < size/sizeof(uint32_t); i++) {
+        printf("0x%x ", msg[i]);
+    }
+    printf("\n");
+    return count;
+}
+uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi) {
+    uint32_t count = 0;
+
+    count = send_msg(msg_in, size_in, mu_id, nmi);
+    if (count != size_in)
+        return 0;
+    count = rcv_msg(msg_out, size_out, mu_id);
+    if (count != size_out)
+        return 0;
+    return count;
+}

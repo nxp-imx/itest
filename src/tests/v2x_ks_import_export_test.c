@@ -27,6 +27,7 @@ int v2x_ks_import_export_001(void){
     hsm_hdl_t sg0_cipher_hdl;
     test_ctx_t ctx;
     uint16_t cipher_len = 512;
+    uint32_t i;
 
     clear_v2x_nvm();
 
@@ -44,7 +45,7 @@ int v2x_ks_import_export_001(void){
     // KEY STORE SG0
     key_store_srv_args.key_store_identifier = (uint32_t) 0x12121212;
     key_store_srv_args.authentication_nonce = (uint32_t) 0x12345678;
-    key_store_srv_args.max_updates_number = 12;
+    key_store_srv_args.max_updates_number = 0;
     key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
     key_store_srv_args.signed_message = NULL;
     key_store_srv_args.signed_msg_size = 0;
@@ -62,13 +63,16 @@ int v2x_ks_import_export_001(void){
     gen_key_args.key_group = 1;
     gen_key_args.key_info = 0U;
     gen_key_args.out_key = NULL;
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
+    for(i = 0; i < 1000; i++) {
+        gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_UPDATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+        // GEN SM4 KEY + STORE IN NVM
+        ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+    }
     //OPEN CIPHER SG0
     cipher_srv_args.flags = 0U;
     ASSERT_EQUAL(hsm_open_cipher_service(sg0_key_store_serv, &cipher_srv_args, &sg0_cipher_hdl), HSM_NO_ERROR);
-
-    // GEN SM4 KEY + STORE IN NVM
-    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
     // CIPHER ONE GO
     cipher_args.key_identifier = ctx.key_id;
