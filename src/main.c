@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include "itest.h"
-#include "8dxl_conf.h"
+#include "dut_conf.h"
 
 #define ITEST_VERSION "2.0"
 

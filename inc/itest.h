@@ -11,9 +11,9 @@
 #include "seco_nvm.h"
 
 /*===========Test API============*/
-#define QXP 0x1
-#define QM  0x2
-#define DXL 0x4
+#define QXP_C0 0x1
+#define QXP_B0 0x2
+#define DXL_A1 0x4
 
 #define TRUE_TEST 1
 #define FALSE_TEST 0
