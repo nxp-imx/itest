@@ -44,6 +44,7 @@ OPTIONS:\n\
   -h: Print this help\n\
   -v: Print test suite version\n\
   -l: List all tests\n\
+  -c: <dut config> DXL_A1 - QXP_C0 - QXP_B0\n\
   -t <test_name> : Run test test_name\n\
   -b <bootimg download link>: Add in lava .yaml the bootimg link where lava can download the new bootimg to download\n\
   -g <test suite download link>: Generate the .yaml file for lava to run all tests, in param the link where lava can download this test suite\n");
@@ -86,16 +87,35 @@ static void itest_init(void) {
 
 }
 
+int init_conf(char *target) {
+
+    if (!strcmp(target, "DXL_A1")) {
+        itest_ctx.ts = dxl_ts;
+    }
+    else if (!strcmp(target, "QXP_B0")) {
+        itest_ctx.ts = qxp_b0_ts;
+    }
+    else if (!strcmp(target, "QXP_C0")) {
+        itest_ctx.ts = qxp_c0_ts;
+    }
+    else {
+        ITEST_LOG(" unknow target (DXL_A1 / QXP_B0 / QXP_C0) \n");
+        return 0;
+    }
+    return 1;
+}
+
 int main(int argc, char *argv[]){
         
     int i = 0;
     int status = 0;
     int c;
+    int print_ts = 0;
 
     itest_init();
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "hlvd:m:r:k:b:g:t:")) != -1) {
+    while ((c = getopt (argc, argv, "hlvd:m:r:k:b:g:t:c:")) != -1) {
         switch (c)
         {
         case 't':
@@ -105,8 +125,8 @@ int main(int argc, char *argv[]){
             print_version();
             return 0;
         case 'l':
-            print_test_suite(itest_ctx.ts);
-            return 0;
+            print_ts = 1;
+            break;
         case 'g':
             itest_ctx.ts_dl_link = optarg;
             break;
@@ -125,13 +145,18 @@ int main(int argc, char *argv[]){
         case 'd':
             itest_ctx.dtb_dl_link = optarg;
             break;
+        case 'c':
+            if (!init_conf(optarg))
+                return 0;
+            break;
         case 'h':
             print_help();
             return 0;
         case '?':
-            if ((optopt == 't') || (optopt == 'g')){
+            if ((optopt == 't') || (optopt == 'g') || (optopt == 'c')){
                 fprintf (stderr, "Option -%c requires an argument.\n", optopt);
                 print_help();
+                return 0;
             }
             else{
                 fprintf (stderr, "Unknown option character -%c.\n", optopt);
@@ -141,6 +166,11 @@ int main(int argc, char *argv[]){
         default:
             abort();
         }
+    }
+
+    if (print_ts == 1) {
+        print_test_suite(itest_ctx.ts);
+        return 0;
     }
 
     if (itest_ctx.ts_dl_link != NULL) {

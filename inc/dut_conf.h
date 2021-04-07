@@ -18,7 +18,7 @@ extern testsuite qxp_c0_ts[];
 extern const char *lava_test_qxp_b0;
 extern const char *lava_get_test_suite_qxp_b0;
 extern const char *lava_dl_flash_bootimg_qxp_b0;
-extern testsuite qxp_c0_ts[];
+extern testsuite qxp_b0_ts[];
 
 
 #endif

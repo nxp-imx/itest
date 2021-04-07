@@ -6,7 +6,7 @@
 testsuite qxp_b0_ts[] = {
     {openssl_sanity,                         "openssl_sanity",                         QXP_B0},
     
-    {NULL, NULL, QXP_C0},
+    {NULL, NULL, QXP_B0},
 };
 
 const char *lava_get_test_suite_qxp_b0 ="\n";
