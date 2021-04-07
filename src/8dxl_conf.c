@@ -32,7 +32,8 @@ testsuite dxl_ts[] = {
     {seco_ks_import_export_001,              "seco_ks_import_export_001",              DXL},
     {seco_ks_import_export_001_part2,        "seco_ks_import_export_001_part2",        DXL},
     {seco_ks_bad_auth_001,                   "seco_ks_bad_auth_001",                   DXL},
-    
+    {seco_aes_gcm_iv_001,                    "seco_aes_gcm_iv_001",                    DXL},
+
     {v2x_perf_sig_gen_nistp256_ops,          "v2x_perf_sig_gen_nistp256_ops",          DXL},
     {v2x_perf_sig_gen_nistp256_lat,          "v2x_perf_sig_gen_nistp256_lat",          DXL},
     {v2x_perf_sig_gen_nistp384_ops,          "v2x_perf_sig_gen_nistp384_ops",          DXL},
@@ -62,7 +63,7 @@ testsuite dxl_ts[] = {
     {v2x_perf_sig_ver_nistp256_lat,          "v2x_perf_sig_ver_nistp256_lat",          DXL},
     {v2x_perf_sig_ver_nistp384_lat,          "v2x_perf_sig_ver_nistp384_lat",          DXL},
     //{openssl_sanity,                         "openssl_sanity",                         DXL},
-    
+
     {NULL, NULL, DXL},
 };
 
