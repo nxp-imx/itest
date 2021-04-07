@@ -208,6 +208,7 @@ int seco_ks_import_export_001(void);
 int seco_ks_import_export_001_part2(void);
 int seco_ks_bad_auth_001(void);
 int seco_aes_gcm_iv_001(void);
+int seco_auth_enc_test(void);
 /*===============================*/
 int v2x_ping_all_mu(void);
 #endif
