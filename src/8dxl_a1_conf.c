@@ -21,6 +21,7 @@ testsuite dxl_ts[] = {
     {v2x_pub_key_decompression_001,          "v2x_pub_key_decompression_001",          DXL_A1},
     {v2x_butterfly_key_exp_001,              "v2x_butterfly_key_exp_001",              DXL_A1},
     //{v2x_parallel_sign_gen_key_gen_001,      "v2x_parallel_sign_gen_key_gen_001",      DXL_A1},  //NVM issue in // stress test
+    //{v2x_parallel_sign_gen_key_gen_002,      "v2x_parallel_sign_gen_key_gen_002",      DXL_A1},  //NVM issue in // stress test
     {v2x_parallel_sign_gen_ver_001,          "v2x_parallel_sign_gen_ver_001",          DXL_A1},
     {v2x_rex_stress_v2xp_001,                "v2x_rex_stress_v2xp_001",                DXL_A1},
     {v2x_cipher_ccm_perf,                    "v2x_cipher_ccm_perf",                    DXL_A1},

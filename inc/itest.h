@@ -170,6 +170,7 @@ int v2x_auth_enc_test(void);
 int v2x_butterfly_key_exp_001(void);
 int v2x_parallel_sign_gen_ver_001(void);
 int v2x_parallel_sign_gen_key_gen_001(void);
+int v2x_parallel_sign_gen_key_gen_002(void);
 int v2x_rex_stress_v2xp_001(void);
 int v2x_prepare_signature_001(void);
 int v2x_prepare_signature_002(void);
