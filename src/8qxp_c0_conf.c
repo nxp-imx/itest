@@ -7,7 +7,10 @@ testsuite qxp_c0_ts[] = {
     {seco_ks_import_export_001,              "seco_ks_import_export_001",              QXP_C0},
     {seco_ks_import_export_001_part2,        "seco_ks_import_export_001_part2",        QXP_C0},
     {seco_ks_bad_auth_001,                   "seco_ks_bad_auth_001",                   QXP_C0},
-    //{openssl_sanity,                         "openssl_sanity",                         QXP_C0},
+    {seco_aes_gcm_iv_001,                    "seco_aes_gcm_iv_001",                    QXP_C0},
+    {seco_prepare_signature_001,             "seco_prepare_signature_001",             QXP_C0},
+    {seco_prepare_signature_002,             "seco_prepare_signature_002",             QXP_C0},  
+    {openssl_sanity,                         "openssl_sanity",                         QXP_C0},
     
     {NULL, NULL, QXP_C0},
 };

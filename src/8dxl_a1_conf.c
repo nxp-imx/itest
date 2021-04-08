@@ -20,7 +20,7 @@ testsuite dxl_ts[] = {
     {v2x_auth_enc_test,                      "v2x_auth_enc_test",                      DXL_A1},
     {v2x_pub_key_decompression_001,          "v2x_pub_key_decompression_001",          DXL_A1},
     {v2x_butterfly_key_exp_001,              "v2x_butterfly_key_exp_001",              DXL_A1},
-    {v2x_parallel_sign_gen_key_gen_001,      "v2x_parallel_sign_gen_key_gen_001",      DXL_A1},  //NVM issue in // stress test
+    //{v2x_parallel_sign_gen_key_gen_001,      "v2x_parallel_sign_gen_key_gen_001",      DXL_A1},  //NVM issue in // stress test
     {v2x_parallel_sign_gen_ver_001,          "v2x_parallel_sign_gen_ver_001",          DXL_A1},
     {v2x_rex_stress_v2xp_001,                "v2x_rex_stress_v2xp_001",                DXL_A1},
     {v2x_cipher_ccm_perf,                    "v2x_cipher_ccm_perf",                    DXL_A1},
@@ -37,7 +37,7 @@ testsuite dxl_ts[] = {
     {seco_aes_gcm_iv_001,                    "seco_aes_gcm_iv_001",                    DXL_A1},
     {seco_auth_enc_test,                     "seco_auth_enc_test",                     DXL_A1},
     {seco_prepare_signature_001,             "seco_prepare_signature_001",             DXL_A1},
-    {seco_prepare_signature_002,             "seco_prepare_signature_002",             DXL_A1},
+    {seco_prepare_signature_002,             "seco_prepare_signature_002",             DXL_A1}, 
 
     {v2x_perf_sig_gen_nistp256_ops,          "v2x_perf_sig_gen_nistp256_ops",          DXL_A1},
     {v2x_perf_sig_gen_nistp256_lat,          "v2x_perf_sig_gen_nistp256_lat",          DXL_A1},
@@ -67,7 +67,7 @@ testsuite dxl_ts[] = {
     {v2x_perf_sig_ver_sm2_lat,               "v2x_perf_sig_ver_sm2_lat",               DXL_A1},
     {v2x_perf_sig_ver_nistp256_lat,          "v2x_perf_sig_ver_nistp256_lat",          DXL_A1},
     {v2x_perf_sig_ver_nistp384_lat,          "v2x_perf_sig_ver_nistp384_lat",          DXL_A1},
-    //{openssl_sanity,                         "openssl_sanity",                         DXL_A1},
+    {openssl_sanity,                         "openssl_sanity",                         DXL_A1},
     
     {NULL, NULL, DXL_A1},
 };
