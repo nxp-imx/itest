@@ -164,6 +164,7 @@ int v2x_ks_update_001_part2(void);
 int v2x_pub_key_recovery_001(void);
 int v2x_pub_key_recovery_001_part2(void);
 int v2x_cipher_aes_ecb_cbc_001(void);
+int v2x_aes_gcm_iv_001(void);
 int v2x_pub_key_decompression_001(void);
 int v2x_auth_enc_test(void);
 int v2x_butterfly_key_exp_001(void);
@@ -171,6 +172,7 @@ int v2x_parallel_sign_gen_ver_001(void);
 int v2x_parallel_sign_gen_key_gen_001(void);
 int v2x_rex_stress_v2xp_001(void);
 int v2x_prepare_signature_001(void);
+int v2x_prepare_signature_002(void);
 int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
 int v2x_hash_one_go_all_001(void);
@@ -209,7 +211,8 @@ int seco_ks_import_export_001_part2(void);
 int seco_ks_bad_auth_001(void);
 int seco_aes_gcm_iv_001(void);
 int seco_auth_enc_test(void);
-int v2x_aes_gcm_iv_001(void);
+int seco_prepare_signature_001(void);
+int seco_prepare_signature_002(void);
 /*===============================*/
 int v2x_ping_all_mu(void);
 #endif
