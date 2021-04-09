@@ -245,7 +245,6 @@ int seco_auth_enc_test(void){
     auth_enc_args.iv = iv;
     auth_enc_args.iv_size = 12U;
     auth_enc_args.aad = aad;
-    auth_enc_args.aad_size = 0;
     auth_enc_args.aad_size = 16U;
     auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
     auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
