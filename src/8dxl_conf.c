@@ -16,6 +16,7 @@ testsuite dxl_ts[] = {
     {v2x_pub_key_recovery_001,               "v2x_pub_key_recovery_001",               DXL},
     {v2x_pub_key_recovery_001_part2,         "v2x_pub_key_recovery_001_part2",         DXL},
     {v2x_cipher_aes_ecb_cbc_001,             "v2x_cipher_aes_ecb_cbc_001",             DXL},
+    {v2x_aes_gcm_iv_001,                     "v2x_aes_gcm_iv_001",                     DXL},
     {v2x_auth_enc_test,                      "v2x_auth_enc_test",                      DXL},
     {v2x_pub_key_decompression_001,          "v2x_pub_key_decompression_001",          DXL},
     {v2x_butterfly_key_exp_001,              "v2x_butterfly_key_exp_001",              DXL},
