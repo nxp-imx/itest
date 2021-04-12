@@ -8,11 +8,11 @@
 /* Op/sec */
 #define V2X_KPI_OP_SEC_SIG_VER_SM2                  (2500u)
 #define V2X_KPI_OP_SEC_SIG_VER_P256                 (2500u)
-#define V2X_KPI_OP_SEC_SIG_VER_P384                 (1100u)
+#define V2X_KPI_OP_SEC_SIG_VER_P384                 (1000u)
 #define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_R1_256     (2200u)
-#define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_R1_384     (950u)
+#define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_R1_384     (900u)
 #define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_T1_256     (2300u)
-#define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_T1_384     (1000u)
+#define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_T1_384     (900u)
 
 #define V2X_KPI_OP_SEC_SIG_GEN_SM2                  (200u)
 #define V2X_KPI_OP_SEC_SIG_GEN_P256                 (200u)
@@ -35,9 +35,9 @@
 #define V2X_KPI_LATENCY_US_SIG_GEN_P256             (5000u)
 #define V2X_KPI_LATENCY_US_SIG_GEN_P384             (7500u)
 #define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_R1_256 (5000u)
-#define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_R1_384 (7400u)
+#define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_R1_384 (7500u)
 #define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_T1_256 (5000u)
-#define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_T1_384 (7400u)
+#define V2X_KPI_LATENCY_US_SIG_GEN_BRAINPOOL_T1_384 (7500u)
 
 /* Type of perf test: Latency or Operation per second */
 typedef enum {
