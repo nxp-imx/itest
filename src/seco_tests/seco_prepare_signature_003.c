@@ -50,7 +50,7 @@ static uint16_t size_pub_key[NB_ALGO] = {
 
 // prepare signature mixed curves on two hsm instance and generate signature
 
-int seco_prepare_signature_002(void){
+int seco_prepare_signature_003(void){
 
     open_session_args_t args;
     open_svc_key_store_args_t key_store_srv_args;
@@ -134,8 +134,8 @@ int seco_prepare_signature_002(void){
     // ERROR MAX PREPARE
     ASSERT_EQUAL_W(hsm_prepare_signature(sg0_sig_gen_serv, &pre_sig_gen_args), HSM_OUT_OF_MEMORY);
 
-    i = 0;
-    for (j = 0; j < iter; j++) {
+    i = 1;
+    for (j = 0; j < iter-1; j++) {
         // GEN SIGN ON SG0
         sg0_sig_gen_args.key_identifier = key_id_0[i];
         sg0_sig_gen_args.message = msg_0;
@@ -161,6 +161,46 @@ int seco_prepare_signature_002(void){
                                         0, (unsigned char *) msg_0, 300, algos_dgst[i], (unsigned char *) sign_out_0, size_pub_key[i]), 1);
         i = (i+1) % NB_ALGO;
     }
+
+    i = 1;
+    j = 1;
+    // FAIL TO GEN SIGN LOW LATENCY, NO MORE PREPARE OF THIS CURVE
+    // GEN SIGN ON SG0
+    sg0_sig_gen_args.key_identifier = key_id_0[i];
+    sg0_sig_gen_args.message = msg_0;
+    sg0_sig_gen_args.signature = sign_out_0;
+    sg0_sig_gen_args.message_size = 300;
+    sg0_sig_gen_args.signature_size = size_pub_key[i]+1;
+    sg0_sig_gen_args.scheme_id = algos_sign[i];
+    sg0_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE | HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE; 
+    ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sg0_sig_gen_args), HSM_INVALID_PARAM);
+
+    // GENERATE SIGNATURE WITH THE LAST PREPARE IN MEM
+    i = 0;
+    j = 0;
+    // GEN SIGN ON SG0
+    sg0_sig_gen_args.key_identifier = key_id_0[i];
+    sg0_sig_gen_args.message = msg_0;
+    sg0_sig_gen_args.signature = sign_out_0;
+    sg0_sig_gen_args.message_size = 300;
+    sg0_sig_gen_args.signature_size = size_pub_key[i]+1;
+    sg0_sig_gen_args.scheme_id = algos_sign[i];
+    sg0_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE | HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE; 
+    ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sg0_sig_gen_args), HSM_NO_ERROR);
+    // VERIFY SIGN SECO ON SECO
+    sg0_sig_ver_args.key = pub_key_0[i];
+    sg0_sig_ver_args.message = msg_0;
+    sg0_sig_ver_args.signature = sign_out_0;
+    sg0_sig_ver_args.key_size = size_pub_key[i];
+    sg0_sig_ver_args.signature_size = size_pub_key[i]+1;
+    sg0_sig_ver_args.message_size = 300;
+    sg0_sig_ver_args.scheme_id = algos_sign[i];
+    sg0_sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
+    ASSERT_EQUAL(hsm_verify_signature(sg0_sig_ver_serv, &sg0_sig_ver_args, &status), HSM_NO_ERROR);
+    ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
+    // VERIFY SIGNATURE OUTPUT WITH OPENSSL
+    ASSERT_EQUAL(verify_signature(curves_openssl[i], (unsigned char *) pub_key_0[i], size_pub_key[i], NULL,\
+                                    0, (unsigned char *) msg_0, 300, algos_dgst[i], (unsigned char *) sign_out_0, size_pub_key[i]), 1);
 
     // CLOSE SRV/SESSION
     ASSERT_EQUAL(hsm_close_signature_verification_service(sg0_sig_ver_serv), HSM_NO_ERROR);

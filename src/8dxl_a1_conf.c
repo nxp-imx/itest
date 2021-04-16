@@ -28,6 +28,7 @@ testsuite dxl_ts[] = {
     {v2x_sign_gen_verify_perf,               "v2x_sign_gen_verify_perf",               DXL_A1},
     {v2x_prepare_signature_001,              "v2x_prepare_signature_001",              DXL_A1},
     {v2x_prepare_signature_002,              "v2x_prepare_signature_002",              DXL_A1},
+    {v2x_prepare_signature_003,              "v2x_prepare_signature_003",              DXL_A1},
     {v2x_hash_one_go_all_001,                "v2x_hash_one_go_all_001",                DXL_A1},
     {v2x_ks_create_bad_id_001,               "v2x_ks_create_bad_id_001",               DXL_A1},
     {v2x_ping_all_mu,                        "v2x_ping_all_mu",                        DXL_A1},
@@ -38,7 +39,8 @@ testsuite dxl_ts[] = {
     {seco_aes_gcm_iv_001,                    "seco_aes_gcm_iv_001",                    DXL_A1},
     {seco_auth_enc_test,                     "seco_auth_enc_test",                     DXL_A1},
     {seco_prepare_signature_001,             "seco_prepare_signature_001",             DXL_A1},
-    {seco_prepare_signature_002,             "seco_prepare_signature_002",             DXL_A1}, 
+    {seco_prepare_signature_002,             "seco_prepare_signature_002",             DXL_A1},
+    {seco_prepare_signature_003,             "seco_prepare_signature_003",             DXL_A1},
 
     {v2x_perf_sig_gen_nistp256_ops,          "v2x_perf_sig_gen_nistp256_ops",          DXL_A1},
     {v2x_perf_sig_gen_nistp256_lat,          "v2x_perf_sig_gen_nistp256_lat",          DXL_A1},

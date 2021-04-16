@@ -29,7 +29,7 @@ void outputLog(const char *const format, ...);
 #define ASSERT_EQUAL(x, y) \
     if ( (x) != (y)) { \
         ITEST_LOG("assert_equal Fail ==> "); \
-        ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
+        /*ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
         ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
         raise(SIGINT); \
         while(1); \
@@ -37,7 +37,7 @@ void outputLog(const char *const format, ...);
 #define ASSERT_NOT_EQUAL(x, y) \
     if ( (x) == (y)) { \
         ITEST_LOG("assert_not_equal Fail ==> "); \
-        ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
+        /*ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
         ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
         raise(SIGINT); \
         while(1); \
@@ -49,14 +49,14 @@ void outputLog(const char *const format, ...);
 #define ASSERT_EQUAL_W(x, y) \
     if ( (x) != (y)) { \
         ITEST_LOG("assert_equal Fail ==> "); \
-        ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y); \
+        /*ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
         ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
         raise(SIGUSR1); \
     }
 #define ASSERT_NOT_EQUAL_W(x, y) \
     if ( (x) == (y)) { \
         ITEST_LOG("assert_not_equal Fail ==> "); \
-        ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y); \
+        /*ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
         ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
         raise(SIGUSR1); \
     }
@@ -174,6 +174,7 @@ int v2x_parallel_sign_gen_key_gen_002(void);
 int v2x_rex_stress_v2xp_001(void);
 int v2x_prepare_signature_001(void);
 int v2x_prepare_signature_002(void);
+int v2x_prepare_signature_003(void);
 int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
 int v2x_hash_one_go_all_001(void);
@@ -214,6 +215,7 @@ int seco_aes_gcm_iv_001(void);
 int seco_auth_enc_test(void);
 int seco_prepare_signature_001(void);
 int seco_prepare_signature_002(void);
+int seco_prepare_signature_003(void);
 /*===============================*/
 int v2x_ping_all_mu(void);
 #endif

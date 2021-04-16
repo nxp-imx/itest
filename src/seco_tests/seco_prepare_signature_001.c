@@ -129,7 +129,7 @@ int seco_prepare_signature_001(void){
             ASSERT_EQUAL(hsm_prepare_signature(sg0_sig_gen_serv, &pre_sig_gen_args), HSM_NO_ERROR);
         }
         // ERROR MAX PREPARE
-        ASSERT_EQUAL(hsm_prepare_signature(sg0_sig_gen_serv, &pre_sig_gen_args), HSM_OUT_OF_MEMORY);
+        ASSERT_EQUAL_W(hsm_prepare_signature(sg0_sig_gen_serv, &pre_sig_gen_args), HSM_OUT_OF_MEMORY);
 
         for (j = 0; j < iter; j++) {
             // GEN SIGN ON SG0
