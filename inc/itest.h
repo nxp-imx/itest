@@ -179,7 +179,8 @@ int v2x_cipher_ccm_perf(void);
 int v2x_sign_gen_verify_perf(void);
 int v2x_hash_one_go_all_001(void);
 int v2x_ks_create_bad_id_001(void);
-int openssl_sanity(void);
+int v2x_sm2_eces_001(void);
+
 int v2x_perf_sig_gen_nistp256_ops(void);
 int v2x_perf_sig_gen_nistp256_lat(void);
 int v2x_perf_sig_gen_nistp384_ops(void);
@@ -218,4 +219,5 @@ int seco_prepare_signature_002(void);
 int seco_prepare_signature_003(void);
 /*===============================*/
 int v2x_ping_all_mu(void);
+int openssl_sanity(void);
 #endif
