@@ -16,6 +16,7 @@ int v2x_aes_gcm_iv_001(void){
     hsm_hdl_t sg0_sess;
     hsm_hdl_t sg0_key_store_serv, sg0_key_mgmt_srv;
     hsm_hdl_t sg0_cipher_hdl;
+    hsm_hdl_t sg0_cipher_hdl2, sg0_key_store_serv2;
 
     uint32_t key_id;
     uint32_t idx;
@@ -144,6 +145,68 @@ int v2x_aes_gcm_iv_001(void){
     counter_val1 = *(uint64_t *)(&(iv1[4]));
 
     // AUTH ENC KEY AES128 -> ENCRYPT (exact same input - counter should increment)
+    auth_enc_args.key_identifier = key_id;
+    auth_enc_args.iv = fixed_iv;
+    auth_enc_args.iv_size = sizeof(fixed_iv);
+    auth_enc_args.aad = aad;
+    auth_enc_args.aad_size = sizeof(aad);
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
+    auth_enc_args.input = plaintext;
+    auth_enc_args.output = ciphertext;
+    auth_enc_args.input_size = sizeof(plaintext);
+    auth_enc_args.output_size = sizeof(ciphertext);
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
+
+    // EXTRACT GENERATED IV
+    memcpy(iv2,&ciphertext[sizeof(ciphertext)-sizeof(iv2)], sizeof(iv2));
+    // VERIFY FIXED PART
+    ASSERT_EQUAL(memcmp(iv2, fixed_iv, sizeof(fixed_iv)), 0);
+    // EXTRACT COUNTER
+    counter_val2 = *(uint64_t *)(&(iv2[4]));
+
+    // VERIFY COUNTER WAS INCREMENTED
+    ASSERT_EQUAL(counter_val2, counter_val1 + 1);
+
+    // VERIFY CANNOT SCREW UP COUNTER BY OPENING KEY STORE SECOND TIME
+    // KEY STORE SECO
+    key_store_srv_args.key_store_identifier = (uint32_t) 0x12121212;
+    key_store_srv_args.authentication_nonce = (uint32_t) 0x12345678;
+    key_store_srv_args.max_updates_number = 12;
+    key_store_srv_args.flags = 0;
+    key_store_srv_args.signed_message = NULL;
+    key_store_srv_args.signed_msg_size = 0;
+    ASSERT_EQUAL(hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv2), HSM_KEY_STORE_CONFLICT);
+
+    // OPEN SECOND CIPHER SERVICE TO VERIFY COUNTER INCREMENTS ACROSS SERVICES
+    cipher_srv_args.flags = 0U;
+    ASSERT_EQUAL(hsm_open_cipher_service(sg0_key_store_serv, &cipher_srv_args, &sg0_cipher_hdl2), HSM_NO_ERROR);
+
+    // VERIFY INCREMENTED COUNTER ON NEW SERVICE
+    auth_enc_args.key_identifier = key_id;
+    auth_enc_args.iv = fixed_iv;
+    auth_enc_args.iv_size = sizeof(fixed_iv);
+    auth_enc_args.aad = aad;
+    auth_enc_args.aad_size = sizeof(aad);
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
+    auth_enc_args.input = plaintext;
+    auth_enc_args.output = ciphertext;
+    auth_enc_args.input_size = sizeof(plaintext);
+    auth_enc_args.output_size = sizeof(ciphertext);
+    ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl2, &auth_enc_args), HSM_NO_ERROR);
+
+    // EXTRACT GENERATED IV
+    memcpy(iv1,&ciphertext[sizeof(ciphertext)-sizeof(iv1)], sizeof(iv1));
+    // VERIFY FIXED PART
+    ASSERT_EQUAL(memcmp(iv1, fixed_iv, sizeof(fixed_iv)), 0);
+    // EXTRACT COUNTER
+    counter_val1 = *(uint64_t *)(&(iv1[4]));
+
+    // VERIFY COUNTER WAS INCREMENTED
+    ASSERT_EQUAL(counter_val1, counter_val2 + 1);
+
+    // VERIFY KEEPS INCREMENTING ON ORIGINAL CIPHER SERVICE
     auth_enc_args.key_identifier = key_id;
     auth_enc_args.iv = fixed_iv;
     auth_enc_args.iv_size = sizeof(fixed_iv);
