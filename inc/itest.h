@@ -43,6 +43,25 @@ void outputLog(const char *const format, ...);
         while(1); \
     }
 
+#define ASSERT_TRUE_HIGH_API(x)  if (!x) {ITEST_LOG("Fail in subsequence ==> #x expected True => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__);break;}
+#define ASSERT_FALSE_HIGH_API(x) if (x) {ITEST_LOG("Fail in subsequence ==> #x expected False => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__);break;}
+
+#define ASSERT_EQUAL_HIGH_API(x, y) \
+    if ( (x) != (y)) { \
+        ITEST_LOG("assert_equal Fail in subsequence ==> "); \
+        /*ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
+        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
+        break; \
+    }
+#define ASSERT_NOT_HIGH_API(x, y) \
+    if ( (x) == (y)) { \
+        ITEST_LOG("assert_not_equal Fail in subsequence ==> "); \
+        /*ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
+        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
+        break; \
+    }
+
+
 /*======================ASSERT FAILURE CONTINUE======================*/
 #define ASSERT_TRUE_W(x)  if (!x) {ITEST_LOG("Fail ==> #x expected True => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
 #define ASSERT_FALSE_W(x) if (x) {ITEST_LOG("Fail ==> #x expected False => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
@@ -150,7 +169,10 @@ void print_perf(timer_perf_t *timer);
 uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi);
 uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id);
 uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi);
-
+/*==========HIGH LEVEL SENTINEL API*/
+int kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle);
+int hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in,
+                        uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size);
 /*==========Tests list===========*/
 int v2x_chunk_swap_001(void);
 int v2x_rng_srv_001(void);
