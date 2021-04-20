@@ -4,7 +4,7 @@
 #include <openssl/ec.h>
 #include "itest.h"
 
-// auth encrypt test iv full generated + iv not fully generated
+// High level of sentinel api to reduce code size in tests
 
 int kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle){
 
