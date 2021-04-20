@@ -203,6 +203,7 @@ int v2x_hash_one_go_all_001(void);
 int v2x_ks_create_bad_id_001(void);
 int v2x_sm2_eces_001(void);
 int v2x_sm2_eces_002(void);
+int v2x_sm2_eces_003(void);
 
 int v2x_perf_sig_gen_nistp256_ops(void);
 int v2x_perf_sig_gen_nistp256_lat(void);

@@ -3,7 +3,7 @@
 #include "itest.h"
 // requirement: eces encrypt decrypt 
 
-int v2x_sm2_eces_001(void){
+int v2x_sm2_eces_003(void){
 
     open_session_args_t args;
     open_svc_key_store_args_t key_store_srv_args;
@@ -25,12 +25,11 @@ int v2x_sm2_eces_001(void){
     uint32_t key_id_1 = 0;
     uint8_t pub_key_0[0x50];
     uint8_t pub_key_1[0x50];
+
     uint8_t msg_0[300];
     uint8_t msg_1[300];
     uint8_t out_0[500];
-    uint8_t out_1[500];
     uint8_t out_2[500];
-    uint8_t out_3[500];
     uint8_t dec_out[500];
     uint32_t size_msg = 300;
 
@@ -118,27 +117,49 @@ int v2x_sm2_eces_001(void){
     // GEN KEY + STORE IN NVM
     ASSERT_EQUAL(hsm_generate_key(sg1_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
-    // SM2 ECES ENCRYPT ON SV0
+    // SM2 ECES ENCRYPT ON SV0 -> BAD PUBLIC KEY
+    sm2_eces_enc_args.input = msg_0;
+    sm2_eces_enc_args.output = out_0;
+    sm2_eces_enc_args.pub_key = msg_0;
+    sm2_eces_enc_args.input_size = size_msg;
+    sm2_eces_enc_args.output_size = (size_msg + 97) + ((sizeof(u_int32_t) - (size_msg + 97) % sizeof(u_int32_t)) % sizeof(u_int32_t)); // aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
+    sm2_eces_enc_args.pub_key_size = size_pub_key;
+    sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    sm2_eces_enc_args.flags = 0;
+    ASSERT_EQUAL_W(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_GENERAL_ERROR);
+
+    // SM2 ECES ENCRYPT ON SV0 -> BAD KEY SIZE
     sm2_eces_enc_args.input = msg_0;
     sm2_eces_enc_args.output = out_0;
     sm2_eces_enc_args.pub_key = pub_key_0;
     sm2_eces_enc_args.input_size = size_msg;
     sm2_eces_enc_args.output_size = (size_msg + 97) + ((sizeof(u_int32_t) - (size_msg + 97) % sizeof(u_int32_t)) % sizeof(u_int32_t)); // aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
-    sm2_eces_enc_args.pub_key_size = size_pub_key;
+    sm2_eces_enc_args.pub_key_size = 0x0;
     sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     sm2_eces_enc_args.flags = 0;
-    ASSERT_EQUAL(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_NO_ERROR);
+    ASSERT_EQUAL_W(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_INVALID_PARAM);
 
-    // SM2 ECES ENCRYPT ON SV1
+    // SM2 ECES ENCRYPT ON SV0 -> BAD OUT SIZE (NOT ALIGNED)
     sm2_eces_enc_args.input = msg_0;
-    sm2_eces_enc_args.output = out_1;
+    sm2_eces_enc_args.output = out_0;
     sm2_eces_enc_args.pub_key = pub_key_0;
     sm2_eces_enc_args.input_size = size_msg;
-    sm2_eces_enc_args.output_size = (size_msg + 97) + ((sizeof(u_int32_t) - (size_msg + 97) % sizeof(u_int32_t)) % sizeof(u_int32_t)); // aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
+    sm2_eces_enc_args.output_size = (size_msg + 97);
     sm2_eces_enc_args.pub_key_size = size_pub_key;
     sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     sm2_eces_enc_args.flags = 0;
-    ASSERT_EQUAL(hsm_sm2_eces_encryption(sv1_sess, &sm2_eces_enc_args), HSM_NO_ERROR);
+    ASSERT_EQUAL_W(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_INVALID_PARAM);
+
+    // SM2 ECES ENCRYPT ON SV0 -> BAD OUT SIZE
+    sm2_eces_enc_args.input = msg_0;
+    sm2_eces_enc_args.output = out_0;
+    sm2_eces_enc_args.pub_key = pub_key_0;
+    sm2_eces_enc_args.input_size = size_msg;
+    sm2_eces_enc_args.output_size = 0x0;
+    sm2_eces_enc_args.pub_key_size = size_pub_key;
+    sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    sm2_eces_enc_args.flags = 0;
+    ASSERT_EQUAL_W(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_INVALID_PARAM);
 
     // SM2 ECES ENCRYPT ON SG0
     sm2_eces_enc_args.input = msg_1;
@@ -151,39 +172,6 @@ int v2x_sm2_eces_001(void){
     sm2_eces_enc_args.flags = 0;
     ASSERT_EQUAL(hsm_sm2_eces_encryption(sg0_sess, &sm2_eces_enc_args), HSM_NO_ERROR);
 
-    // SM2 ECES ENCRYPT ON SG1
-    sm2_eces_enc_args.input = msg_1;
-    sm2_eces_enc_args.output = out_3;
-    sm2_eces_enc_args.pub_key = pub_key_1;
-    sm2_eces_enc_args.input_size = size_msg;
-    sm2_eces_enc_args.output_size = (size_msg + 97) + ((sizeof(u_int32_t) - (size_msg + 97) % sizeof(u_int32_t)) % sizeof(u_int32_t)); // aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
-    sm2_eces_enc_args.pub_key_size = size_pub_key;
-    sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    sm2_eces_enc_args.flags = 0;
-    ASSERT_EQUAL(hsm_sm2_eces_encryption(sg1_sess, &sm2_eces_enc_args), HSM_NO_ERROR);
-
-    // SM2 ECES DECRYPT ON SG0 - ENCRYTPT SV0
-    sm2_eces_dec_args.input = out_0;
-    sm2_eces_dec_args.output = dec_out; //plaintext
-    sm2_eces_dec_args.key_identifier = key_id_0;
-    sm2_eces_dec_args.input_size = (size_msg + 97);
-    sm2_eces_dec_args.output_size = size_msg;
-    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    sm2_eces_dec_args.flags = 0;
-    ASSERT_EQUAL(hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args), HSM_NO_ERROR);
-    ASSERT_EQUAL(memcmp(dec_out, msg_0, size_msg), 0);
-
-    // SM2 ECES DECRYPT ON SG0 - ENCRYTPT SV1
-    sm2_eces_dec_args.input = out_1;
-    sm2_eces_dec_args.output = dec_out; //plaintext
-    sm2_eces_dec_args.key_identifier = key_id_0;
-    sm2_eces_dec_args.input_size = (size_msg + 97);
-    sm2_eces_dec_args.output_size = size_msg;
-    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    sm2_eces_dec_args.flags = 0;
-    ASSERT_EQUAL(hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args), HSM_NO_ERROR);
-    ASSERT_EQUAL(memcmp(dec_out, msg_0, size_msg), 0);
-
     // SM2 ECES DECRYPT ON SG0 - WITH BAD KEY ID
     sm2_eces_dec_args.input = out_2;
     sm2_eces_dec_args.output = dec_out; //plaintext
@@ -193,28 +181,6 @@ int v2x_sm2_eces_001(void){
     sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     sm2_eces_dec_args.flags = 0;
     ASSERT_NOT_EQUAL(hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args), HSM_NO_ERROR);
-
-    // SM2 ECES DECRYPT ON SG1 - ENCRYTPT SG0
-    sm2_eces_dec_args.input = out_2;
-    sm2_eces_dec_args.output = dec_out; //plaintext
-    sm2_eces_dec_args.key_identifier = key_id_1;
-    sm2_eces_dec_args.input_size = (size_msg + 97);
-    sm2_eces_dec_args.output_size = size_msg;
-    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    sm2_eces_dec_args.flags = 0;
-    ASSERT_EQUAL(hsm_sm2_eces_decryption(sg1_sm2_eces_hdl, &sm2_eces_dec_args), HSM_NO_ERROR);
-    ASSERT_EQUAL(memcmp(dec_out, msg_1, size_msg), 0);
-
-    // SM2 ECES DECRYPT ON SG1 - ENCRYTPT SG1
-    sm2_eces_dec_args.input = out_3;
-    sm2_eces_dec_args.output = dec_out; //plaintext
-    sm2_eces_dec_args.key_identifier = key_id_1;
-    sm2_eces_dec_args.input_size = (size_msg + 97);
-    sm2_eces_dec_args.output_size = size_msg;
-    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    sm2_eces_dec_args.flags = 0;
-    ASSERT_EQUAL(hsm_sm2_eces_decryption(sg1_sm2_eces_hdl, &sm2_eces_dec_args), HSM_NO_ERROR);
-    ASSERT_EQUAL(memcmp(dec_out, msg_1, size_msg), 0);
 
     // CLOSE SRV/SESSION
     ASSERT_EQUAL(hsm_close_sm2_eces_service(sg0_sm2_eces_hdl), HSM_NO_ERROR);
