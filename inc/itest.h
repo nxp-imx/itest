@@ -170,8 +170,8 @@ uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi);
 uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id);
 uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi);
 /*==========HIGH LEVEL SENTINEL API*/
-int kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle);
-int hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in,
+int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle);
+int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in,
                         uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size);
 /*==========Tests list===========*/
 int v2x_chunk_swap_001(void);

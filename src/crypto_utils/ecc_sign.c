@@ -79,13 +79,13 @@ static int EC_KEY_key2bin(EC_KEY *eckey, unsigned char *outpub, int *size_pub, u
     return 1;
 }
 
-int generate_key_pair(int curve, unsigned char *outpub, int *size_pub, unsigned char *outpriv, int *size_priv) {
+int icrypto_generate_key_pair(int curve, unsigned char *outpub, int *size_pub, unsigned char *outpriv, int *size_priv) {
 
     EC_KEY *eckey;
     int ret = 0;
 
     if (size_pub == NULL || outpub == NULL || size_priv == NULL || outpriv == NULL) {
-        ITEST_LOG("generate_key_pair bad param...\n");
+        ITEST_LOG("icrypto_generate_key_pair bad param...\n");
         return ret;        
     }
     eckey = EC_KEY_new_by_curve_name(curve);
@@ -106,7 +106,7 @@ int generate_key_pair(int curve, unsigned char *outpub, int *size_pub, unsigned 
 }
 
 // if dgst is null -> input as digest
-int generate_signature(int curve, unsigned char *privk, int size_privk, unsigned char *in, int size, char *dgst, unsigned char *out_sign, int *sign_size) {
+int icrypto_generate_signature(int curve, unsigned char *privk, int size_privk, unsigned char *in, int size, char *dgst, unsigned char *out_sign, int *sign_size) {
 
     int ret = 0;
     unsigned char tmp_hash[512];
@@ -123,20 +123,20 @@ int generate_signature(int curve, unsigned char *privk, int size_privk, unsigned
             break;
         }
         if (privk == NULL || size_privk == 0 || in == NULL || out_sign == NULL) {
-            ITEST_LOG("generate_signature bad param...\n");
+            ITEST_LOG("icrypto_generate_signature bad param...\n");
             break;            
         }
 
         eckey = EC_KEY_bin2key(curve, NULL, 0, privk, size_privk);
         if (eckey == NULL) {
-            ITEST_LOG("generate_signature Fail to generate signature...\n");
+            ITEST_LOG("icrypto_generate_signature Fail to generate signature...\n");
             break;      
         }
 
         if (dgst != NULL) {
-            hash_size = hash_one_go(in, tmp_hash, dgst, size);
+            hash_size = icrypto_hash_one_go(in, tmp_hash, dgst, size);
             if (hash_size == 0) {
-                ITEST_LOG("generate_signature Fail to generate the HASH...\n");
+                ITEST_LOG("icrypto_generate_signature Fail to generate the HASH...\n");
                 break;
             }
             size = hash_size;
@@ -166,7 +166,7 @@ int generate_signature(int curve, unsigned char *privk, int size_privk, unsigned
     return ret;
 }
 
-int verify_signature(int curve, unsigned char *pubk, int size_pubk, unsigned char *privk,\
+int icrypto_verify_signature(int curve, unsigned char *pubk, int size_pubk, unsigned char *privk,\
                      int size_privk, unsigned char *in, int size, char *dgst, unsigned char *sign, int sign_size) {
 
     int ret = 0;
@@ -185,20 +185,20 @@ int verify_signature(int curve, unsigned char *pubk, int size_pubk, unsigned cha
         }
         if ((privk == NULL && pubk == NULL) || (privk != NULL && size_privk == 0) ||\
             (pubk != NULL && size_pubk == 0) || in == NULL || sign == NULL || sign_size == 0) {
-            ITEST_LOG("verify_signature bad param...\n");
+            ITEST_LOG("icrypto_verify_signature bad param...\n");
             break;            
         }
 
         eckey = EC_KEY_bin2key(curve, pubk, size_pubk, privk, size_privk);
         if (eckey == NULL) {
-            ITEST_LOG("verify_signature Fail to generate signature...\n");
+            ITEST_LOG("icrypto_verify_signature Fail to generate signature...\n");
             break;      
         }
 
         if (dgst != NULL) {
-            hash_size = hash_one_go(in, tmp_hash, dgst, size);
+            hash_size = icrypto_hash_one_go(in, tmp_hash, dgst, size);
             if (hash_size == 0) {
-                ITEST_LOG("verify_signature Fail to generate the HASH...\n");
+                ITEST_LOG("icrypto_verify_signature Fail to generate the HASH...\n");
                 break;
             }
             size = hash_size;
@@ -207,7 +207,7 @@ int verify_signature(int curve, unsigned char *pubk, int size_pubk, unsigned cha
 
         sig_buff = ECDSA_SIG_new();
         if (sig_buff == NULL) {
-            ITEST_LOG("verify_signature Fail to alloc a ECDSA_SIG object...\n");
+            ITEST_LOG("icrypto_verify_signature Fail to alloc a ECDSA_SIG object...\n");
             break;
         }
         pr = BN_bin2bn(sign, sign_size/2, NULL);
@@ -215,7 +215,7 @@ int verify_signature(int curve, unsigned char *pubk, int size_pubk, unsigned cha
         ret = ECDSA_SIG_set0(sig_buff, pr, ps);
 
         if (ret != 1) {
-            ITEST_LOG("verify_signature Fail to convert the signature...\n");
+            ITEST_LOG("icrypto_verify_signature Fail to convert the signature...\n");
             break;
         }
         ret = 0;

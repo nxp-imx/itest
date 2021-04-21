@@ -157,7 +157,7 @@ int seco_prepare_signature_003(void){
         ASSERT_EQUAL(hsm_verify_signature(sg0_sig_ver_serv, &sg0_sig_ver_args, &status), HSM_NO_ERROR);
         ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
         // VERIFY SIGNATURE OUTPUT WITH OPENSSL
-        ASSERT_EQUAL(verify_signature(curves_openssl[i], (unsigned char *) pub_key_0[i], size_pub_key[i], NULL,\
+        ASSERT_EQUAL(icrypto_verify_signature(curves_openssl[i], (unsigned char *) pub_key_0[i], size_pub_key[i], NULL,\
                                         0, (unsigned char *) msg_0, 300, algos_dgst[i], (unsigned char *) sign_out_0, size_pub_key[i]), 1);
         i = (i+1) % NB_ALGO;
     }
@@ -199,7 +199,7 @@ int seco_prepare_signature_003(void){
     ASSERT_EQUAL(hsm_verify_signature(sg0_sig_ver_serv, &sg0_sig_ver_args, &status), HSM_NO_ERROR);
     ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
     // VERIFY SIGNATURE OUTPUT WITH OPENSSL
-    ASSERT_EQUAL(verify_signature(curves_openssl[i], (unsigned char *) pub_key_0[i], size_pub_key[i], NULL,\
+    ASSERT_EQUAL(icrypto_verify_signature(curves_openssl[i], (unsigned char *) pub_key_0[i], size_pub_key[i], NULL,\
                                     0, (unsigned char *) msg_0, 300, algos_dgst[i], (unsigned char *) sign_out_0, size_pub_key[i]), 1);
 
     // CLOSE SRV/SESSION

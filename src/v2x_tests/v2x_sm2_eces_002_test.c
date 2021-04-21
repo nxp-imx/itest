@@ -76,10 +76,10 @@ int v2x_sm2_eces_002(void){
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
     // =========== NEGOTIATE KEK FOR KEY INJECTION ================= //
-    ASSERT_EQUAL(kek_generation(sg0_key_mgmt_srv, kek_data, key_size, &kek_handle), TRUE_TEST);
+    ASSERT_EQUAL(isen_kek_generation(sg0_key_mgmt_srv, kek_data, key_size, &kek_handle), TRUE_TEST);
 
     // =========== INJECT KEYS FOR AES GCM TEST ================= //
-    ASSERT_EQUAL(hsm_key_injection(sg0_key_mgmt_srv, &key_id_inj, algos, priv_key_tv, kek_handle, kek_data, 0x20), TRUE_TEST);
+    ASSERT_EQUAL(isen_hsm_key_injection(sg0_key_mgmt_srv, &key_id_inj, algos, priv_key_tv, kek_handle, kek_data, 0x20), TRUE_TEST);
 
     // SM2 ECES ENCRYPT ON SV0
     sm2_eces_enc_args.input = msg_tv;

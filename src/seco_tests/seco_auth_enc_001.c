@@ -76,16 +76,16 @@ int seco_auth_enc_test(void){
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
     // =========== NEGOTIATE KEK FOR KEY INJECTION ================= //
-    ASSERT_EQUAL(kek_generation(sg0_key_mgmt_srv, kek_data, key_size, &kek_handle), TRUE_TEST);
+    ASSERT_EQUAL(isen_kek_generation(sg0_key_mgmt_srv, kek_data, key_size, &kek_handle), TRUE_TEST);
 
     // =========== INJECT KEYS FOR AES GCM TEST ================= //
-    ASSERT_EQUAL(hsm_key_injection(sg0_key_mgmt_srv, &key_id_aes_128, HSM_KEY_TYPE_AES_128, aes_128_key_data, kek_handle, kek_data, 16), TRUE_TEST);
+    ASSERT_EQUAL(isen_hsm_key_injection(sg0_key_mgmt_srv, &key_id_aes_128, HSM_KEY_TYPE_AES_128, aes_128_key_data, kek_handle, kek_data, 16), TRUE_TEST);
 
     // =========== INJECT KEYS FOR AES GCM TEST ================= //
-    ASSERT_EQUAL(hsm_key_injection(sg0_key_mgmt_srv, &key_id_aes_192, HSM_KEY_TYPE_AES_192, aes_192_key_data, kek_handle, kek_data, 24), TRUE_TEST);
+    ASSERT_EQUAL(isen_hsm_key_injection(sg0_key_mgmt_srv, &key_id_aes_192, HSM_KEY_TYPE_AES_192, aes_192_key_data, kek_handle, kek_data, 24), TRUE_TEST);
 
     // =========== INJECT KEYS FOR AES GCM TEST ================= //
-    ASSERT_EQUAL(hsm_key_injection(sg0_key_mgmt_srv, &key_id_aes_256, HSM_KEY_TYPE_AES_256, aes_256_key_data, kek_handle, kek_data, 32), TRUE_TEST);
+    ASSERT_EQUAL(isen_hsm_key_injection(sg0_key_mgmt_srv, &key_id_aes_256, HSM_KEY_TYPE_AES_256, aes_256_key_data, kek_handle, kek_data, 32), TRUE_TEST);
 
     // ======================== FULL IV GENERATED ========================
     // AUTH ENC KEY AES128 -> ENCRYPT

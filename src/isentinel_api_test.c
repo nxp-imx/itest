@@ -5,8 +5,110 @@
 #include "itest.h"
 
 // High level of sentinel api to reduce code size in tests
+#define NB_ALGO 8
+static hsm_key_type_t key_type_list[NB_ALGO] = {
+    HSM_KEY_TYPE_DSA_SM2_FP_256,
+    HSM_KEY_TYPE_ECDSA_NIST_P256,
+    HSM_KEY_TYPE_ECDSA_NIST_P384,
+    HSM_KEY_TYPE_ECDSA_NIST_P521,
+    HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256,
+    HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384,
+    HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256,
+    HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384,
+};
 
-int kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle){
+static hsm_signature_scheme_id_t scheme_id_list[NB_ALGO] = {
+    HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3,
+    HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256,
+    HSM_SIGNATURE_SCHEME_ECDSA_NIST_P384_SHA_384,
+    HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512,
+    HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256,
+    HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384,
+    HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256,
+    HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384,
+};
+
+static uint16_t size_pubk_list[NB_ALGO] = {
+    0x40,
+    0x40,
+    0x60,
+    0x90,
+    0x40,
+    0x60,
+    0x40,
+    0x60
+};
+
+static uint16_t size_privk_list[NB_ALGO] = {
+    0x20,
+    0x20,
+    0x30,
+    0x48,
+    0x20,
+    0x30,
+    0x20,
+    0x30
+};
+
+int get_key_param(hsm_key_type_t key_type,hsm_signature_scheme_id_t *scheme_id, uint16_t *size_pubk, uint16_t *size_privk) {
+
+    uint32_t i;
+
+    for(i = 0; i < NB_ALGO; i++) {
+        if (key_type_list[i] == key_type) {
+            if (scheme_id != NULL)
+                *scheme_id = scheme_id_list[i];
+            if (size_pubk != NULL)
+                *size_pubk = size_pubk_list[i];
+            if (size_privk != NULL)
+                *size_privk = size_privk_list[i];
+            break;
+        }
+    }
+    return TRUE_TEST;
+}
+
+int isen_generate_key_strict_update(hsm_hdl_t key_store_serv, uint32_t *key_id, hsm_key_type_t key_type,
+                                    hsm_key_group_t key_group, uint8_t *out_key, uint16_t out_key_size) {
+    op_generate_key_args_t gen_key_args;
+
+    // PARAM KEY_GEN strict_update
+    gen_key_args.key_identifier = key_id;
+    gen_key_args.out_size = out_key == NULL ? 0 : out_key_size;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+    gen_key_args.key_type = key_type;
+    gen_key_args.key_group = key_group;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = out_key;
+    do {
+        // GEN KEY + STORE IN NVM
+        ASSERT_EQUAL_HIGH_API(hsm_generate_key(key_store_serv, &gen_key_args), HSM_NO_ERROR);
+        return TRUE_TEST;
+    } while (0);
+    return FALSE_TEST;
+}
+
+int isen_generate_key(hsm_hdl_t key_store_serv, uint32_t *key_id, hsm_key_type_t key_type,
+                                    hsm_key_group_t key_group, uint8_t *out_key, uint16_t out_key_size) {
+    op_generate_key_args_t gen_key_args;
+
+    // PARAM KEY_GEN strict_update
+    gen_key_args.key_identifier = key_id;
+    gen_key_args.out_size = out_key == NULL ? 0 : out_key_size;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = key_type;
+    gen_key_args.key_group = key_group;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = out_key;
+    do {
+        // GEN KEY + STORE IN NVM
+        ASSERT_EQUAL_HIGH_API(hsm_generate_key(key_store_serv, &gen_key_args), HSM_NO_ERROR);
+        return TRUE_TEST;
+    } while (0);
+    return FALSE_TEST;
+}
+
+int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle){
 
     op_key_exchange_args_t key_exchange_args;
 
@@ -106,7 +208,7 @@ int kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_s
     return FALSE_TEST;
 }
 
-int hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size){
+int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size){
 
     op_manage_key_args_t manage_args;
 

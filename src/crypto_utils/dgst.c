@@ -3,7 +3,7 @@
 #include "itest.h"
 
 
-int hash_one_go(unsigned char *in, unsigned char *out, char *dgst_type, int size)
+int icrypto_hash_one_go(unsigned char *in, unsigned char *out, char *dgst_type, int size)
 {
     EVP_MD_CTX *mdctx;
     const EVP_MD *md;

@@ -232,7 +232,7 @@ int v2x_prepare_signature_001(void){
             ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sv0_sig_ver_args, &status), HSM_NO_ERROR);
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
             // VERIFY SIGNATURE OUTPUT WITH OPENSSL
-            ASSERT_EQUAL(verify_signature(curves_openssl[i], (unsigned char *) pub_key_0, size_pub_key[i], NULL,\
+            ASSERT_EQUAL(icrypto_verify_signature(curves_openssl[i], (unsigned char *) pub_key_0, size_pub_key[i], NULL,\
                                             0, (unsigned char *) msg_0, 300, algos_dgst[i], (unsigned char *) sign_out_0, size_pub_key[i]), 1);
             // VERIFY SIGN SG1 ON SV1
             sv1_sig_ver_args.key = pub_key_1;
@@ -246,7 +246,7 @@ int v2x_prepare_signature_001(void){
             ASSERT_EQUAL(hsm_verify_signature(sv1_sig_ver_serv, &sv1_sig_ver_args, &status), HSM_NO_ERROR);
             ASSERT_EQUAL(status, HSM_VERIFICATION_STATUS_SUCCESS);
             // VERIFY SIGNATURE OUTPUT WITH OPENSSL
-            ASSERT_EQUAL(verify_signature(curves_openssl[i], (unsigned char *) pub_key_1, size_pub_key[i], NULL,\
+            ASSERT_EQUAL(icrypto_verify_signature(curves_openssl[i], (unsigned char *) pub_key_1, size_pub_key[i], NULL,\
                                             0, (unsigned char *) msg_1, 300, algos_dgst[i], (unsigned char *) sign_out_1, size_pub_key[i]), 1);
         }
 
