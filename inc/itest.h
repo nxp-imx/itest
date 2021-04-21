@@ -7,6 +7,7 @@
 #include <time.h>
 #include <signal.h>
 #include "hsm_api.h"
+#include "she_api.h"
 #include "../src/seco_os_abs.h"
 #include "seco_nvm.h"
 
@@ -150,10 +151,13 @@ typedef struct{
 /*==============NVM==============*/
 hsm_err_t start_nvm_seco(void);
 hsm_err_t start_nvm_v2x(void);
+hsm_err_t start_nvm_she_seco(void);
 hsm_err_t stop_nvm_v2x(void);
 hsm_err_t stop_nvm_seco(void);
+hsm_err_t stop_nvm_she_seco(void);
 uint32_t clear_v2x_nvm(void);
 uint32_t clear_seco_nvm(void);
+uint32_t clear_she_seco_nvm(void);
 /*===========TEST CTX============*/
 size_t save_test_ctx(void *ctx, size_t count, char *file);
 size_t load_test_ctx(void *ctx, size_t count, char *file);
@@ -233,6 +237,8 @@ int v2x_perf_sig_ver_brainpool_t1p256_ops(void);
 int v2x_perf_sig_ver_brainpool_t1p256_lat(void);
 int v2x_perf_sig_ver_brainpool_t1p384_ops(void);
 int v2x_perf_sig_ver_brainpool_t1p384_lat(void);
+
+// seco hsm
 int seco_ks_import_export_001(void);
 int seco_ks_import_export_001_part2(void);
 int seco_ks_bad_auth_001(void);
@@ -241,6 +247,8 @@ int seco_auth_enc_test(void);
 int seco_prepare_signature_001(void);
 int seco_prepare_signature_002(void);
 int seco_prepare_signature_003(void);
+// seco she
+int seco_she_load_key_001(void);
 /*===============================*/
 int v2x_ping_all_mu(void);
 int openssl_sanity(void);

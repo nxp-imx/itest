@@ -44,6 +44,7 @@ testsuite dxl_ts[] = {
     {seco_prepare_signature_001,             "seco_prepare_signature_001",             DXL_A1},
     {seco_prepare_signature_002,             "seco_prepare_signature_002",             DXL_A1},
     {seco_prepare_signature_003,             "seco_prepare_signature_003",             DXL_A1},
+    {seco_she_load_key_001,                  "seco_she_load_key_001",                  DXL_A1},
 
     {v2x_perf_sig_gen_nistp256_ops,          "v2x_perf_sig_gen_nistp256_ops",          DXL_A1},
     {v2x_perf_sig_gen_nistp256_lat,          "v2x_perf_sig_gen_nistp256_lat",          DXL_A1},

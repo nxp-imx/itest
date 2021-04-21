@@ -11,8 +11,10 @@
 
 static uint32_t nvm_status_v2x = NVM_STATUS_STOPPED;
 static uint32_t nvm_status_seco = NVM_STATUS_STOPPED;
+static uint32_t nvm_status_seco_she = NVM_STATUS_STOPPED;
 static pthread_t tid_v2x;
 static pthread_t tid_seco;
+static pthread_t tid_seco_she;
 static char ITEST_CTX_PATH[] = "/etc/itest/";
 
 #define TIMEOUT_START_NVM 10000
@@ -61,6 +63,10 @@ hsm_err_t start_nvm_seco(void){
     return start_nvm(NVM_FLAGS_HSM, &nvm_status_seco, &tid_seco);
 }
 
+hsm_err_t start_nvm_she_seco(void){
+    return start_nvm(NVM_FLAGS_SHE, &nvm_status_seco_she, &tid_seco_she);
+}
+
 hsm_err_t stop_nvm_v2x(void){
     if (nvm_status_v2x != NVM_STATUS_STOPPED) {
         pthread_cancel(tid_v2x);
@@ -77,6 +83,13 @@ hsm_err_t stop_nvm_seco(void){
     return nvm_status_seco;
 }
 
+hsm_err_t stop_nvm_she_seco(void){
+    if (nvm_status_seco_she != NVM_STATUS_STOPPED) {
+        pthread_cancel(tid_seco_she);
+    }
+    seco_nvm_close_session();
+    return nvm_status_seco_she;
+}
 
 size_t save_test_ctx(void *ctx, size_t count, char *file)
 {
@@ -158,6 +171,13 @@ uint32_t clear_v2x_nvm(void) {
 uint32_t clear_seco_nvm(void) {
 
     system("rm -rf /etc/seco_hsm");
+    system("sync");
+    return 0;
+}
+
+uint32_t clear_she_seco_nvm(void) {
+
+    system("rm -rf /etc/seco_she_nvm");
     system("sync");
     return 0;
 }
