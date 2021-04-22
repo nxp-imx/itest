@@ -232,3 +232,44 @@ int icrypto_verify_signature(int curve, unsigned char *pubk, int size_pubk, unsi
     return ret;
 }
 
+int icrypto_ECDH_compute_key(unsigned char *ecdh_secret, int ecdh_secret_size, unsigned char *remote_pubk, int pubk_size, int curve, unsigned char *privk, int size_privk) {
+    const EC_GROUP *curve_group = NULL;
+    EC_POINT *remote_point = NULL;
+    BN_CTX *bn_ctx = NULL;
+    EC_KEY *privk_ec = NULL;
+    int ret = 0;
+    unsigned char tmp[700];
+
+    do {
+
+        bn_ctx = BN_CTX_new();
+        ASSERT_TRUE_HIGH_API((bn_ctx != NULL));
+
+        privk_ec = EC_KEY_bin2key(curve, NULL, 0, privk, size_privk);
+        ASSERT_TRUE_HIGH_API((privk_ec != NULL));
+
+        curve_group = EC_KEY_get0_group(privk_ec);
+        ASSERT_TRUE_HIGH_API((curve_group != NULL));
+
+        remote_point = EC_POINT_new(curve_group);
+        ASSERT_TRUE_HIGH_API((remote_point != NULL));
+
+        memcpy(tmp+1, remote_pubk, pubk_size);
+        tmp[0] = 0x04;
+
+        ASSERT_EQUAL_HIGH_API(EC_POINT_oct2point(curve_group, remote_point, tmp, pubk_size+1, bn_ctx), 1);
+        ASSERT_EQUAL_HIGH_API(ECDH_compute_key(ecdh_secret, ecdh_secret_size, remote_point, privk_ec, NULL), pubk_size/2);
+
+        ret = 1;
+    } while (0);
+
+    if (privk_ec != NULL)
+        EC_KEY_free(privk_ec);
+    if (remote_point != NULL)
+        EC_POINT_free(remote_point);
+    if (bn_ctx != NULL)
+        BN_CTX_free(bn_ctx);
+
+    return ret;
+}
+
