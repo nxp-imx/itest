@@ -74,6 +74,8 @@ testsuite dxl_ts[] = {
     {v2x_perf_sig_ver_sm2_lat,               "v2x_perf_sig_ver_sm2_lat",               DXL_A1},
     {v2x_perf_sig_ver_nistp256_lat,          "v2x_perf_sig_ver_nistp256_lat",          DXL_A1},
     {v2x_perf_sig_ver_nistp384_lat,          "v2x_perf_sig_ver_nistp384_lat",          DXL_A1},
+    {v2x_perf_pub_key_decompression_nistp256, "v2x_perf_pub_key_decompression_nistp256", DXL_A1},
+    {v2x_perf_pub_key_reconstruction_nistp256, "v2x_perf_pub_key_reconstruction_nistp256", DXL_A1},
     {openssl_sanity,                         "openssl_sanity",                         DXL_A1},
     
     {NULL, NULL, DXL_A1},

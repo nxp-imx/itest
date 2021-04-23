@@ -3,6 +3,8 @@
 #define __COMMON_H__
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /* Max public key size is 96 byte for P384 */
 #define MAX_KEY_SIZE     (96)

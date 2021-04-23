@@ -24,7 +24,7 @@ SRC_PATH := $(CURDIR)/src
 BIN_PATH := $(BINDIR)/$(ARCH)
 OBJ_PATH := $(OBJDIR)/$(ARCH)
 # path tests
-SRC_TEST_PATH := $(CURDIR)/src/*_tests
+SRC_TEST_PATH := $(CURDIR)/src/*tests*
 OBJ_TEST_PATH := $(CURDIR)/obj/$(ARCH)/tests
 # path crypto
 SRC_CRYPTO_PATH := $(CURDIR)/src/crypto_utils

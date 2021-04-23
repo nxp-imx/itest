@@ -174,6 +174,7 @@ uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi);
 uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id);
 uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi);
 /*==========HIGH LEVEL SENTINEL API*/
+int get_key_param(hsm_key_type_t key_type,hsm_signature_scheme_id_t *scheme_id, uint16_t *size_pubk, uint16_t *size_privk);
 int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle);
 int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in,
                         uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size);
@@ -237,6 +238,8 @@ int v2x_perf_sig_ver_brainpool_t1p256_ops(void);
 int v2x_perf_sig_ver_brainpool_t1p256_lat(void);
 int v2x_perf_sig_ver_brainpool_t1p384_ops(void);
 int v2x_perf_sig_ver_brainpool_t1p384_lat(void);
+int v2x_perf_pub_key_decompression_nistp256(void);
+int v2x_perf_pub_key_reconstruction_nistp256(void);
 
 // seco hsm
 int seco_ks_import_export_001(void);
