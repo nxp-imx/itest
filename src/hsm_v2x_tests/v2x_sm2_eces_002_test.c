@@ -31,16 +31,27 @@ int v2x_sm2_eces_002(void){
                                 0x39, 0x45, 0x20, 0x8F, 0x7B, 0x21, 0x44, 0xB1, 0x3F, 0x36, 0xE3, 0x8A, 0xC6, 0xD3, 0x9F, 0x95,
                                 0x88, 0x93, 0x93, 0x69, 0x28, 0x60, 0xB5, 0x1A, 0x42, 0xFB, 0x81, 0xEF, 0x4D, 0xF7, 0xC5, 0xB8
                                 };
-    uint8_t msg_tv[20] =  {
+    
+    uint8_t cipher_tv[] = {
+                            0x04, 0x04, 0xEB, 0xFC, 0x71, 0x8E, 0x8D, 0x17, 0x98, 0x62, 0x04, 0x32, 0x26, 0x8E, 0x77, 0xFE, 0xB6, 0x41, 0x5E, 0x2E,
+                            0xDE, 0x0E, 0x07, 0x3C, 0x0F, 0x4F, 0x64, 0x0E, 0xCD, 0x2E, 0x14, 0x9A, 0x73, 0xE8, 0x58, 0xF9, 0xD8, 0x1E, 0x54,
+                            0x30, 0xA5, 0x7B, 0x36, 0xDA, 0xAB, 0x8F, 0x95, 0x0A, 0x3C, 0x64, 0xE6, 0xEE, 0x6A, 0x63, 0x09, 0x4D, 0x99, 0x28,
+                            0x3A, 0xFF, 0x76, 0x7E, 0x12, 0x4D, 0xF0, 0x59, 0x98, 0x3C, 0x18, 0xF8, 0x09, 0xE2, 0x62, 0x92, 0x3C, 0x53, 0xAE,
+                            0xC2, 0x95, 0xD3, 0x03, 0x83, 0xB5, 0x4E, 0x39, 0xD6, 0x09, 0xD1, 0x60, 0xAF, 0xCB, 0x19, 0x08, 0xD0, 0xBD, 0x87,
+                            0x66, 0x21, 0x88, 0x6C, 0xA9, 0x89, 0xCA, 0x9C, 0x7D, 0x58, 0x08, 0x73, 0x07, 0xCA, 0x93, 0x09, 0x2D, 0x65, 0x1E, 0xFA
+    };
+    uint8_t msg_tv[19] =  {
                             0x65, 0x6E, 0x63, 0x72, 0x79, 0x70, 0x74, 0x69, 0x6F, 0x6E, 0x20, 0x73, 0x74, 0x61, 0x6E, 0x64, 0x61, 0x72, 0x64
                             };
     uint8_t out_0[500];
+    uint8_t out_1[500];
     uint8_t dec_out[500];
-    uint32_t size_msg = 19;
+    uint16_t size_msg = 19;
+    uint16_t size_cipher_tv = sizeof(cipher_tv);
 
     uint32_t kek_handle;
     uint8_t kek_data[32];
-    uint32_t key_size = sizeof(kek_data);
+    uint16_t key_size = sizeof(kek_data);
 
     // REMOVE NVM
     clear_v2x_nvm();
@@ -92,11 +103,34 @@ int v2x_sm2_eces_002(void){
     sm2_eces_enc_args.flags = 0;
     ASSERT_EQUAL(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_NO_ERROR);
 
+    // SM2 ECES ENCRYPT ON SV0  AND CHECK OUT_0 != OUT_1
+    sm2_eces_enc_args.input = msg_tv;
+    sm2_eces_enc_args.output = out_1;
+    sm2_eces_enc_args.pub_key = pub_key_tv;
+    sm2_eces_enc_args.input_size = size_msg;
+    sm2_eces_enc_args.output_size = (size_msg + 97) + ((sizeof(u_int32_t) - (size_msg + 97) % sizeof(u_int32_t)) % sizeof(u_int32_t)); // aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
+    sm2_eces_enc_args.pub_key_size = size_pub_key;
+    sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    sm2_eces_enc_args.flags = 0;
+    ASSERT_EQUAL(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_NO_ERROR);
+    ASSERT_NOT_EQUAL(memcmp(out_0, out_1, size_msg), 0);
+
     // SM2 ECES DECRYPT ON SG0
     sm2_eces_dec_args.input = out_0;
     sm2_eces_dec_args.output = dec_out; //plaintext
     sm2_eces_dec_args.key_identifier = key_id_inj;
     sm2_eces_dec_args.input_size = (size_msg + 97);
+    sm2_eces_dec_args.output_size = (size_msg) + ((sizeof(u_int32_t) - (size_msg) % sizeof(u_int32_t)) % sizeof(u_int32_t)); // aligned with 32 bits
+    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    sm2_eces_dec_args.flags = 0;
+    ASSERT_EQUAL(hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args), HSM_NO_ERROR);
+    ASSERT_EQUAL(memcmp(dec_out, msg_tv, size_msg), 0);
+
+    // SM2 ECES DECRYPT TEST VECTOR CIPHER
+    sm2_eces_dec_args.input = cipher_tv;
+    sm2_eces_dec_args.output = dec_out; //plaintext
+    sm2_eces_dec_args.key_identifier = key_id_inj;
+    sm2_eces_dec_args.input_size = size_cipher_tv;
     sm2_eces_dec_args.output_size = (size_msg) + ((sizeof(u_int32_t) - (size_msg) % sizeof(u_int32_t)) % sizeof(u_int32_t)); // aligned with 32 bits
     sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     sm2_eces_dec_args.flags = 0;
