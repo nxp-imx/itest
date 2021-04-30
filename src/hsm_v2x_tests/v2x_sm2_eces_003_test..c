@@ -137,7 +137,7 @@ int v2x_sm2_eces_003(void){
     sm2_eces_enc_args.pub_key_size = 0x0;
     sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     sm2_eces_enc_args.flags = 0;
-    ASSERT_EQUAL_W(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_INVALID_PARAM);
+    ASSERT_EQUAL_W(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_INVALID_ADDRESS);
 
     // SM2 ECES ENCRYPT ON SV0 -> BAD OUT SIZE (NOT ALIGNED)
     sm2_eces_enc_args.input = msg_0;
@@ -159,7 +159,7 @@ int v2x_sm2_eces_003(void){
     sm2_eces_enc_args.pub_key_size = size_pub_key;
     sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     sm2_eces_enc_args.flags = 0;
-    ASSERT_EQUAL_W(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_INVALID_PARAM);
+    ASSERT_EQUAL_W(hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args), HSM_INVALID_ADDRESS);
 
     // SM2 ECES ENCRYPT ON SG0
     sm2_eces_enc_args.input = msg_1;
