@@ -209,6 +209,7 @@ int v2x_ks_create_bad_id_001(void);
 int v2x_sm2_eces_001(void);
 int v2x_sm2_eces_002(void);
 int v2x_sm2_eces_003(void);
+int v2x_all_services(void);
 
 int v2x_perf_sig_gen_nistp256_ops(void);
 int v2x_perf_sig_gen_nistp256_lat(void);
@@ -254,5 +255,16 @@ int seco_prepare_signature_003(void);
 int seco_she_load_key_001(void);
 /*===============================*/
 int v2x_ping_all_mu(void);
+int v2x_heap_walk_sv0(void);
+int v2x_heap_walk_sv1(void);
+int v2x_heap_walk_sg0(void);
+int v2x_heap_walk_sg1(void);
+int v2x_heap_walk_v2xs(void);
+int v2x_disable_cg(void);
+int v2x_enable_cg(void);
+int v2x_call_stack_v2xp(void);
+int v2x_call_stack_v2xs(void);
+int v2x_sched_stat_v2xp(void);
+int v2x_sched_stat_v2xs(void);
 int openssl_sanity(void);
 #endif

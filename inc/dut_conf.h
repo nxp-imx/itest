@@ -20,5 +20,11 @@ extern const char *lava_get_test_suite_qxp_b0;
 extern const char *lava_dl_flash_bootimg_qxp_b0;
 extern testsuite qxp_b0_ts[];
 
+// DBG CONF
+extern const char *lava_test_dbg;
+extern const char *lava_get_test_suite_dbg;
+extern const char *lava_dl_flash_bootimg_dbg;
+extern testsuite dbg_ts[];
+
 
 #endif

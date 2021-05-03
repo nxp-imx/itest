@@ -98,8 +98,11 @@ int init_conf(char *target) {
     else if (!strcmp(target, "QXP_C0")) {
         itest_ctx.ts = qxp_c0_ts;
     }
+    else if (!strcmp(target, "DBG")) {
+        itest_ctx.ts = dbg_ts;
+    }
     else {
-        ITEST_LOG(" unknow target (DXL_A1 / QXP_B0 / QXP_C0) \n");
+        ITEST_LOG(" unknow target (DXL_A1 / QXP_B0 / QXP_C0 / DBG) \n");
         return 0;
     }
     return 1;

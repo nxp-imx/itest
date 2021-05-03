@@ -34,6 +34,7 @@ testsuite dxl_ts[] = {
     {v2x_sm2_eces_001,                       "v2x_sm2_eces_001",                       DXL_A1},
     {v2x_sm2_eces_002,                       "v2x_sm2_eces_002",                       DXL_A1},
     {v2x_sm2_eces_003,                       "v2x_sm2_eces_003",                       DXL_A1},
+    {v2x_all_services,                       "v2x_all_services",                       DXL_A1},
     {v2x_ping_all_mu,                        "v2x_ping_all_mu",                        DXL_A1},
 
     {seco_ks_import_export_001,              "seco_ks_import_export_001",              DXL_A1},
