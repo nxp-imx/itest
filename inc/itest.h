@@ -15,6 +15,8 @@
 #define QXP_C0 0x1
 #define QXP_B0 0x2
 #define DXL_A1 0x4
+#define DXL_B0 0x8
+#define DBG    0x10
 
 #define TRUE_TEST 1
 #define FALSE_TEST 0
@@ -139,13 +141,7 @@ typedef struct{
     char *test_name;
     int nb_assert_fails;
     testsuite *ts;
-
-    char *ker_dl_link;
-    char *ram_dl_link;
-    char *mod_dl_link;
-    char *dtb_dl_link;
-    char *ts_dl_link;
-    char *bootimg_dl_link;
+    int target;
 } itest_ctx_t;
 
 /*==============NVM==============*/
@@ -181,96 +177,5 @@ int isen_hsm_key_injection_custom(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, 
                            uint16_t key_group, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
 int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in,
                         uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size);
-/*==========Tests list===========*/
-int v2x_chunk_swap_001(void);
-int v2x_rng_srv_001(void);
-int v2x_ks_import_export_001(void);
-int v2x_ks_import_export_001_part2(void);
-int v2x_ks_bad_auth_001(void);
-int v2x_ks_no_update_001(void);
-int v2x_ks_no_update_001_part2(void);
-int v2x_ks_update_001(void);
-int v2x_ks_update_001_part2(void);
-int v2x_pub_key_recovery_001(void);
-int v2x_pub_key_recovery_001_part2(void);
-int v2x_cipher_aes_ecb_cbc_001(void);
-int v2x_aes_gcm_iv_001(void);
-int v2x_pub_key_decompression_001(void);
-int v2x_auth_enc_test(void);
-int v2x_butterfly_key_exp_001(void);
-int v2x_butterfly_key_exp_002(void);
-int v2x_butterfly_key_exp_003(void);
-int v2x_parallel_sign_gen_ver_001(void);
-int v2x_parallel_sign_gen_key_gen_001(void);
-int v2x_parallel_sign_gen_key_gen_002(void);
-int v2x_rex_stress_v2xp_001(void);
-int v2x_prepare_signature_001(void);
-int v2x_prepare_signature_002(void);
-int v2x_prepare_signature_003(void);
-int v2x_cipher_ccm_perf(void);
-int v2x_sign_gen_verify_perf(void);
-int v2x_hash_one_go_all_001(void);
-int v2x_ks_create_bad_id_001(void);
-int v2x_sm2_eces_001(void);
-int v2x_sm2_eces_002(void);
-int v2x_sm2_eces_003(void);
-int v2x_pubk_reconstruction_sm2(void);
-int v2x_all_services(void);
 
-int v2x_perf_sig_gen_nistp256_ops(void);
-int v2x_perf_sig_gen_nistp256_lat(void);
-int v2x_perf_sig_gen_nistp384_ops(void);
-int v2x_perf_sig_gen_nistp384_lat(void);
-int v2x_perf_sig_gen_sm2_ops(void);
-int v2x_perf_sig_gen_sm2_lat(void);
-int v2x_perf_sig_gen_brainpool_r1p256_ops(void);
-int v2x_perf_sig_gen_brainpool_r1p256_lat(void);
-int v2x_perf_sig_gen_brainpool_r1p384_ops(void);
-int v2x_perf_sig_gen_brainpool_r1p384_lat(void);
-int v2x_perf_sig_gen_brainpool_t1p256_ops(void);
-int v2x_perf_sig_gen_brainpool_t1p256_lat(void);
-int v2x_perf_sig_gen_brainpool_t1p384_ops(void);
-int v2x_perf_sig_gen_brainpool_t1p384_lat(void);
-int v2x_perf_sig_ver_nistp256_ops(void);
-int v2x_perf_sig_ver_nistp384_ops(void);
-int v2x_perf_sig_ver_sm2_ops(void);
-int v2x_perf_sig_ver_nistp256_lat(void);
-int v2x_perf_sig_ver_nistp384_lat(void);
-int v2x_perf_sig_ver_sm2_lat(void);
-int v2x_perf_sig_ver_brainpool_r1p256_ops(void);
-int v2x_perf_sig_ver_brainpool_r1p256_lat(void);
-int v2x_perf_sig_ver_brainpool_r1p384_ops(void);
-int v2x_perf_sig_ver_brainpool_r1p384_lat(void);
-int v2x_perf_sig_ver_brainpool_t1p256_ops(void);
-int v2x_perf_sig_ver_brainpool_t1p256_lat(void);
-int v2x_perf_sig_ver_brainpool_t1p384_ops(void);
-int v2x_perf_sig_ver_brainpool_t1p384_lat(void);
-int v2x_perf_pub_key_decompression_nistp256(void);
-int v2x_perf_pub_key_reconstruction_nistp256(void);
-
-// seco hsm
-int seco_ks_import_export_001(void);
-int seco_ks_import_export_001_part2(void);
-int seco_ks_bad_auth_001(void);
-int seco_aes_gcm_iv_001(void);
-int seco_auth_enc_test(void);
-int seco_prepare_signature_001(void);
-int seco_prepare_signature_002(void);
-int seco_prepare_signature_003(void);
-// seco she
-int seco_she_load_key_001(void);
-/*===============================*/
-int v2x_ping_all_mu(void);
-int v2x_heap_walk_sv0(void);
-int v2x_heap_walk_sv1(void);
-int v2x_heap_walk_sg0(void);
-int v2x_heap_walk_sg1(void);
-int v2x_heap_walk_v2xs(void);
-int v2x_disable_cg(void);
-int v2x_enable_cg(void);
-int v2x_call_stack_v2xp(void);
-int v2x_call_stack_v2xs(void);
-int v2x_sched_stat_v2xp(void);
-int v2x_sched_stat_v2xs(void);
-int openssl_sanity(void);
 #endif
