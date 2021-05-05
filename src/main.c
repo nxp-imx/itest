@@ -7,6 +7,9 @@
 #include "imx8_tests_list.h"
 
 #define ITEST_VERSION "2.0"
+#ifndef GIT_COMMIT
+#define GIT_COMMIT "no commit id"
+#endif
 /* Itest ctx*/
 itest_ctx_t itest_ctx;
 /* Used to store total test run and test failures */
@@ -14,7 +17,7 @@ static int total_run = 0, fails = 0;
 
 static inline void print_version()
 {
-    ITEST_LOG("itest %s\n", ITEST_VERSION);
+    ITEST_LOG("itest %s, commit %s\n", ITEST_VERSION, GIT_COMMIT);
 }
 
 static inline void print_stats()

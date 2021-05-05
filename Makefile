@@ -6,6 +6,8 @@ CURDIR := $(shell pwd)
 WORKSPACE := $(CURDIR)/..
 OPENSSL_VER := 1.1.1h
 
+GIT_COMMIT := $(shell git describe --always --dirty --match 'NOT A TAG')
+
 ARCH ?= arm64
 HSM_PATH ?= $(WORKSPACE)/seco_libs
 HSM_LIB := $(HSM_PATH)/*.a
@@ -15,7 +17,7 @@ IDIR := -I$(HSM_INC) -I$(NVM_INC) -Iinc -Ilib/openssl-$(OPENSSL_VER)
 
 CCFLAG := -lpthread -ldl -lz -Wall -Wextra -Werror
 LIBSTATIC := $(HSM_LIB) lib/$(ARCH)/libgomp.a lib/$(ARCH)/libcrypto.a lib/$(ARCH)/libssl.a
-CCOBJFLAG := -c $(IDIR) -Wall -Wextra -Werror -fopenmp
+CCOBJFLAG := -c $(IDIR) -Wall -Wextra -Werror -fopenmp  -DGIT_COMMIT=\"$(GIT_COMMIT)\"
 
 # path macros
 BINDIR := $(CURDIR)/bin
