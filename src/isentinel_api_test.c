@@ -38,8 +38,7 @@ static uint16_t size_pubk_list[NB_ALGO] = {
     0x40,
     0x60,
     0x40,
-    0x60
-};
+    0x60};
 
 static uint16_t size_privk_list[NB_ALGO] = {
     0x20,
@@ -49,15 +48,17 @@ static uint16_t size_privk_list[NB_ALGO] = {
     0x20,
     0x30,
     0x20,
-    0x30
-};
+    0x30};
 
-int get_key_param(hsm_key_type_t key_type,hsm_signature_scheme_id_t *scheme_id, uint16_t *size_pubk, uint16_t *size_privk) {
+int get_key_param(hsm_key_type_t key_type, hsm_signature_scheme_id_t *scheme_id, uint16_t *size_pubk, uint16_t *size_privk)
+{
 
     uint32_t i;
 
-    for(i = 0; i < NB_ALGO; i++) {
-        if (key_type_list[i] == key_type) {
+    for (i = 0; i < NB_ALGO; i++)
+    {
+        if (key_type_list[i] == key_type)
+        {
             if (scheme_id != NULL)
                 *scheme_id = scheme_id_list[i];
             if (size_pubk != NULL)
@@ -71,7 +72,8 @@ int get_key_param(hsm_key_type_t key_type,hsm_signature_scheme_id_t *scheme_id, 
 }
 
 int isen_generate_key_strict_update(hsm_hdl_t key_store_serv, uint32_t *key_id, hsm_key_type_t key_type,
-                                    hsm_key_group_t key_group, uint8_t *out_key, uint16_t out_key_size) {
+                                    hsm_key_group_t key_group, uint8_t *out_key, uint16_t out_key_size)
+{
     op_generate_key_args_t gen_key_args;
 
     // PARAM KEY_GEN strict_update
@@ -82,7 +84,8 @@ int isen_generate_key_strict_update(hsm_hdl_t key_store_serv, uint32_t *key_id, 
     gen_key_args.key_group = key_group;
     gen_key_args.key_info = 0U;
     gen_key_args.out_key = out_key;
-    do {
+    do
+    {
         // GEN KEY + STORE IN NVM
         ASSERT_EQUAL_HIGH_API(hsm_generate_key(key_store_serv, &gen_key_args), HSM_NO_ERROR);
         return TRUE_TEST;
@@ -91,7 +94,8 @@ int isen_generate_key_strict_update(hsm_hdl_t key_store_serv, uint32_t *key_id, 
 }
 
 int isen_generate_key(hsm_hdl_t key_store_serv, uint32_t *key_id, hsm_key_type_t key_type,
-                                    hsm_key_group_t key_group, uint8_t *out_key, uint16_t out_key_size) {
+                      hsm_key_group_t key_group, uint8_t *out_key, uint16_t out_key_size)
+{
     op_generate_key_args_t gen_key_args;
 
     // PARAM KEY_GEN strict_update
@@ -102,7 +106,8 @@ int isen_generate_key(hsm_hdl_t key_store_serv, uint32_t *key_id, hsm_key_type_t
     gen_key_args.key_group = key_group;
     gen_key_args.key_info = 0U;
     gen_key_args.out_key = out_key;
-    do {
+    do
+    {
         // GEN KEY + STORE IN NVM
         ASSERT_EQUAL_HIGH_API(hsm_generate_key(key_store_serv, &gen_key_args), HSM_NO_ERROR);
         return TRUE_TEST;
@@ -110,7 +115,8 @@ int isen_generate_key(hsm_hdl_t key_store_serv, uint32_t *key_id, hsm_key_type_t
     return FALSE_TEST;
 }
 
-int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle){
+int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle)
+{
 
     op_key_exchange_args_t key_exchange_args;
 
@@ -124,13 +130,12 @@ int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t 
     uint8_t remote_pub_key[65];
     int local_pub_key_len;
 
-
-
     // =========== NEGOTIATE KEK FOR KEY INJECTION ================= //
-    do {
+    do
+    {
 
-        ASSERT_EQUAL_HIGH_API(icrypto_generate_key_pair(NID_X9_62_prime256v1, (unsigned char *) local_pub_key, &local_pub_key_len, (unsigned char *)local_key, &size_privk), 1);
-        ASSERT_EQUAL_HIGH_API(local_pub_key_len,64);
+        ASSERT_EQUAL_HIGH_API(icrypto_generate_key_pair(NID_X9_62_prime256v1, (unsigned char *)local_pub_key, &local_pub_key_len, (unsigned char *)local_key, &size_privk), 1);
+        ASSERT_EQUAL_HIGH_API(local_pub_key_len, 64);
 
         key_exchange_args.key_identifier = 0;
         key_exchange_args.shared_key_identifier_array_size = sizeof(uint32_t);
@@ -163,7 +168,7 @@ int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t 
         memcpy(&kdf_input[4], ecdh_secret, 32);
         memcpy(&kdf_input[36], FixedInfo, 27);
 
-        ASSERT_EQUAL_HIGH_API(icrypto_hash_one_go((unsigned char *)kdf_input, (unsigned char *) kek_data, "sha256", sizeof(kdf_input)), (int)key_size);
+        ASSERT_EQUAL_HIGH_API(icrypto_hash_one_go((unsigned char *)kdf_input, (unsigned char *)kek_data, "sha256", sizeof(kdf_input)), (int)key_size);
 
         return TRUE_TEST;
 
@@ -172,16 +177,20 @@ int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t 
     return FALSE_TEST;
 }
 
-int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size){
+int isen_hsm_key_injection_custom(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type,
+                           uint8_t *key_in, uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size,
+                           uint16_t key_group, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags)
+{
 
     op_manage_key_args_t manage_args;
 
     uint8_t enc_key[512] = {0x00, 0x01, 0x02, 0x03,
-                                0x04, 0x05, 0x06, 0x07,
-                                0x08, 0x09, 0x0A, 0x0B };
+                            0x04, 0x05, 0x06, 0x07,
+                            0x08, 0x09, 0x0A, 0x0B};
 
     // =========== INJECT KEYS ================= //
-    do {
+    do
+    {
 
         ASSERT_EQUAL_HIGH_API(icrypto_cipher_one_go(key_in, enc_key + 12, key_size, ICRYPTO_AES_256_GCM, kek_data, enc_key), (int)(key_size + 16));
 
@@ -189,15 +198,21 @@ int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key
         manage_args.kek_identifier = kek_handle;
         manage_args.input_size = 12 + key_size + 16;
         manage_args.key_type = key_type;
-        manage_args.key_group = 1;
-        manage_args.flags = 2; /* Create */;
-        manage_args.key_info = 0U;
+        manage_args.key_group = key_group;
+        manage_args.flags = flags; /* Create */
+        ;
+        manage_args.key_info = key_info;
         manage_args.input_data = enc_key;
         ASSERT_EQUAL_HIGH_API(hsm_manage_key(sg0_key_mgmt_srv, &manage_args), HSM_NO_ERROR);
-        
+
         return TRUE_TEST;
 
     } while (0);
 
     return FALSE_TEST;
+}
+
+int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size)
+{
+    return isen_hsm_key_injection_custom(sg0_key_mgmt_srv, key_id, key_type, key_in, kek_handle, kek_data, key_size, 1U, 0U, HSM_OP_KEY_GENERATION_FLAGS_CREATE);
 }

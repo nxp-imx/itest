@@ -20,6 +20,8 @@ testsuite dxl_ts[] = {
     {v2x_auth_enc_test,                      "v2x_auth_enc_test",                      DXL_A1},
     {v2x_pub_key_decompression_001,          "v2x_pub_key_decompression_001",          DXL_A1},
     {v2x_butterfly_key_exp_001,              "v2x_butterfly_key_exp_001",              DXL_A1},
+    {v2x_butterfly_key_exp_002,              "v2x_butterfly_key_exp_002",              DXL_A1},
+    {v2x_butterfly_key_exp_003,              "v2x_butterfly_key_exp_003",              DXL_A1},
     //{v2x_parallel_sign_gen_key_gen_001,      "v2x_parallel_sign_gen_key_gen_001",      DXL_A1},  //NVM issue in // stress test
     //{v2x_parallel_sign_gen_key_gen_002,      "v2x_parallel_sign_gen_key_gen_002",      DXL_A1},  //NVM issue in // stress test
     {v2x_parallel_sign_gen_ver_001,          "v2x_parallel_sign_gen_ver_001",          DXL_A1},
@@ -34,6 +36,7 @@ testsuite dxl_ts[] = {
     {v2x_sm2_eces_001,                       "v2x_sm2_eces_001",                       DXL_A1},
     {v2x_sm2_eces_002,                       "v2x_sm2_eces_002",                       DXL_A1},
     {v2x_sm2_eces_003,                       "v2x_sm2_eces_003",                       DXL_A1},
+    {v2x_pubk_reconstruction_sm2,            "v2x_pubk_reconstruction_sm2",            DXL_A1},
     {v2x_all_services,                       "v2x_all_services",                       DXL_A1},
     {v2x_ping_all_mu,                        "v2x_ping_all_mu",                        DXL_A1},
 

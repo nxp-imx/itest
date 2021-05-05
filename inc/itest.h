@@ -176,6 +176,9 @@ uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uin
 /*==========HIGH LEVEL SENTINEL API*/
 int get_key_param(hsm_key_type_t key_type,hsm_signature_scheme_id_t *scheme_id, uint16_t *size_pubk, uint16_t *size_privk);
 int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle);
+int isen_hsm_key_injection_custom(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type,
+                           uint8_t *key_in, uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size,
+                           uint16_t key_group, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
 int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in,
                         uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size);
 /*==========Tests list===========*/
@@ -195,6 +198,8 @@ int v2x_aes_gcm_iv_001(void);
 int v2x_pub_key_decompression_001(void);
 int v2x_auth_enc_test(void);
 int v2x_butterfly_key_exp_001(void);
+int v2x_butterfly_key_exp_002(void);
+int v2x_butterfly_key_exp_003(void);
 int v2x_parallel_sign_gen_ver_001(void);
 int v2x_parallel_sign_gen_key_gen_001(void);
 int v2x_parallel_sign_gen_key_gen_002(void);
@@ -209,6 +214,7 @@ int v2x_ks_create_bad_id_001(void);
 int v2x_sm2_eces_001(void);
 int v2x_sm2_eces_002(void);
 int v2x_sm2_eces_003(void);
+int v2x_pubk_reconstruction_sm2(void);
 int v2x_all_services(void);
 
 int v2x_perf_sig_gen_nistp256_ops(void);

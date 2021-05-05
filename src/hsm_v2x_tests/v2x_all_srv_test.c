@@ -117,6 +117,25 @@ uint8_t sm2_kdf_input[2*32] = {
     0x9A ,0x87 ,0xE6 ,0xFC ,0x68 ,0x2D ,0x48 ,0xBB ,0x5D ,0x42 ,0xE3 ,0xD9 ,0xB9 ,0xEF ,0xFE ,0x76,
 };
 
+/* test vectors for butterfly key expansion */
+uint8_t sm2_exp_fct_input[16] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17, 0x36, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00
+};
+
+uint8_t sm2_butt_hash_val [32] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01
+};
+
+uint8_t sm2_butt_rec_val [32] = {
+    0x2e, 0xfb, 0x7b, 0x7b, 0x52, 0x5e, 0x33, 0x7b, 0x90, 0x69, 0xd8, 0x6e, 0x30, 0xac, 0xb5, 0x3e,
+    0xb0, 0xbe, 0x83, 0xb1, 0xb0, 0x1c, 0x04, 0xfe, 0x79, 0xe1, 0x18, 0x45, 0x82, 0xf1, 0xc0, 0xc4
+};
+
+uint8_t p256_exp_fct_input[16] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x21, 0x7D, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00
+};
+
 uint8_t work_area[128] = {0};
 uint8_t work_area2[128] = {0};
 uint8_t work_area3[128] = {0};
@@ -311,6 +330,8 @@ int v2x_all_services(void)
     op_generate_key_args_t gen_key_args;
     uint32_t key_id = 0;
     uint32_t key_id_sm4 = 0;
+    uint32_t master_key_id = 0;
+    uint32_t exp_fct_key_id = 0;
 
     pthread_t sig1, sig2;
     sig_thread_args_t args1, args2;
@@ -325,6 +346,8 @@ int v2x_all_services(void)
     op_mac_one_go_args_t mac_one_go;
     hsm_mac_verification_status_t mac_status;
     op_auth_enc_args_t auth_enc_gcm;
+
+    op_st_butt_key_exp_args_t st_butt_key_expansion;
 
 
     uint8_t recovered_key[256];
@@ -911,6 +934,82 @@ int v2x_all_services(void)
     ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm), HSM_NO_ERROR);
     ASSERT_EQUAL(memcmp(SM2_test_message, work_area4, 32), 0);
 
+// Standalone butterfly key expansion
+    ITEST_LOG("\n---------------------------------------------------\n");
+    ITEST_LOG("Standalone butterfly key expansion Test \n");
+    ITEST_LOG("---------------------------------------------------\n");
+
+    gen_key_args.key_identifier = &master_key_id;
+    gen_key_args.out_size = 64;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    gen_key_args.key_group = 1;
+    gen_key_args.key_info = HSM_KEY_INFO_MASTER;
+    gen_key_args.out_key = work_area2;
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+
+    gen_key_args.key_identifier = &exp_fct_key_id;
+    gen_key_args.out_size = 0U;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
+    gen_key_args.key_group = 1;
+    gen_key_args.key_info = 0;
+    gen_key_args.out_key = NULL;
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+
+    st_butt_key_expansion.key_identifier = master_key_id;
+    st_butt_key_expansion.expansion_fct_key_identifier = exp_fct_key_id;
+    st_butt_key_expansion.expansion_fct_input = sm2_exp_fct_input;
+    st_butt_key_expansion.hash_value = sm2_butt_hash_val;
+    st_butt_key_expansion.pr_reconstruction_value = sm2_butt_rec_val;
+    st_butt_key_expansion.expansion_fct_input_size = 16;
+    st_butt_key_expansion.hash_value_size = 32;
+    st_butt_key_expansion.pr_reconstruction_value_size = 32;
+    st_butt_key_expansion.flags = HSM_OP_ST_BUTTERFLY_KEY_FLAGS_CREATE | HSM_OP_ST_BUTTERFLY_KEY_FLAGS_IMPLICIT_CERTIF;
+    st_butt_key_expansion.dest_key_identifier = &key_id;
+    st_butt_key_expansion.output = work_area;
+    st_butt_key_expansion.output_size = 64;
+    st_butt_key_expansion.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    st_butt_key_expansion.expansion_fct_algo = HSM_CIPHER_ONE_GO_ALGO_SM4_ECB;
+    st_butt_key_expansion.key_group = 1;
+    st_butt_key_expansion.key_info = 0;
+    ASSERT_EQUAL(hsm_standalone_butterfly_key_expansion(sg0_key_mgmt_srv, &st_butt_key_expansion), HSM_NO_ERROR);
+
+    gen_key_args.key_identifier = &master_key_id;
+    gen_key_args.out_size = 64;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    gen_key_args.key_group = 1;
+    gen_key_args.key_info = HSM_KEY_INFO_MASTER;
+    gen_key_args.out_key = work_area2;
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+
+    gen_key_args.key_identifier = &exp_fct_key_id;
+    gen_key_args.out_size = 0U;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_AES_128;
+    gen_key_args.key_group = 1;
+    gen_key_args.key_info = 0;
+    gen_key_args.out_key = NULL;
+    ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
+
+    st_butt_key_expansion.key_identifier = master_key_id;
+    st_butt_key_expansion.expansion_fct_key_identifier = exp_fct_key_id;
+    st_butt_key_expansion.expansion_fct_input = p256_exp_fct_input;
+    st_butt_key_expansion.hash_value = 0;
+    st_butt_key_expansion.pr_reconstruction_value = 0;
+    st_butt_key_expansion.expansion_fct_input_size = 16;
+    st_butt_key_expansion.hash_value_size = 0;
+    st_butt_key_expansion.pr_reconstruction_value_size = 0;
+    st_butt_key_expansion.flags = HSM_OP_ST_BUTTERFLY_KEY_FLAGS_CREATE | HSM_OP_ST_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF;
+    st_butt_key_expansion.dest_key_identifier = &key_id;
+    st_butt_key_expansion.output = work_area;
+    st_butt_key_expansion.output_size = 64;
+    st_butt_key_expansion.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    st_butt_key_expansion.expansion_fct_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
+    st_butt_key_expansion.key_group = 1;
+    st_butt_key_expansion.key_info = 0;
+    ASSERT_EQUAL(hsm_standalone_butterfly_key_expansion(sg0_key_mgmt_srv, &st_butt_key_expansion), HSM_NO_ERROR);
 
     // Close all services and sessions
     ITEST_LOG("\n---------------------------------------------------\n");

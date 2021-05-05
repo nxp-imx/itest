@@ -130,7 +130,7 @@ int v2x_pub_key_recovery_001_part2(void){
         // RECOVERY PUB KEY
         pub_k_rec_args.key_identifier = ctx.key_id[i];
         pub_k_rec_args.out_key = recovered_key;
-        pub_k_rec_args.out_key_size = size_pub_key[i];;
+        pub_k_rec_args.out_key_size = size_pub_key[i];
         pub_k_rec_args.key_type = algos[i];
         pub_k_rec_args.flags = 0;
         ASSERT_EQUAL(hsm_pub_key_recovery(sg0_key_store_serv, &pub_k_rec_args), HSM_NO_ERROR);
