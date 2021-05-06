@@ -47,7 +47,7 @@ int v2x_ks_create_bad_id_001(void){
     key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
     key_store_srv_args.signed_message = NULL;
     key_store_srv_args.signed_msg_size = 0;
-    ASSERT_EQUAL(hsm_open_key_store_service(sg1_sess, &key_store_srv_args, &sg1_key_store_serv), HSM_ID_CONFLICT);
+    ASSERT_EQUAL_W(hsm_open_key_store_service(sg1_sess, &key_store_srv_args, &sg1_key_store_serv), HSM_KEY_STORE_CONFLICT);
 
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);

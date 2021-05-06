@@ -68,7 +68,7 @@ int v2x_pub_key_recovery_001(void){
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
     for(i = 0; i < NB_ALGO; i++){
-        ITEST_LOG("%d\n", i);
+
         // PARAM KEY_GEN strict_update
         gen_key_args.key_identifier = &ctx.key_id[i];
         gen_key_args.out_size = size_pub_key[i];
