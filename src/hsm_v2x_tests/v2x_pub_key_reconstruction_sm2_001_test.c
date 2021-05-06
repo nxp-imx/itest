@@ -7,7 +7,7 @@
 
 #define NB_TV 2
 
-int v2x_pubk_reconstruction_sm2(void){
+int v2x_pub_key_reconstruction_sm2(void){
 
     open_session_args_t args;
     

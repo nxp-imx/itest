@@ -3,7 +3,7 @@
 #include "itest.h"
 // requirement: able to recover the PUB key of all supported curves 
 
-#define NB_ALGO 8
+#define NB_ALGO 7
 
 typedef struct {
     uint32_t key_id[NB_ALGO];
@@ -14,7 +14,7 @@ hsm_key_type_t algos[NB_ALGO] = {
     HSM_KEY_TYPE_DSA_SM2_FP_256,
     HSM_KEY_TYPE_ECDSA_NIST_P256,
     HSM_KEY_TYPE_ECDSA_NIST_P384,
-    HSM_KEY_TYPE_ECDSA_NIST_P521,
+    //HSM_KEY_TYPE_ECDSA_NIST_P521,
     HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256,
     HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384,
     HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256,
@@ -25,7 +25,7 @@ uint16_t size_pub_key[NB_ALGO] = {
     0x40,
     0x40,
     0x60,
-    0x90,
+    //0x90,
     0x40,
     0x60,
     0x40,
@@ -68,6 +68,7 @@ int v2x_pub_key_recovery_001(void){
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
     for(i = 0; i < NB_ALGO; i++){
+        ITEST_LOG("%d\n", i);
         // PARAM KEY_GEN strict_update
         gen_key_args.key_identifier = &ctx.key_id[i];
         gen_key_args.out_size = size_pub_key[i];
