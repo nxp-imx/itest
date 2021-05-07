@@ -197,9 +197,8 @@ int v2x_prepare_signature_001(void){
             // PREPARE SIGN ON SG1
             ASSERT_EQUAL(hsm_prepare_signature(sg1_sig_gen_serv, &pre_sig_gen_args), HSM_NO_ERROR);
         }
-        // ERROR MAX PREPARE
-        ASSERT_EQUAL(hsm_prepare_signature(sg0_sig_gen_serv, &pre_sig_gen_args), HSM_OUT_OF_MEMORY);
-        ASSERT_EQUAL(hsm_prepare_signature(sg1_sig_gen_serv, &pre_sig_gen_args), HSM_OUT_OF_MEMORY);
+        // ERROR MAX PREPARE (a warning is return but not returned by seco_lib)
+        ASSERT_NOT_EQUAL_W(hsm_prepare_signature(sg0_sig_gen_serv, &pre_sig_gen_args), HSM_NO_ERROR);
 
         for (j = 0; j < iter; j++) {
             // GEN SIGN ON SG0

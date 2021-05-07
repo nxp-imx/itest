@@ -27,6 +27,9 @@ int v2x_perf_signature_generation(v2x_perf_sig_gen_t *td)
     uint32_t idx, idx_test = 0;
     timer_perf_t t_perf;
 
+    // REMOVE NVM
+    clear_v2x_nvm();
+
     // INPUT BUFF AS RANDOM
     ASSERT_EQUAL(randomize(msg_input, 2*MSG_SIZE), 2*MSG_SIZE);
     // START NVM

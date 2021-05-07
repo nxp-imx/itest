@@ -9,9 +9,9 @@
 #define V2X_KPI_OP_SEC_SIG_VER_SM2                  (2500u)
 #define V2X_KPI_OP_SEC_SIG_VER_P256                 (2500u)
 #define V2X_KPI_OP_SEC_SIG_VER_P384                 (1000u)
-#define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_R1_256     (2200u)
+#define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_R1_256     (2100u)
 #define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_R1_384     (900u)
-#define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_T1_256     (2300u)
+#define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_T1_256     (2200u)
 #define V2X_KPI_OP_SEC_SIG_VER_BRAINPOOL_T1_384     (900u)
 
 #define V2X_KPI_OP_SEC_SIG_GEN_SM2                  (200u)
