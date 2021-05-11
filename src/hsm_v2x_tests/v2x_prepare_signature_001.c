@@ -67,18 +67,18 @@ int v2x_prepare_signature_001(void){
     open_svc_key_management_args_t key_mgmt_srv_args;
     open_svc_sign_gen_args_t sig_gen_srv_args;
     open_svc_sign_ver_args_t sig_ver_srv_args;
-    
+
     op_generate_key_args_t gen_key_args;
     op_generate_sign_args_t sg0_sig_gen_args;
-    op_verify_sign_args_t sv0_sig_ver_args;  
+    op_verify_sign_args_t sv0_sig_ver_args;
     op_generate_sign_args_t sg1_sig_gen_args;
     op_verify_sign_args_t sv1_sig_ver_args;
     op_prepare_sign_args_t pre_sig_gen_args;
-    
+
     hsm_hdl_t sg0_sess, sg0_sig_gen_serv;
     hsm_hdl_t sv0_sess, sv0_sig_ver_serv;
     hsm_hdl_t sg1_sess, sg1_sig_gen_serv;
-    hsm_hdl_t sv1_sess, sv1_sig_ver_serv;    
+    hsm_hdl_t sv1_sess, sv1_sig_ver_serv;
     hsm_hdl_t sg0_key_store_serv, sg0_key_mgmt_srv;
     hsm_hdl_t sg1_key_store_serv, sg1_key_mgmt_srv;
     uint32_t key_id_0 = 0;
@@ -102,7 +102,7 @@ int v2x_prepare_signature_001(void){
 
     // START NVM
     ASSERT_NOT_EQUAL(start_nvm_v2x(), NVM_STATUS_STOPPED);
-    
+
     // SG0
     args.session_priority = HSM_OPEN_SESSION_PRIORITY_HIGH;
     args.operating_mode = HSM_OPEN_SESSION_LOW_LATENCY_MASK;
@@ -189,7 +189,7 @@ int v2x_prepare_signature_001(void){
         // GEN KEY + STORE IN NVM
         ASSERT_EQUAL(hsm_generate_key(sg1_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
-        for (j = 0; j < iter; j++) {        
+        for (j = 0; j < iter; j++) {
             pre_sig_gen_args.scheme_id = algos_sign[i];
             pre_sig_gen_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
             // PREPARE SIGN ON SG0
@@ -198,7 +198,7 @@ int v2x_prepare_signature_001(void){
             ASSERT_EQUAL(hsm_prepare_signature(sg1_sig_gen_serv, &pre_sig_gen_args), HSM_NO_ERROR);
         }
         // ERROR MAX PREPARE (a warning is return but not returned by seco_lib)
-        ASSERT_NOT_EQUAL_W(hsm_prepare_signature(sg0_sig_gen_serv, &pre_sig_gen_args), HSM_NO_ERROR);
+        ASSERT_EQUAL(hsm_prepare_signature(sg0_sig_gen_serv, &pre_sig_gen_args), HSM_NO_ERROR);
 
         for (j = 0; j < iter; j++) {
             // GEN SIGN ON SG0
@@ -208,7 +208,7 @@ int v2x_prepare_signature_001(void){
             sg0_sig_gen_args.message_size = 300;
             sg0_sig_gen_args.signature_size = size_pub_key[i]+1;
             sg0_sig_gen_args.scheme_id = algos_sign[i];
-            sg0_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE | HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE; 
+            sg0_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE | HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE;
             ASSERT_EQUAL(hsm_generate_signature(sg0_sig_gen_serv, &sg0_sig_gen_args), HSM_NO_ERROR);
             // GEN SIGN ON SG1
             sg1_sig_gen_args.key_identifier = key_id_1;
@@ -217,7 +217,7 @@ int v2x_prepare_signature_001(void){
             sg1_sig_gen_args.message_size = 300;
             sg1_sig_gen_args.signature_size = size_pub_key[i]+1;
             sg1_sig_gen_args.scheme_id = algos_sign[i];
-            sg1_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE | HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE; 
+            sg1_sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE | HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE;
             ASSERT_EQUAL(hsm_generate_signature(sg1_sig_gen_serv, &sg1_sig_gen_args), HSM_NO_ERROR);
             // VERIFY SIGN SG0 ON SV0
             sv0_sig_ver_args.key = pub_key_0;
@@ -262,6 +262,6 @@ int v2x_prepare_signature_001(void){
     ASSERT_EQUAL(hsm_close_session(sv0_sess), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sv1_sess), HSM_NO_ERROR);
     ASSERT_NOT_EQUAL(stop_nvm_v2x(), NVM_STATUS_STOPPED);
-    
+
     return TRUE_TEST;
 }
