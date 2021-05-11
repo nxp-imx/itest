@@ -41,6 +41,7 @@ int v2x_sm2_eces_003(void);
 int v2x_pub_key_reconstruction_sm2(void);
 int v2x_sm2_st_butt_key_exp_swap_001(void);
 int v2x_sm2_st_butt_key_exp_swap_002(void);
+int v2x_st_butt_key_exp_swap_001(void);
 int v2x_all_services(void);
 
 int v2x_perf_sig_gen_nistp256_ops(void);
@@ -135,6 +136,7 @@ testsuite imx8_ts[] = {
     {v2x_st_butterfly_key_exp_002,           "v2x_st_butterfly_key_exp_002",           DXL_A1 | DXL_B0},
     {v2x_sm2_st_butt_key_exp_swap_001,       "v2x_sm2_st_butt_key_exp_swap_001",       DXL_A1 | DXL_B0},
     {v2x_sm2_st_butt_key_exp_swap_002,       "v2x_sm2_st_butt_key_exp_swap_002",       DXL_A1 | DXL_B0},
+    {v2x_st_butt_key_exp_swap_001,           "v2x_st_butt_key_exp_swap_001",           DXL_A1 | DXL_B0},
     //{v2x_parallel_sign_gen_key_gen_001,      "v2x_parallel_sign_gen_key_gen_001",      DXL_A1 | DXL_B0},  //NVM issue in // stress test
     //{v2x_parallel_sign_gen_key_gen_002,      "v2x_parallel_sign_gen_key_gen_002",      DXL_A1 | DXL_B0},  //NVM issue in // stress test
     {v2x_parallel_sign_gen_ver_001,          "v2x_parallel_sign_gen_ver_001",          DXL_A1 | DXL_B0},
