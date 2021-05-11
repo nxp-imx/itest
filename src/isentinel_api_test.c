@@ -200,7 +200,6 @@ int isen_hsm_key_injection_custom(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, 
         manage_args.key_type = key_type;
         manage_args.key_group = key_group;
         manage_args.flags = flags; /* Create */
-        ;
         manage_args.key_info = key_info;
         manage_args.input_data = enc_key;
         ASSERT_EQUAL_HIGH_API(hsm_manage_key(sg0_key_mgmt_srv, &manage_args), HSM_NO_ERROR);
