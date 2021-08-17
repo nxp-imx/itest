@@ -19,6 +19,7 @@ int v2x_cipher_aes_ecb_cbc_001(void);
 int v2x_aes_gcm_iv_001(void);
 int v2x_pub_key_decompression_001(void);
 int v2x_auth_enc_test(void);
+int v2x_auth_enc_sm4_ccm_test(void);
 int v2x_butterfly_key_exp_001(void);
 int v2x_butterfly_key_exp_002(void);
 int v2x_butterfly_key_exp_003(void);
@@ -128,6 +129,7 @@ testsuite imx8_ts[] = {
     {v2x_cipher_aes_ecb_cbc_001,             "v2x_cipher_aes_ecb_cbc_001",             DXL_A1 | DXL_B0},
     {v2x_aes_gcm_iv_001,                     "v2x_aes_gcm_iv_001",                     DXL_A1 | DXL_B0},
     {v2x_auth_enc_test,                      "v2x_auth_enc_test",                      DXL_A1 | DXL_B0},
+    {v2x_auth_enc_sm4_ccm_test,              "v2x_auth_enc_sm4_ccm_test",              DXL_A1 | DXL_B0},
     {v2x_pub_key_decompression_001,          "v2x_pub_key_decompression_001",          DXL_A1 | DXL_B0},
     {v2x_butterfly_key_exp_001,              "v2x_butterfly_key_exp_001",              DXL_A1 | DXL_B0},
     {v2x_butterfly_key_exp_002,              "v2x_butterfly_key_exp_002",              DXL_A1 | DXL_B0},

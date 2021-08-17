@@ -29,4 +29,20 @@ typedef struct {
     uint8_t signature[MAX_SIG_SIZE];
 } test_data_verify_t;
 
+#define SM4_CCM_NONCE_SIZE (12)
+
+#define SM4_CCM_KEY_SIZE (16)
+
+
+typedef struct {
+    int algo;
+    uint8_t message[MAX_MSG_SIZE];
+    uint32_t message_length;
+    uint8_t encrypted_data[MAX_MSG_SIZE];
+    uint32_t encrypted_length;
+    uint8_t nonce[SM4_CCM_NONCE_SIZE];
+    uint32_t nonce_length;
+    uint8_t sm4_key[SM4_CCM_KEY_SIZE];
+} test_data_cipher_t;
+
 #endif /* __COMMON_H__ */
