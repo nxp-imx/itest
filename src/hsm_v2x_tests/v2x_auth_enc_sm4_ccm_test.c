@@ -70,7 +70,7 @@ int v2x_auth_enc_sm4_ccm_test(void){
     ASSERT_EQUAL(isen_kek_generation(sg0_key_mgmt_srv, kek_data, key_size, &kek_handle), TRUE_TEST);
 
     for (i = 0; i < test_data_size_sm4_ccm; i++) {
-        ITEST_LOG("tv --> %d\n", i);
+
         msg = test_data_sm4_ccm[i].message;
         msg_size = test_data_sm4_ccm[i].message_length;
         aes_128_key_data = test_data_sm4_ccm[i].sm4_key;
@@ -87,7 +87,7 @@ int v2x_auth_enc_sm4_ccm_test(void){
         auth_enc_args.iv_size = 12U;
         auth_enc_args.aad = aad;
         auth_enc_args.aad_size = 0U;
-        auth_enc_args.ae_algo = 0x10;
+        auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
         auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
         auth_enc_args.input = test_data_sm4_ccm[i].encrypted_data;
         auth_enc_args.output = buff_decr;
@@ -107,7 +107,7 @@ int v2x_auth_enc_sm4_ccm_test(void){
         auth_enc_args.iv_size = 0U;
         auth_enc_args.aad = aad;
         auth_enc_args.aad_size = 0U;
-        auth_enc_args.ae_algo = 0x10;
+        auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
         auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
         auth_enc_args.input = msg;
         auth_enc_args.output = buff_encr;
@@ -121,7 +121,7 @@ int v2x_auth_enc_sm4_ccm_test(void){
         auth_enc_args.iv_size = 12U;
         auth_enc_args.aad = aad;
         auth_enc_args.aad_size = 0U;
-        auth_enc_args.ae_algo = 0x10;
+        auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
         auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
         auth_enc_args.input = buff_encr;
         auth_enc_args.output = buff_decr;
@@ -141,7 +141,7 @@ int v2x_auth_enc_sm4_ccm_test(void){
         auth_enc_args.iv_size = 4U;
         auth_enc_args.aad = aad;
         auth_enc_args.aad_size = 16U;
-        auth_enc_args.ae_algo = 0x10;
+        auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
         auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
         auth_enc_args.input = msg;
         auth_enc_args.output = buff_encr;
@@ -158,7 +158,7 @@ int v2x_auth_enc_sm4_ccm_test(void){
         auth_enc_args.iv_size = 12U;
         auth_enc_args.aad = aad;
         auth_enc_args.aad_size = 16U;
-        auth_enc_args.ae_algo = 0x10;
+        auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
         auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
         auth_enc_args.input = buff_encr;
         auth_enc_args.output = buff_decr;
@@ -167,6 +167,23 @@ int v2x_auth_enc_sm4_ccm_test(void){
         ASSERT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
         // CHECK DECRYPTED OUTPUT
         ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
+
+        // SET BAD TAG
+        buff_encr[msg_size] = 0x00;
+        buff_encr[msg_size + 1] = 0xFF;
+        // AUTH ENC KEY AES128 -> DECRYPT with bad tag
+        auth_enc_args.key_identifier = key_id_aes_128;
+        auth_enc_args.iv = iv;
+        auth_enc_args.iv_size = 12U;
+        auth_enc_args.aad = aad;
+        auth_enc_args.aad_size = 16U;
+        auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
+        auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+        auth_enc_args.input = buff_encr;
+        auth_enc_args.output = buff_decr;
+        auth_enc_args.input_size = msg_size + 16U;
+        auth_enc_args.output_size = msg_size;
+        ASSERT_NOT_EQUAL(hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args), HSM_NO_ERROR);
     }
 
     ASSERT_EQUAL(hsm_close_key_management_service(sg0_key_mgmt_srv), HSM_NO_ERROR);

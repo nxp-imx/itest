@@ -42,6 +42,7 @@ int v2x_sm2_eces_003(void);
 int v2x_pub_key_reconstruction_sm2(void);
 int v2x_sm2_st_butt_key_exp_swap_001(void);
 int v2x_sm2_st_butt_key_exp_swap_002(void);
+int v2x_generic_crypto_sm4_ccm_test(void);
 int v2x_st_butt_key_exp_swap_001(void);
 int v2x_all_services(void);
 
@@ -145,6 +146,7 @@ testsuite imx8_ts[] = {
     {v2x_rex_stress_v2xp_001,                "v2x_rex_stress_v2xp_001",                DXL_A1 | DXL_B0},
     {v2x_cipher_ccm_perf,                    "v2x_cipher_ccm_perf",                    DXL_A1 | DXL_B0},
     {v2x_sign_gen_verify_perf,               "v2x_sign_gen_verify_perf",               DXL_A1 | DXL_B0},
+    {v2x_generic_crypto_sm4_ccm_test,        "v2x_generic_crypto_sm4_ccm_test",        DXL_A1 | DXL_B0},
     {v2x_all_services,                       "v2x_all_services",                       DXL_A1 | DXL_B0},
     {v2x_ping_all_mu,                        "v2x_ping_all_mu",                        DXL_A1 | DXL_B0},
 
