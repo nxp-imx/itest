@@ -164,6 +164,7 @@ int v2x_ks_no_update_001_part2(void){
     ASSERT_EQUAL(memcmp(ctx.clear_buff, decrypt_buff, cipher_len), 0);
 
     // CLOSE SRV/SESSION
+    ASSERT_EQUAL(hsm_close_cipher_service(sg0_cipher_hdl), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_session(sg0_sess), HSM_NO_ERROR);
     ASSERT_NOT_EQUAL(stop_nvm_v2x(), NVM_STATUS_STOPPED);

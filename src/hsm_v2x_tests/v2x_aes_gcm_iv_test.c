@@ -231,6 +231,8 @@ int v2x_aes_gcm_iv_001(void){
     ASSERT_EQUAL(counter_val2, counter_val1 + 1);
 
     // CLOSE SRV KEY_MGMT AND KEY_STORE
+    ASSERT_EQUAL(hsm_close_cipher_service(sg0_cipher_hdl), HSM_NO_ERROR);
+    ASSERT_EQUAL(hsm_close_cipher_service(sg0_cipher_hdl2), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_management_service(sg0_key_mgmt_srv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
 
