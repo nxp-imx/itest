@@ -41,6 +41,8 @@ include_directories(${Itest_SOURCE_DIR}/inc)
 include_directories(${Itest_SOURCE_DIR}/lib/openssl-1.1.1h)
 include_directories(${Itest_SOURCE_DIR}/${SECO_LIB_PATH}/include)
 include_directories(${Itest_SOURCE_DIR}/${SECO_LIB_PATH}/include/hsm)
+include_directories(${Itest_SOURCE_DIR}/lib/json-c)
+include_directories(${Itest_SOURCE_DIR}/lib/json-c/build)
 
 file(GLOB SOURCES src/*/*.c src/*.c)
 find_package(ZLIB REQUIRED)
@@ -48,6 +50,7 @@ set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-fopenmp -Wall -Wextra -Werror")
 
 # add the executable
 add_executable(Itest ${SOURCES})
+
 target_link_libraries(
   Itest
   ${CMAKE_SOURCE_DIR}/${SECO_LIB_PATH}/she_lib.a
@@ -56,6 +59,7 @@ target_link_libraries(
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libcrypto.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libgomp.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libssl.a
+  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libjson-c.a
   z
   pthread
   dl

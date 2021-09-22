@@ -221,6 +221,10 @@ int icrypto_verify_signature(int curve, unsigned char *pubk, int size_pubk, unsi
         ret = 0;
         // it's time to verify
         ret = ECDSA_do_verify(in, size, sig_buff, eckey);
+        // check if an error occured in verify
+        if ((ret != 1) && (ret != 0))
+            // return invalid signature in this case
+            ret = 0;
 
     } while (0);
 

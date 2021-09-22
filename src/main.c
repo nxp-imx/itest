@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include "ijson_utils.h"
 #include "itest.h"
 #include "imx8_tests_list.h"
 
@@ -10,6 +11,9 @@
 #ifndef GIT_COMMIT
 #define GIT_COMMIT "no commit id"
 #endif
+
+int parse_test(int argc, char **argv);
+
 /* Itest ctx*/
 itest_ctx_t itest_ctx;
 /* Used to store total test run and test failures */
@@ -34,6 +38,7 @@ $ ./itest [OPTION] <argument>\n\n\
 OPTIONS:\n\
   -h: Print this help\n\
   -v: Print test suite version\n\
+  -j <json file> : Run json test vector from wycheproof tv\n\
   -l: List all tests\n\
   -c: <dut config> DXL_A1 - QXP_C0 - QXP_B0\n\
   -t <test_name> : Run test test_name\n");
@@ -102,11 +107,14 @@ int main(int argc, char *argv[]){
     itest_init();
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "hlvd:m:r:k:b:g:t:c:")) != -1) {
+    while ((c = getopt (argc, argv, "hlvd:m:r:k:b:g:t:c:j:")) != -1) {
         switch (c)
         {
         case 't':
             itest_ctx.test_name = optarg;
+            break;
+        case 'j':
+            run_wycheproof_json(optarg);
             break;
         case 'v':
             print_version();

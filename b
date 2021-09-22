@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/bin/bash +x
 
 HELP=0
 HOST_BUILD=0
 BOARD_BUILD=1
+FORCE_BUILD_JSON=0
+SETUP_ENV=0
 SECO_LIB_PATH=../seco_libs
 ARCH=arm64
 TOOLCHAIN=/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu
@@ -28,6 +30,10 @@ do
 	    shift
 	    shift
 	    ;;
+	-f)
+	    FORCE_BUILD_JSON=1
+	    shift
+	    ;;
 	-T)
 	    TOOLCHAIN=$2
 	    shift
@@ -46,12 +52,41 @@ rm -rf build
 mkdir build
 cd build
 
+if [ $SETUP_ENV -eq 1 ]; then
+   git submodule update --init --recursive
+fi
+
 if [ $BOARD_BUILD -eq 1 ]; then
+
+   if [ $FORCE_BUILD_JSON -eq 1 ]; then
+       cd ../lib/json-c
+       rm ../../$ARCH/libjson-c.a
+       rm -rf build
+       mkdir build
+       cd build
+       cmake ../ -DCMAKE_C_COMPILER=${TOOLCHAIN}-gcc
+       make json-c-static
+       cp libjson-c.a ../../$ARCH/libjson-c.a
+       cd ../../../build
+    fi
+
    cmake ../ -DSECO_LIB_PATH=$SECO_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH -DTOOLCHAIN_PATH=$TOOLCHAIN -DTOOLCHAIN_ROOT_PATH=$TOOLCHAIN_ENV_PATH
    make clean
    make -j4
    cp Itest ../itest
 elif [ $HOST_BUILD -eq 1 ]; then
+   if [ $FORCE_BUILD_JSON -eq 1 ]; then
+       cd ../lib/json-c
+       rm ../../$ARCH/libjson-c.a
+       rm -rf build
+       mkdir build
+       cd build
+       cmake ../
+       make json-c-static
+       cp libjson-c.a ../../$ARCH/libjson-c.a
+       cd ../../../build
+    fi
+
    cmake ../ -DSECO_LIB_PATH=$SECO_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH
    make clean
    make -j4
