@@ -88,7 +88,7 @@ static int handle_testcases(struct json_object *testcases) {
 	struct json_object *tests = NULL;
 	struct json_object *test = NULL;
 	struct json_object *key_obj = NULL;
-	int nb_tests, i, expected, result;
+	int nb_tests = 0, i, expected, result;
 	test_data_verify_t current_tv;
 
 	open_session_args_t args;

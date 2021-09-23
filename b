@@ -22,8 +22,9 @@ do
 	-H)
 	    HOST_BUILD=1
 	    BOARD_BUILD=0
-	    ARCH=x86_64
+	    ARCH=$2
 	    shift
+        shift
 	    ;;
 	-S)
 	    SECO_LIB_PATH=$2
@@ -55,7 +56,7 @@ if [ $HELP -eq 1 ]; then
    echo "
 build script:
 -h: print this help
--H: build itest for host
+-H <ARCH>: build itest for host (arm64 or x86_64)
 -S <path>: path to seco_libs
 -T <path>: path to the toolchain cc  (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu)
 -E <path>: path to the toolchain env (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu)
