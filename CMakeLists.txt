@@ -45,8 +45,15 @@ include_directories(${Itest_SOURCE_DIR}/lib/json-c)
 include_directories(${Itest_SOURCE_DIR}/lib/json-c/build)
 
 file(GLOB SOURCES src/*/*.c src/*.c)
-find_package(ZLIB REQUIRED)
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-fopenmp -Wall -Wextra -Werror")
+add_compile_options(-Wall -Wextra -pedantic -Werror)
+
+find_package(ZLIB)
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
 
 # add the executable
 add_executable(Itest ${SOURCES})

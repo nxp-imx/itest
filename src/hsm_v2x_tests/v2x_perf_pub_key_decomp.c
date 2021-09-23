@@ -17,7 +17,7 @@ int v2x_perf_pub_key_decompression_nistp256(void){
     uint16_t size_pub_key_c;
     uint8_t pub_key_comp[0x90];
     uint8_t pub_key_decomp[0x90];
-    uint32_t idx, idx_test, iter = NUM_OPERATIONS;
+    uint32_t idx, idx_test = 0U, iter = NUM_OPERATIONS;
 
     timer_perf_t t_perf;
     test_data_verify_t *tv = test_data_nistp256;

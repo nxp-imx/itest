@@ -19,7 +19,7 @@ int v2x_chunk_swap_001(void){
     hsm_hdl_t sg0_sess, sv0_sess;
     hsm_hdl_t sg0_key_store_serv, sg0_key_mgmt_srv;
     hsm_hdl_t sg0_cipher_hdl;
-    uint32_t key_id[3], i, key_id_cur;
+    uint32_t key_id[3] = {0, 0, 0}, i, key_id_cur = 0U;
     uint8_t cipher_buff[3][512];
     uint8_t clear_buff[512];
     uint8_t decrypt_buff[512];
