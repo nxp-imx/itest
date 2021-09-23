@@ -34,6 +34,10 @@ do
 	    FORCE_BUILD_JSON=1
 	    shift
 	    ;;
+	-s)
+	    SETUP_ENV=1
+	    shift
+	    ;;
 	-T)
 	    TOOLCHAIN=$2
 	    shift
@@ -47,14 +51,29 @@ do
     esac
 done
 
+if [ $HELP -eq 1 ]; then
+   echo "
+build script:
+-h: print this help
+-H: build itest for host
+-S <path>: path to seco_libs
+-T <path>: path to the toolchain cc  (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu)
+-E <path>: path to the toolchain env (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu)
+-f: force rebuild static lib json-c
+-s: init git submodule (lib json-c)
+   "
+   exit 0
+fi
+
+if [ $SETUP_ENV -eq 1 ]; then
+   git submodule update --init --recursive
+   exit 0
+fi
+
 rm -f itest
 rm -rf build
 mkdir build
 cd build
-
-if [ $SETUP_ENV -eq 1 ]; then
-   git submodule update --init --recursive
-fi
 
 if [ $BOARD_BUILD -eq 1 ]; then
 

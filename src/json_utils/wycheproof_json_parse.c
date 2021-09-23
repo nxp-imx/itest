@@ -143,7 +143,7 @@ static int handle_testcases(struct json_object *testcases) {
 			nb_tests_++;
 			*/
 			/* Call sig ver API */
-			ASSERT_EQUAL(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
+			ASSERT_EQUAL_W(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
 			result = status == HSM_VERIFICATION_STATUS_SUCCESS ? VALID : INVALID;
 			if (result != expected) {
 				printf("testcase %s Fail, expected:%d, comment: %s\n", json_object_get_string(json_object_object_get(test,"tcId")), expected,
@@ -153,6 +153,8 @@ static int handle_testcases(struct json_object *testcases) {
 			nb_tests_++;
 		}
 	}
+	/* Close service and session */
+	ASSERT_EQUAL(hsm_close_signature_verification_service(sv0_sig_ver_serv), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_session(sv0_sess), HSM_NO_ERROR);
 	return 0;
 }
