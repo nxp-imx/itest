@@ -3,6 +3,7 @@
 #include "itest.h"
 #include "crypto_utils/dgst.h"
 #include "crypto_utils/ecc_sign.h"
+#include "crypto_utils/cipher_aes.h"
 #include <openssl/obj_mac.h>
 
 #define NB_ALGO 5
@@ -40,6 +41,20 @@ int digest_openssl_sanity(void) {
     return TRUE_TEST;
 }
 
+int aes_ccm_sanity(void) {
+    uint8_t msg[300];
+    uint8_t enc_msg[300];
+    uint8_t aes_128_key_data[16];
+    uint8_t iv[16];
+
+    ITEST_LOG("AES CCM sanity test... ");
+    ASSERT_EQUAL(randomize(aes_128_key_data, sizeof(aes_128_key_data)), sizeof(aes_128_key_data));
+    ASSERT_EQUAL(randomize(iv, 12), 12);
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_128_CCM, aes_128_key_data, iv, iv, 16), (int)(16 + 16));
+    ITEST_LOG("PASS\n");
+    return TRUE_TEST;
+}
+
 int generate_key_sign_gen_verif_openssl_sanity(void) {
     uint8_t privk[1024];
     int size_privk;
@@ -66,6 +81,7 @@ int generate_key_sign_gen_verif_openssl_sanity(void) {
 }
 
 int openssl_sanity(void){
+    aes_ccm_sanity();
     digest_openssl_sanity();
     generate_key_sign_gen_verif_openssl_sanity();
     return TRUE_TEST;

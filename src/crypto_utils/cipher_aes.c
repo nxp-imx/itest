@@ -4,7 +4,7 @@
 #include "itest.h"
 
 
-int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, char cipher, unsigned char *key, unsigned char *iv)
+int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, char cipher, unsigned char *key, unsigned char *iv, unsigned char *aad, int aad_size)
 {
     EVP_CIPHER_CTX *cipher_ctx = NULL;
 	const EVP_CIPHER *cipher_ossl = NULL;
@@ -22,6 +22,9 @@ int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, ch
 		case ICRYPTO_AES_128_GCM:
 			cipher_ossl = EVP_aes_128_gcm();
 			break;
+		case ICRYPTO_AES_128_CCM:
+			cipher_ossl = EVP_aes_128_ccm();
+			break;
 		case ICRYPTO_AES_192_ECB:
 			cipher_ossl = EVP_aes_192_ecb();
 			break;
@@ -30,6 +33,9 @@ int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, ch
 			break;
 		case ICRYPTO_AES_192_GCM:
 			cipher_ossl = EVP_aes_192_gcm();
+			break;
+		case ICRYPTO_AES_192_CCM:
+			cipher_ossl = EVP_aes_192_ccm();
 			break;
 		case ICRYPTO_AES_256_ECB:
 			cipher_ossl = EVP_aes_256_ecb();
@@ -40,6 +46,9 @@ int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, ch
 		case ICRYPTO_AES_256_GCM:
 			cipher_ossl = EVP_aes_256_gcm();
 			break;
+		case ICRYPTO_AES_256_CCM:
+			cipher_ossl = EVP_aes_256_ccm();
+			break;
 		case ICRYPTO_SM4_128_ECB:
 		case ICRYPTO_SM4_128_CBC:
 		default:
@@ -49,12 +58,31 @@ int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, ch
 
 		cipher_ctx = EVP_CIPHER_CTX_new();
 		ASSERT_TRUE_HIGH_API((cipher_ctx != NULL));
-		ASSERT_EQUAL_HIGH_API(EVP_EncryptInit_ex(cipher_ctx, cipher_ossl, NULL, key, iv),1);
+		
+		if (cipher == ICRYPTO_AES_128_CCM || cipher == ICRYPTO_AES_192_CCM || cipher == ICRYPTO_AES_256_CCM) {
+
+			ASSERT_EQUAL_HIGH_API(EVP_EncryptInit_ex(cipher_ctx, cipher_ossl, NULL, NULL, NULL),1);
+			ASSERT_EQUAL_HIGH_API(EVP_CIPHER_CTX_ctrl(cipher_ctx, EVP_CTRL_CCM_SET_IVLEN, 12, NULL), 1);
+			/* Set tag length */
+			ASSERT_EQUAL_HIGH_API(EVP_CIPHER_CTX_ctrl(cipher_ctx, EVP_CTRL_CCM_SET_TAG, 16, NULL), 1);
+			ASSERT_EQUAL_HIGH_API(EVP_EncryptInit_ex(cipher_ctx, NULL, NULL, key, iv),1);
+		}
+		else {
+			ASSERT_EQUAL_HIGH_API(EVP_EncryptInit_ex(cipher_ctx, cipher_ossl, NULL, key, iv),1);
+		}
+		if (NULL != aad) {
+				ASSERT_EQUAL_HIGH_API(EVP_EncryptUpdate(cipher_ctx, NULL, &size_tmp, NULL, size_in), 1); 
+			    ASSERT_EQUAL_HIGH_API(EVP_EncryptUpdate(cipher_ctx, NULL, &aad_size, aad, aad_size), 1);
+		}
 		ASSERT_EQUAL_HIGH_API(EVP_EncryptUpdate(cipher_ctx, out, &size_out, in, size_in), 1);
 		ASSERT_EQUAL_HIGH_API(EVP_EncryptFinal_ex(cipher_ctx, out + size_out, &size_tmp), 1);
 		size_out += size_tmp;
 		if (cipher == ICRYPTO_AES_128_GCM || cipher == ICRYPTO_AES_192_GCM || cipher == ICRYPTO_AES_256_GCM) {
 			ASSERT_EQUAL_HIGH_API(EVP_CIPHER_CTX_ctrl(cipher_ctx, EVP_CTRL_GCM_GET_TAG, 16, out + size_out), 1);
+			size_out += 16;
+		}
+		else if (cipher == ICRYPTO_AES_128_CCM || cipher == ICRYPTO_AES_192_CCM || cipher == ICRYPTO_AES_256_CCM) {
+			ASSERT_EQUAL_HIGH_API(EVP_CIPHER_CTX_ctrl(cipher_ctx, EVP_CTRL_CCM_GET_TAG, 16, out + size_out), 1);
 			size_out += 16;
 		}
 
