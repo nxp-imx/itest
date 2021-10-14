@@ -3,6 +3,59 @@
 #include "ijson_utils.h"
 #include "itest.h"
 
+typedef struct {
+	int nb_tests;
+	int nb_fails;
+	int expected_result;
+	hsm_signature_scheme_id_t curve;
+	uint8_t size_pubk;
+    uint8_t message[MAX_MSG_SIZE];
+    uint32_t message_length;
+    uint8_t public_key[MAX_KEY_SIZE];
+    uint8_t signature[MAX_SIG_SIZE];
+} wycheproof_sign_json_t;
+
+#define VALID 0x1U
+#define INVALID 0x0U
+
+static wycheproof_sign_json_t sign_verify_ctx;
+
+#define NB_ALGO_WY 5
+static hsm_signature_scheme_id_t curve2seco_libs(const char *in_c, uint8_t *pub_key) {
+	const char curve_list[5][255] = {
+		"secp256r1",
+		"secp384r1",
+		"secp521r1",
+		"brainpoolP256r1",
+		"brainpoolP384r1"
+	};
+	const hsm_signature_scheme_id_t seco_libs_list[5] = {
+		HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256,
+		HSM_SIGNATURE_SCHEME_ECDSA_NIST_P384_SHA_384,
+		HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512,
+		HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256,
+		HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384,
+	};
+	const uint8_t size_pubkey[5] = {
+		0x40,
+		0x60,
+		0x90,
+		0x40,
+		0x60,		
+	};
+	int i;
+	*pub_key = 0;
+
+	for (i = 0; i < NB_ALGO_WY; i++) {
+		if (!strcmp(curve_list[i], in_c)) {
+			//printf("curve %s\n", curve_list[i]);
+			*pub_key = size_pubkey[i];
+			return seco_libs_list[i];
+		}
+	}
+	return HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+}
+
 int hexstr_to_char(const char* hexstr, char *out, int buff_out_len)
 {
 	if (hexstr == NULL) {
@@ -36,61 +89,77 @@ int sign_hexstr2char(const char* hexstr, char *out, int buff_out_len) {
 	int pad = r_size % 2;
 	int total_size = r_size - pad;
 
-	if ((tmp_sign_size == 0) || (tmp_sign[0] != 0x30) || (tmp_sign[1] > tmp_sign_size) || (tmp_sign[1] > buff_out_len) 
+
+	if (sign_verify_ctx.curve == HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512) {
+		r_size = tmp_sign[4];
+		s_ptr = tmp_sign+5+r_size;
+		s_size = s_ptr[1];
+		pad = r_size % 2;
+		total_size = r_size + pad;
+		pld_size = r_size + s_size + 7;
+
+		if ((tmp_sign_size == 0) || (tmp_sign[0] != 0x30) || (tmp_sign[1] > tmp_sign_size) || (tmp_sign[1] > buff_out_len) 
+			|| ((r_size + s_size + 7) > buff_out_len) || ((r_size + s_size + 7) != tmp_sign_size) || ((pld_size) != tmp_sign_size)
+			|| (tmp_sign[3] != 0x02) || (s_ptr[0] != 0x02)) {
+			return 0;
+		}
+	}
+
+	else if ((tmp_sign_size == 0) || (tmp_sign[0] != 0x30) || (tmp_sign[1] > tmp_sign_size) || (tmp_sign[1] > buff_out_len) 
 		|| ((r_size + s_size + 7) > buff_out_len) || ((r_size + s_size + 6) != tmp_sign_size) || ((pld_size + 2) != tmp_sign_size)
 		|| (tmp_sign[2] != 0x02) || (s_ptr[0] != 0x02)) {
 		return 0;
 	}
 
 	s_ptr += 2;
+	if (sign_verify_ctx.curve == HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512) {
 
-	memcpy(out, tmp_sign+4+pad, r_size-pad);
-	out += r_size-pad;
-	pad = s_size % 2;
-	memcpy(out, s_ptr+pad, s_size-pad);
+		memcpy(out, tmp_sign+4+pad, r_size-pad);
+		out += r_size-pad;
+		pad = s_size % 2;
+		memcpy(out, s_ptr+pad, s_size-pad);
+	}
+	else {
+		memcpy(out, tmp_sign+4+pad, r_size-pad);
+		out += r_size-pad;
+		pad = s_size % 2;
+		memcpy(out, s_ptr+pad, s_size-pad);
+	}
 
 	return total_size + s_size-pad;
 }
 
-#define VALID 0x1U
-#define INVALID 0x0U
-static int handle_tests(struct json_object *test, test_data_verify_t *current_tv, int *expected) {
+static int handle_tests(struct json_object *test) {
 
-	int sign_size;
+	int sign_size = 0;
 	char *expect_str = NULL;
 	
-	*expected = INVALID;
-	current_tv->message_length = hexstr_to_char(
+	sign_verify_ctx.expected_result = INVALID;
+	sign_verify_ctx.message_length = hexstr_to_char(
 		json_object_get_string(json_object_object_get(test,"msg")), 
-		(char *)current_tv->message,
+		(char *)sign_verify_ctx.message,
 		MAX_MSG_SIZE);
 	sign_size = sign_hexstr2char(
 		json_object_get_string(json_object_object_get(test,"sig")), 
-		(char *)current_tv->signature,
-		MAX_MSG_SIZE);
-	if (sign_size != 64) {
-		return 0;
-	}
+		(char *)sign_verify_ctx.signature,
+		MAX_SIG_SIZE);
 	expect_str = (char *) json_object_get_string(json_object_object_get(test,"result"));
 	if (expect_str != NULL) {
 		// don't test acceptable test
 		if (strcmp("acceptable", expect_str) == 0) {
 			return 0;
 		}
-		*expected = (strcmp("valid", expect_str) == 0) ? VALID : INVALID;
+		sign_verify_ctx.expected_result = (strcmp("valid", expect_str) == 0) ? VALID : INVALID;
 	}
 	return sign_size;
 }
-static int nb_tests_ = 0;
-static int nb_fails = 0;
+
 static int handle_testcases(struct json_object *testcases) {
 
 	struct json_object *tests = NULL;
 	struct json_object *test = NULL;
 	struct json_object *key_obj = NULL;
-	int nb_tests = 0, i, expected, result;
-	test_data_verify_t current_tv;
-
+	int nb_tests_case = 0, i, result;
 	open_session_args_t args;
     open_svc_sign_ver_args_t sig_ver_srv_args;
     op_verify_sign_args_t sig_ver_args;    
@@ -99,15 +168,18 @@ static int handle_testcases(struct json_object *testcases) {
 
 	if (json_object_object_get_ex(testcases, "tests", &tests))
 	{
-		nb_tests = json_object_array_length(tests);
+		nb_tests_case = json_object_array_length(tests);
 	}
 
 	if (json_object_object_get_ex(testcases, "key", &key_obj))
 	{
 		key_hexstr2char(
 			json_object_get_string(json_object_object_get(key_obj,"uncompressed")), 
-			(char *)current_tv.public_key,
+			(char *)sign_verify_ctx.public_key,
 			MAX_KEY_SIZE);
+		sign_verify_ctx.curve = curve2seco_libs(
+			json_object_get_string(json_object_object_get(key_obj,"curve")), &sign_verify_ctx.size_pubk);
+		//printf("size pk: %d\n", sign_verify_ctx.size_pubk);
 	}
 
     /* Open session on SV0*/
@@ -121,17 +193,18 @@ static int handle_testcases(struct json_object *testcases) {
     ASSERT_EQUAL(hsm_open_signature_verification_service(sv0_sess,
         &sig_ver_srv_args, &sv0_sig_ver_serv), HSM_NO_ERROR);
 
-	for (i = 0; i < nb_tests; i++) {
+	for (i = 0; i < nb_tests_case; i++) {
 		test = json_object_array_get_idx(tests, i );
-		sig_ver_args.signature_size = 1 + handle_tests(test, &current_tv, &expected); /* Add 1 byte for Ry */
-		if (sig_ver_args.signature_size == 65) {
+		sig_ver_args.signature_size = 1 + handle_tests(test); /* Add 1 byte for Ry */
+		//printf("sign size: %d\n", sig_ver_args.signature_size);
+		if (sig_ver_args.signature_size == sign_verify_ctx.size_pubk + 1) {
 			/* Fill struct data */
-			sig_ver_args.key = current_tv.public_key;
-			sig_ver_args.message = current_tv.message;
-			sig_ver_args.signature = current_tv.signature;
-			sig_ver_args.key_size = 64;
-			sig_ver_args.message_size = current_tv.message_length;
-			sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+			sig_ver_args.key = sign_verify_ctx.public_key;
+			sig_ver_args.message = sign_verify_ctx.message;
+			sig_ver_args.signature = sign_verify_ctx.signature;
+			sig_ver_args.key_size = sign_verify_ctx.size_pubk;
+			sig_ver_args.message_size = sign_verify_ctx.message_length;
+			sig_ver_args.scheme_id = sign_verify_ctx.curve;
 			sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
 			/*if (icrypto_verify_signature(NID_X9_62_prime256v1, (unsigned char *) sig_ver_args.key, 0x40, NULL,\
 												0, (unsigned char *) sig_ver_args.message, sig_ver_args.message_size, "sha256",\
@@ -145,12 +218,12 @@ static int handle_testcases(struct json_object *testcases) {
 			/* Call sig ver API */
 			ASSERT_EQUAL_W(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
 			result = status == HSM_VERIFICATION_STATUS_SUCCESS ? VALID : INVALID;
-			if (result != expected) {
-				printf("testcase %s Fail, expected:%d, comment: %s\n", json_object_get_string(json_object_object_get(test,"tcId")), expected,
+			if (result != sign_verify_ctx.expected_result) {
+				printf("testcase %s Fail, expected:%d, comment: %s\n", json_object_get_string(json_object_object_get(test,"tcId")), sign_verify_ctx.expected_result,
 				json_object_get_string(json_object_object_get(test,"comment")));
-				nb_fails++;
+				sign_verify_ctx.nb_fails++;
 			}
-			nb_tests_++;
+			sign_verify_ctx.nb_tests++;
 		}
 	}
 	/* Close service and session */
@@ -170,14 +243,17 @@ static int handle_testgroup(struct json_object *testgroups) {
 		testcases = json_object_array_get_idx(testgroups, i );
 		handle_testcases(testcases);
 	}
-	printf("end of tests: %d/%d tests fails\n", nb_fails, nb_tests_);
+	printf("end of tests: %d/%d tests fails\n", sign_verify_ctx.nb_fails, sign_verify_ctx.nb_tests);
 	return 0;
 }
 
 static int parse_tv(struct json_object *new_obj) {
 	
-	//char algo[256];
 	struct json_object *testgroups = NULL;
+	sign_verify_ctx.expected_result = INVALID;
+	sign_verify_ctx.nb_fails = 0;
+	sign_verify_ctx.nb_tests = 0;
+	sign_verify_ctx.curve = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
 
 	if (json_object_object_get_ex(new_obj, "algorithm", &testgroups))
     {

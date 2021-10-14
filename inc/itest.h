@@ -73,14 +73,14 @@ void outputLog(const char *const format, ...);
         ITEST_LOG("assert_equal Fail ==> "); \
         /*ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
         ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
-        /*raise(SIGUSR1);*/ \
+        raise(SIGUSR1); \
     }
 #define ASSERT_NOT_EQUAL_W(x, y) \
     if ( (x) == (y)) { \
         ITEST_LOG("assert_not_equal Fail ==> "); \
         /*ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
         ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
-        /*raise(SIGUSR1);*/ \
+        raise(SIGUSR1); \
     }
 
 #define ITEST_CHECK_KPI_LATENCY(got, thr) \
