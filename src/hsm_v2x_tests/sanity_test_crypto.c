@@ -45,12 +45,79 @@ int aes_ccm_sanity(void) {
     uint8_t msg[300];
     uint8_t enc_msg[300];
     uint8_t aes_128_key_data[16];
+    uint8_t aes_192_key_data[24];
+    uint8_t aes_256_key_data[32];
     uint8_t iv[16];
 
     ITEST_LOG("AES CCM sanity test... ");
     ASSERT_EQUAL(randomize(aes_128_key_data, sizeof(aes_128_key_data)), sizeof(aes_128_key_data));
+    ASSERT_EQUAL(randomize(aes_192_key_data, sizeof(aes_192_key_data)), sizeof(aes_192_key_data));
+    ASSERT_EQUAL(randomize(aes_256_key_data, sizeof(aes_256_key_data)), sizeof(aes_256_key_data));
     ASSERT_EQUAL(randomize(iv, 12), 12);
-    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_128_CCM, aes_128_key_data, iv, iv, 16), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_128_CCM, aes_128_key_data, iv, 12, iv/*aad*/, 16, 16/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_192_CCM, aes_192_key_data, iv, 12, iv/*aad*/, 16, 16/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_256_CCM, aes_256_key_data, iv, 12, iv/*aad*/, 16, 16/*tag size*/), (int)(16 + 16));
+    ITEST_LOG("PASS\n");
+    return TRUE_TEST;
+}
+
+int aes_cbc_sanity(void) {
+    uint8_t msg[300];
+    uint8_t enc_msg[300];
+    uint8_t aes_128_key_data[16];
+    uint8_t aes_192_key_data[24];
+    uint8_t aes_256_key_data[32];
+    uint8_t iv[16];
+
+    ITEST_LOG("AES CBC sanity test... ");
+    ASSERT_EQUAL(randomize(aes_128_key_data, sizeof(aes_128_key_data)), sizeof(aes_128_key_data));
+    ASSERT_EQUAL(randomize(aes_192_key_data, sizeof(aes_192_key_data)), sizeof(aes_192_key_data));
+    ASSERT_EQUAL(randomize(aes_256_key_data, sizeof(aes_256_key_data)), sizeof(aes_256_key_data));
+    ASSERT_EQUAL(randomize(iv, 16), 16);
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_128_CBC, aes_128_key_data, iv, 16, NULL, 0, 0/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_192_CBC, aes_192_key_data, iv, 16, NULL, 0, 0/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_256_CBC, aes_256_key_data, iv, 16, NULL, 0, 0/*tag size*/), (int)(16 + 16));
+    ITEST_LOG("PASS\n");
+    return TRUE_TEST;
+}
+
+int aes_ecb_sanity(void) {
+    uint8_t msg[300];
+    uint8_t enc_msg[300];
+    uint8_t aes_128_key_data[16];
+    uint8_t aes_192_key_data[24];
+    uint8_t aes_256_key_data[32];
+
+    ITEST_LOG("AES ECB sanity test... ");
+    ASSERT_EQUAL(randomize(aes_128_key_data, sizeof(aes_128_key_data)), sizeof(aes_128_key_data));
+    ASSERT_EQUAL(randomize(aes_192_key_data, sizeof(aes_192_key_data)), sizeof(aes_192_key_data));
+    ASSERT_EQUAL(randomize(aes_256_key_data, sizeof(aes_256_key_data)), sizeof(aes_256_key_data));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_128_ECB, aes_128_key_data, NULL, 0, NULL, 0, 0/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_192_ECB, aes_192_key_data, NULL, 0, NULL, 0, 0/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_256_ECB, aes_256_key_data, NULL, 0, NULL, 0, 0/*tag size*/), (int)(16 + 16));
+    ITEST_LOG("PASS\n");
+    return TRUE_TEST;
+}
+
+int aes_gcm_sanity(void) {
+    uint8_t msg[300];
+    uint8_t enc_msg[300];
+    uint8_t aes_128_key_data[16];
+    uint8_t aes_192_key_data[24];
+    uint8_t aes_256_key_data[32];
+    uint8_t iv[16];
+
+    ITEST_LOG("AES GCM sanity test... ");
+    ASSERT_EQUAL(randomize(aes_128_key_data, sizeof(aes_128_key_data)), sizeof(aes_128_key_data));
+    ASSERT_EQUAL(randomize(aes_192_key_data, sizeof(aes_192_key_data)), sizeof(aes_192_key_data));
+    ASSERT_EQUAL(randomize(aes_256_key_data, sizeof(aes_256_key_data)), sizeof(aes_256_key_data));
+    ASSERT_EQUAL(randomize(iv, 12), 12);
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_128_GCM, aes_128_key_data, iv, 12, NULL, 0, 16/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_128_GCM, aes_128_key_data, iv, 12, iv/*aad*/, 16, 16/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_192_GCM, aes_192_key_data, iv, 12, NULL, 0, 16/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_192_GCM, aes_192_key_data, iv, 12, iv/*aad*/, 16, 16/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_256_GCM, aes_256_key_data, iv, 12, NULL, 0, 16/*tag size*/), (int)(16 + 16));
+    ASSERT_EQUAL(icrypto_cipher_one_go(msg, enc_msg, 16, ICRYPTO_AES_256_GCM, aes_256_key_data, iv, 12, iv/*aad*/, 16, 16/*tag size*/), (int)(16 + 16));
     ITEST_LOG("PASS\n");
     return TRUE_TEST;
 }
@@ -81,6 +148,9 @@ int generate_key_sign_gen_verif_openssl_sanity(void) {
 }
 
 int openssl_sanity(void){
+    aes_ecb_sanity();
+    aes_cbc_sanity();
+    aes_gcm_sanity();
     aes_ccm_sanity();
     digest_openssl_sanity();
     generate_key_sign_gen_verif_openssl_sanity();

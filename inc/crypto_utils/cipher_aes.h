@@ -19,6 +19,5 @@
 #define ICRYPTO_SM4_128_ECB 0x30
 #define ICRYPTO_SM4_128_CBC 0x31
 
-int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, char cipher, unsigned char *key, unsigned char *iv, unsigned char *aad, int aad_size);
-
+int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, char cipher, unsigned char *key, unsigned char *iv, int iv_size, unsigned char *aad, int aad_size, int tag_size);
 #endif

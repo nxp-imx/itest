@@ -193,7 +193,7 @@ int isen_hsm_key_injection_custom(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, 
     do
     {
 
-        ASSERT_EQUAL_HIGH_API(icrypto_cipher_one_go(key_in, enc_key + 12, key_size, ICRYPTO_AES_256_GCM, kek_data, enc_key, NULL, 0U), (int)(key_size + 16));
+        ASSERT_EQUAL_HIGH_API(icrypto_cipher_one_go(key_in, enc_key + 12, key_size, ICRYPTO_AES_256_GCM, kek_data, enc_key, 12, NULL, 0U, 16), (int)(key_size + 16));
 
         manage_args.key_identifier = key_id;
         manage_args.kek_identifier = kek_handle;

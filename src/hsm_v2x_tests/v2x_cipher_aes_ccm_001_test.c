@@ -92,7 +92,7 @@ int v2x_cipher_aes_ccm_001(void){
         cipher_args.input_size = msg_size;
         cipher_args.output_size = msg_size + 16;
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        ASSERT_EQUAL(icrypto_cipher_one_go(msg, expected_enc, msg_size, ICRYPTO_AES_128_CCM, aes_128_key_data, iv, NULL, 0), (int)(msg_size + 16));
+        ASSERT_EQUAL(icrypto_cipher_one_go(msg, expected_enc, msg_size, ICRYPTO_AES_128_CCM, aes_128_key_data, iv, 12, NULL, 0, 16), (int)(msg_size + 16));
         ASSERT_EQUAL(memcmp(buff_encr, expected_enc, msg_size + 16), 0);
 
         // CIPHER ONE GO AES_128 CCM -> DECRYPT
@@ -122,7 +122,7 @@ int v2x_cipher_aes_ccm_001(void){
         cipher_args.input_size = msg_size;
         cipher_args.output_size = msg_size + 16;
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        ASSERT_EQUAL(icrypto_cipher_one_go(msg, expected_enc, msg_size, ICRYPTO_AES_192_CCM, aes_192_key_data, iv, NULL, 0), (int)(msg_size + 16));
+        ASSERT_EQUAL(icrypto_cipher_one_go(msg, expected_enc, msg_size, ICRYPTO_AES_192_CCM, aes_192_key_data, iv, 12, NULL, 0, 16), (int)(msg_size + 16));
         ASSERT_EQUAL(memcmp(buff_encr, expected_enc, msg_size + 16), 0);
 
         // CIPHER ONE GO AES_192 CCM -> DECRYPT
@@ -152,7 +152,7 @@ int v2x_cipher_aes_ccm_001(void){
         cipher_args.input_size = msg_size;
         cipher_args.output_size = msg_size + 16;
         ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
-        ASSERT_EQUAL(icrypto_cipher_one_go(msg, expected_enc, msg_size, ICRYPTO_AES_256_CCM, aes_256_key_data, iv, NULL, 0), (int)(msg_size + 16));
+        ASSERT_EQUAL(icrypto_cipher_one_go(msg, expected_enc, msg_size, ICRYPTO_AES_256_CCM, aes_256_key_data, iv, 12, NULL, 0, 16), (int)(msg_size + 16));
         ASSERT_EQUAL(memcmp(buff_encr, expected_enc, msg_size + 16), 0);
 
         // CIPHER ONE GO AES_256 CCM -> DECRYPT
