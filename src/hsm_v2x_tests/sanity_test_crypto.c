@@ -6,9 +6,9 @@
 #include "crypto_utils/cipher_aes.h"
 #include <openssl/obj_mac.h>
 
-#define NB_ALGO 5
-
-static char *algos_str[NB_ALGO] = {
+#define NB_ALGO_DGST 5
+#define NB_ALGO_ECC 5
+static char *algos_str[NB_ALGO_DGST] = {
     "sha224",
     "sha256",
     "sha384",
@@ -16,12 +16,39 @@ static char *algos_str[NB_ALGO] = {
     "sm3",
 };
 
-static uint16_t dgst_size[NB_ALGO] = {
+static uint16_t dgst_size[NB_ALGO_DGST] = {
     28,
     32,
     48,
     64,
     32,
+};
+
+static int curves_openssl[NB_ALGO_ECC] = {
+    //NID_sm2,
+    NID_X9_62_prime256v1,
+    NID_secp384r1,
+    NID_secp521r1,
+    NID_brainpoolP256r1,
+    NID_brainpoolP384r1,
+};
+
+static char *algos_dgst_ecc[NB_ALGO_ECC] = {
+    //"sm3",
+    "sha256",
+    "sha384",
+    "sha512",
+    "sha256",
+    "sha384",
+};
+
+static uint16_t size_pub_key[NB_ALGO_ECC] = {
+    //0x40,
+    0x40,
+    0x60,
+    0x84,
+    0x40,
+    0x60,
 };
 
 int digest_openssl_sanity(void) {
@@ -31,7 +58,7 @@ int digest_openssl_sanity(void) {
     uint32_t size_input = 300;
     uint32_t i;
     ITEST_LOG("Digest sanity test... ");
-    for(i = 0; i < NB_ALGO; i++) {
+    for(i = 0; i < NB_ALGO_DGST; i++) {
         // INPUT BUFF AS RANDOM
         ASSERT_EQUAL(randomize(dgst_in_buff, size_input), size_input);
         // GEN EXPECTED DIGEST (OPENSSL)
@@ -130,29 +157,35 @@ int generate_key_sign_gen_verif_openssl_sanity(void) {
     uint8_t msg[] = "hello it's me...";
     uint8_t sign_out[512];
     int sign_size;
+    int i;
 
-    ASSERT_EQUAL(icrypto_generate_key_pair(NID_X9_62_prime256v1, (unsigned char *) pubk, &size_pubk, (unsigned char *)privk, &size_privk), 1);
-    ITEST_LOG("privk size = %d --- pubk size = %d\n", size_privk, size_pubk);
+    for ( i = 0; i < NB_ALGO_ECC; i++ ) {
 
-    ASSERT_EQUAL(icrypto_generate_signature(NID_X9_62_prime256v1, (unsigned char *)privk, size_privk, (unsigned char *) msg,\
-                                                     sizeof(msg), "sha256", (unsigned char *) sign_out, &sign_size), 1);
-    ITEST_LOG("sign size = %d\n", sign_size);
+        ASSERT_EQUAL(icrypto_generate_key_pair(curves_openssl[i], (unsigned char *) pubk, &size_pubk, (unsigned char *)privk, &size_privk), 1);
+        ITEST_LOG("privk size = %d --- pubk size = %d\n", size_privk, size_pubk);
+        ASSERT_EQUAL(size_pubk, size_pub_key[i]);
+        ASSERT_EQUAL(size_privk, (int)(size_pub_key[i] / 2));
 
-    ASSERT_EQUAL(icrypto_verify_signature(NID_X9_62_prime256v1, (unsigned char *) pubk, size_pubk, (unsigned char *)privk,\
-                                                    size_privk, (unsigned char *) msg, sizeof(msg), "sha256", (unsigned char *) sign_out, sign_size), 1);
-    msg[0] = 'A';
-    ASSERT_EQUAL(icrypto_verify_signature(NID_X9_62_prime256v1, (unsigned char *) pubk, size_pubk, (unsigned char *)privk,\
-                                                    size_privk, (unsigned char *) msg, sizeof(msg), "sha256", (unsigned char *) sign_out, sign_size), 0);
-    ITEST_LOG("ecc key gen, sign, verify sanity test... PASS\n");
+        ASSERT_EQUAL(icrypto_generate_signature(curves_openssl[i], (unsigned char *)privk, size_privk, (unsigned char *) msg,\
+                                                        sizeof(msg), algos_dgst_ecc[i], (unsigned char *) sign_out, &sign_size), 1);
+        ITEST_LOG("sign size = %d\n", sign_size);
+
+        ASSERT_EQUAL(icrypto_verify_signature(curves_openssl[i], (unsigned char *) pubk, size_pubk, (unsigned char *)privk,\
+                                                        size_privk, (unsigned char *) msg, sizeof(msg), algos_dgst_ecc[i], (unsigned char *) sign_out, sign_size), 1);
+        msg[0] += 1;
+        ASSERT_EQUAL(icrypto_verify_signature(curves_openssl[i], (unsigned char *) pubk, size_pubk, (unsigned char *)privk,\
+                                                        size_privk, (unsigned char *) msg, sizeof(msg), algos_dgst_ecc[i], (unsigned char *) sign_out, sign_size), 0);
+        ITEST_LOG("ecc key gen, sign, verify sanity test... PASS\n");
+    }
     return TRUE_TEST;
 }
 
 int openssl_sanity(void){
+    generate_key_sign_gen_verif_openssl_sanity();
     aes_ecb_sanity();
     aes_cbc_sanity();
     aes_gcm_sanity();
     aes_ccm_sanity();
     digest_openssl_sanity();
-    generate_key_sign_gen_verif_openssl_sanity();
     return TRUE_TEST;
 }

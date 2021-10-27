@@ -1,6 +1,7 @@
 #include <openssl/obj_mac.h>
 #include "test_vectors/common.h"
 #include "ijson_utils.h"
+#include "crypto_utils/ecc_sign.h"
 #include "itest.h"
 
 typedef struct {
@@ -21,6 +22,7 @@ typedef struct {
 static wycheproof_sign_json_t sign_verify_ctx;
 
 #define NB_ALGO_WY 5
+
 static hsm_signature_scheme_id_t curve2seco_libs(const char *in_c, uint8_t *pub_key) {
 	const char curve_list[5][255] = {
 		"secp256r1",
@@ -39,7 +41,7 @@ static hsm_signature_scheme_id_t curve2seco_libs(const char *in_c, uint8_t *pub_
 	const uint8_t size_pubkey[5] = {
 		0x40,
 		0x60,
-		0x90,
+		0x84,
 		0x40,
 		0x60,		
 	};
@@ -48,12 +50,65 @@ static hsm_signature_scheme_id_t curve2seco_libs(const char *in_c, uint8_t *pub_
 
 	for (i = 0; i < NB_ALGO_WY; i++) {
 		if (!strcmp(curve_list[i], in_c)) {
-			//printf("curve %s\n", curve_list[i]);
+			//ITEST_LOG("curve %s\n", curve_list[i]);
 			*pub_key = size_pubkey[i];
 			return seco_libs_list[i];
 		}
 	}
 	return HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+}
+
+#if 0
+static int curve2openssl(const char *in_c, uint8_t *pub_key, char *dgst) {
+	const char curve_list[5][255] = {
+		"secp256r1",
+		"secp384r1",
+		"secp521r1",
+		"brainpoolP256r1",
+		"brainpoolP384r1"
+	};
+	const char dgst_list[5][255] = {
+		"sha256",
+		"sha384",
+		"sha512",
+		"sha256",
+		"sha384"
+	};
+	const int seco_libs_list[5] = {
+		NID_X9_62_prime256v1,
+		NID_secp384r1,
+		NID_secp521r1,
+		NID_brainpoolP256r1,
+		NID_brainpoolP384r1,
+	};
+	const uint8_t size_pubkey[5] = {
+		0x40,
+		0x60,
+		0x84,
+		0x40,
+		0x60,		
+	};
+	int i;
+	*pub_key = 0;
+
+	for (i = 0; i < NB_ALGO_WY; i++) {
+		if (!strcmp(curve_list[i], in_c)) {
+			//ITEST_LOG("curve %s\n", curve_list[i]);
+			*pub_key = size_pubkey[i];
+			memcpy(dgst, dgst_list, 10);
+			return seco_libs_list[i];
+		}
+	}
+	return NID_X9_62_prime256v1;
+}
+#endif
+
+static void print_hex(uint8_t *in, int len) {
+	int j;
+	for (j = 0; j < len; j++) {
+		ITEST_LOG("%02x", in[j]);
+	}
+	ITEST_LOG("\n");
 }
 
 int hexstr_to_char(const char* hexstr, char *out, int buff_out_len)
@@ -84,18 +139,36 @@ int sign_hexstr2char(const char* hexstr, char *out, int buff_out_len) {
 	int tmp_sign_size = hexstr_to_char(hexstr, tmp_sign, buff_out_len);
 	int r_size = tmp_sign[3];
 	int pld_size = tmp_sign[1];
-	char *s_ptr = tmp_sign+4+r_size;
+	char *r_ptr = tmp_sign + 4;
+	char *s_ptr = r_ptr + r_size;
 	int s_size = s_ptr[1];
 	int pad = r_size % 2;
 	int total_size = r_size - pad;
 
+	switch (sign_verify_ctx.curve)
+    {
+        case HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256:
+        case HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256:
+            total_size = 0x40;
+            break;
+        case HSM_SIGNATURE_SCHEME_ECDSA_NIST_P384_SHA_384:
+        case HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384:
+            total_size = 0x60;
+            break;
+        case HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512:
+            total_size = 0x84;
+            break;
+        default:
+            total_size = 0;
+            break;
+    }
 
 	if (sign_verify_ctx.curve == HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512) {
 		r_size = tmp_sign[4];
-		s_ptr = tmp_sign+5+r_size;
+		r_ptr = tmp_sign + 5;
+		s_ptr = r_ptr + r_size;
 		s_size = s_ptr[1];
 		pad = r_size % 2;
-		total_size = r_size + pad;
 		pld_size = r_size + s_size + 7;
 
 		if ((tmp_sign_size == 0) || (tmp_sign[0] != 0x30) || (tmp_sign[1] > tmp_sign_size) || (tmp_sign[1] > buff_out_len) 
@@ -112,19 +185,30 @@ int sign_hexstr2char(const char* hexstr, char *out, int buff_out_len) {
 	}
 
 	s_ptr += 2;
-	if (sign_verify_ctx.curve == HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512) {
+	if (total_size != 0) {
+		memset(out,0,total_size);
+		pad = (total_size/2) - r_size;
+		if (pad < 0) {
+			memcpy(out, r_ptr - pad, r_size);
+		}
+		else {
+			memcpy(out + pad, r_ptr, r_size);
+		}
+		pad = (total_size / 2) - s_size;
+		if (pad < 0) {
+			memcpy(out + (total_size/2), r_ptr + 2 + r_size - pad, s_size);
+		}
+		else {
+			memcpy(out + (total_size/2) + pad, r_ptr + 2 + r_size, s_size);
+		}
+		return total_size;
+	}
 
-		memcpy(out, tmp_sign+4+pad, r_size-pad);
-		out += r_size-pad;
-		pad = s_size % 2;
-		memcpy(out, s_ptr+pad, s_size-pad);
-	}
-	else {
-		memcpy(out, tmp_sign+4+pad, r_size-pad);
-		out += r_size-pad;
-		pad = s_size % 2;
-		memcpy(out, s_ptr+pad, s_size-pad);
-	}
+	total_size = r_size + pad;
+	memcpy(out, tmp_sign+4+pad, r_size-pad);
+	out += r_size-pad;
+	pad = s_size % 2;
+	memcpy(out, s_ptr+pad, s_size-pad);
 
 	return total_size + s_size-pad;
 }
@@ -154,6 +238,7 @@ static int handle_tests(struct json_object *test) {
 	return sign_size;
 }
 
+#if 1
 static int handle_testcases(struct json_object *testcases) {
 
 	struct json_object *tests = NULL;
@@ -179,7 +264,7 @@ static int handle_testcases(struct json_object *testcases) {
 			MAX_KEY_SIZE);
 		sign_verify_ctx.curve = curve2seco_libs(
 			json_object_get_string(json_object_object_get(key_obj,"curve")), &sign_verify_ctx.size_pubk);
-		//printf("size pk: %d\n", sign_verify_ctx.size_pubk);
+		//ITEST_LOG("size pk: %d\n", sign_verify_ctx.size_pubk);
 	}
 
     /* Open session on SV0*/
@@ -196,7 +281,7 @@ static int handle_testcases(struct json_object *testcases) {
 	for (i = 0; i < nb_tests_case; i++) {
 		test = json_object_array_get_idx(tests, i );
 		sig_ver_args.signature_size = 1 + handle_tests(test); /* Add 1 byte for Ry */
-		//printf("sign size: %d\n", sig_ver_args.signature_size);
+		//ITEST_LOG("sign size: %d\n", sig_ver_args.signature_size);
 		if (sig_ver_args.signature_size == sign_verify_ctx.size_pubk + 1) {
 			/* Fill struct data */
 			sig_ver_args.key = sign_verify_ctx.public_key;
@@ -206,21 +291,19 @@ static int handle_testcases(struct json_object *testcases) {
 			sig_ver_args.message_size = sign_verify_ctx.message_length;
 			sig_ver_args.scheme_id = sign_verify_ctx.curve;
 			sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
-			/*if (icrypto_verify_signature(NID_X9_62_prime256v1, (unsigned char *) sig_ver_args.key, 0x40, NULL,\
-												0, (unsigned char *) sig_ver_args.message, sig_ver_args.message_size, "sha256",\
-												(unsigned char *) sig_ver_args.signature, 0x40) != expected) {
-													printf("testcase %s Fail, expected:%d, comment: %s\n", json_object_get_string(json_object_object_get(test,"tcId")), expected,
-													json_object_get_string(json_object_object_get(test,"comment")));
-													nb_fails++;
-												}
-			nb_tests_++;
-			*/
+			
 			/* Call sig ver API */
 			ASSERT_EQUAL_W(hsm_verify_signature(sv0_sig_ver_serv, &sig_ver_args, &status), HSM_NO_ERROR);
 			result = status == HSM_VERIFICATION_STATUS_SUCCESS ? VALID : INVALID;
 			if (result != sign_verify_ctx.expected_result) {
-				printf("testcase %s Fail, expected:%d, comment: %s\n", json_object_get_string(json_object_object_get(test,"tcId")), sign_verify_ctx.expected_result,
+				ITEST_LOG("testcase %s Fail, expected:%d, comment: %s\n", json_object_get_string(json_object_object_get(test,"tcId")), sign_verify_ctx.expected_result,
 				json_object_get_string(json_object_object_get(test,"comment")));
+				ITEST_LOG("pubk: ");
+				print_hex(sign_verify_ctx.public_key, sign_verify_ctx.size_pubk);
+				ITEST_LOG("sign: ");
+				print_hex(sign_verify_ctx.signature, sig_ver_args.signature_size);
+				ITEST_LOG("msg: ");
+				print_hex(sign_verify_ctx.message, sign_verify_ctx.message_length);	
 				sign_verify_ctx.nb_fails++;
 			}
 			sign_verify_ctx.nb_tests++;
@@ -231,6 +314,70 @@ static int handle_testcases(struct json_object *testcases) {
 	ASSERT_EQUAL(hsm_close_session(sv0_sess), HSM_NO_ERROR);
 	return 0;
 }
+#else
+static int handle_testcases(struct json_object *testcases) {
+
+	struct json_object *tests = NULL;
+	struct json_object *test = NULL;
+	struct json_object *key_obj = NULL;
+	int nb_tests_case = 0, i;
+    op_verify_sign_args_t sig_ver_args;    
+	int curve;
+	char dgst[15];
+
+	if (json_object_object_get_ex(testcases, "tests", &tests))
+	{
+		nb_tests_case = json_object_array_length(tests);
+	}
+
+	if (json_object_object_get_ex(testcases, "key", &key_obj))
+	{
+		key_hexstr2char(
+			json_object_get_string(json_object_object_get(key_obj,"uncompressed")), 
+			(char *)sign_verify_ctx.public_key,
+			MAX_KEY_SIZE);
+		sign_verify_ctx.curve = curve2seco_libs(
+			json_object_get_string(json_object_object_get(key_obj,"curve")), &sign_verify_ctx.size_pubk);
+		curve = curve2openssl(
+			json_object_get_string(json_object_object_get(key_obj,"curve")), &sign_verify_ctx.size_pubk, dgst);
+		ITEST_LOG("size pk: %d\n", sign_verify_ctx.size_pubk);
+		for (int j = 0; j < sign_verify_ctx.size_pubk; j++) {
+			ITEST_LOG("%02x", sign_verify_ctx.public_key[j]);
+		}
+		ITEST_LOG("\n");
+	}
+
+	for (i = 0; i < nb_tests_case; i++) {
+		test = json_object_array_get_idx(tests, i );
+		sig_ver_args.signature_size = handle_tests(test); /* Add 1 byte for Ry */
+		ITEST_LOG("sign size: %d\n", sig_ver_args.signature_size);
+		for (int j = 0; j < sig_ver_args.signature_size; j++) {
+			ITEST_LOG("%02x", sign_verify_ctx.signature[j]);
+		}
+		ITEST_LOG("\n");
+		if (sig_ver_args.signature_size == sign_verify_ctx.size_pubk) {
+			/* Fill struct data */
+			sig_ver_args.key = sign_verify_ctx.public_key;
+			sig_ver_args.message = sign_verify_ctx.message;
+			sig_ver_args.signature = sign_verify_ctx.signature;
+			sig_ver_args.key_size = sign_verify_ctx.size_pubk;
+			sig_ver_args.message_size = sign_verify_ctx.message_length;
+			sig_ver_args.scheme_id = sign_verify_ctx.curve;
+			sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
+			if (icrypto_verify_signature(curve, (unsigned char *) sig_ver_args.key, (int)sign_verify_ctx.size_pubk, NULL,\
+												0, (unsigned char *) sig_ver_args.message, sig_ver_args.message_size, dgst,\
+												(unsigned char *) sig_ver_args.signature, (int)sig_ver_args.signature_size) != sign_verify_ctx.expected_result) {
+													ITEST_LOG("testcase %s Fail, expected:%d, comment: %s\n", json_object_get_string(json_object_object_get(test,"tcId")), sign_verify_ctx.expected_result,
+													json_object_get_string(json_object_object_get(test,"comment")));
+													sign_verify_ctx.nb_fails++;;
+												}
+			sign_verify_ctx.nb_tests++;
+		}
+	}
+
+	return 0;
+}
+#endif
 
 static int handle_testgroup(struct json_object *testgroups) {
 
@@ -238,12 +385,12 @@ static int handle_testgroup(struct json_object *testgroups) {
 	int i, nb_testgroups;
 
 	nb_testgroups = json_object_array_length(testgroups);
-	printf("Number of testGroups: %ld\n", json_object_array_length(testgroups));
+	ITEST_LOG("Number of testGroups: %ld\n", json_object_array_length(testgroups));
 	for (i = 0; i < nb_testgroups; i++) {
 		testcases = json_object_array_get_idx(testgroups, i );
 		handle_testcases(testcases);
 	}
-	printf("end of tests: %d/%d tests fails\n", sign_verify_ctx.nb_fails, sign_verify_ctx.nb_tests);
+	ITEST_LOG("end of tests: %d/%d tests fails\n", sign_verify_ctx.nb_fails, sign_verify_ctx.nb_tests);
 	return 0;
 }
 
@@ -257,7 +404,7 @@ static int parse_tv(struct json_object *new_obj) {
 
 	if (json_object_object_get_ex(new_obj, "algorithm", &testgroups))
     {
-        printf("Algo: %s\n", json_object_get_string(json_object_object_get(new_obj, "algorithm")));
+        ITEST_LOG("Algo: %s\n", json_object_get_string(json_object_object_get(new_obj, "algorithm")));
 
     }
 	if (json_object_object_get_ex(new_obj, "testGroups", &testgroups))

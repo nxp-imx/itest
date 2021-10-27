@@ -4,12 +4,12 @@
 #include <openssl/obj_mac.h>
 #include "crypto_utils/ecc_sign.h"
 
-#define NB_ALGO 7
+#define NB_ALGO 8
 static hsm_key_type_t algos[NB_ALGO] = {
     HSM_KEY_TYPE_DSA_SM2_FP_256,
     HSM_KEY_TYPE_ECDSA_NIST_P256,
     HSM_KEY_TYPE_ECDSA_NIST_P384,
-    //HSM_KEY_TYPE_ECDSA_NIST_P521,
+    HSM_KEY_TYPE_ECDSA_NIST_P521,
     HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256,
     HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384,
     HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256,
@@ -20,7 +20,7 @@ static hsm_key_type_t algos_sign[NB_ALGO] = {
     HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3,
     HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256,
     HSM_SIGNATURE_SCHEME_ECDSA_NIST_P384_SHA_384,
-    //HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512,
+    HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512,
     HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256,
     HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384,
     HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256,
@@ -31,6 +31,7 @@ static int curves_openssl[NB_ALGO] = {
     NID_sm2,
     NID_X9_62_prime256v1,
     NID_secp384r1,
+    NID_secp521r1,
     NID_brainpoolP256r1,
     NID_brainpoolP384r1,
     NID_brainpoolP256t1,
@@ -41,6 +42,7 @@ static char *algos_dgst[NB_ALGO] = {
     "sm3",
     "sha256",
     "sha384",
+    "sha512",
     "sha256",
     "sha384",
     "sha256",
@@ -51,7 +53,7 @@ static uint16_t size_pub_key[NB_ALGO] = {
     0x40,
     0x40,
     0x60,
-    //0x90,
+    0x84,
     0x40,
     0x60,
     0x40,

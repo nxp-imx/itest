@@ -36,7 +36,7 @@ static EC_KEY *EC_KEY_bin2key(int curve, unsigned char *inpub, int size_pub, uns
     return eckey;
 }
 
-static int EC_KEY_key2bin(EC_KEY *eckey, unsigned char *outpub, int *size_pub, unsigned char *outpriv, int *size_priv) {
+static int EC_KEY_key2bin(EC_KEY *eckey, unsigned char *outpub, int *size_pub, unsigned char *outpriv, int *size_priv, int curve) {
 
     const BIGNUM *priv;
     const EC_POINT *pubk;
@@ -67,7 +67,29 @@ static int EC_KEY_key2bin(EC_KEY *eckey, unsigned char *outpub, int *size_pub, u
         return 0;     
     }
 
-    *size_priv = BN_bn2bin(priv, outpriv);
+    switch (curve)
+    {
+        case NID_X9_62_prime256v1:
+        case NID_brainpoolP256r1:
+            *size_priv = 0x20;
+            break;
+        case NID_secp384r1:
+        case NID_brainpoolP384r1:
+            *size_priv = 0x30;
+            break;
+        case NID_secp521r1:
+            *size_priv = 0x42;
+            break;
+        default:
+            *size_priv = 0;
+            break;
+    }
+
+    if (size_priv == 0)
+        *size_priv = BN_bn2bin(priv, outpriv);
+    else
+        *size_priv = BN_bn2binpad(priv, outpriv, *size_priv);
+    ITEST_LOG("BN_bn2bin priv key size = %d...\n", *size_priv);
     *size_pub = 0;
     *size_pub += BN_bn2binpad(x, outpub, *size_priv);
     *size_pub += BN_bn2binpad(y, &outpub[*size_pub], *size_priv);
@@ -99,7 +121,7 @@ int icrypto_generate_key_pair(int curve, unsigned char *outpub, int *size_pub, u
         return ret;
     }
 
-    ret = EC_KEY_key2bin(eckey, outpub, size_pub, outpriv, size_priv);
+    ret = EC_KEY_key2bin(eckey, outpub, size_pub, outpriv, size_priv, curve);
     if (eckey != NULL)
         EC_KEY_free(eckey);
     return ret;
@@ -151,8 +173,8 @@ int icrypto_generate_signature(int curve, unsigned char *privk, int size_privk, 
 
         ECDSA_SIG_get0(sig_buff, &pr, &ps);
         *sign_size = 0;
-        *sign_size += BN_bn2bin(pr, out_sign);
-        *sign_size += BN_bn2bin(ps, &out_sign[*sign_size]);
+        *sign_size += BN_bn2binpad(pr, out_sign, size_privk);
+        *sign_size += BN_bn2binpad(ps, &out_sign[*sign_size], size_privk);
 
         ret = 1;
 
