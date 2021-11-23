@@ -120,7 +120,7 @@ int v2x_disable_cg(void) {
 }
 
 int v2x_enable_cg(void) {
-    return v2x_disable_cg_(0);
+    return v2x_disable_cg_(1);
 }
 
 int v2x_call_stack_v2xp(void) {
