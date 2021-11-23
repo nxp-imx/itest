@@ -38,9 +38,9 @@ configure_file(inc/ItestConfig.h.in inc/ItestConfig.h)
 # Notice name prefix of this variable, set by CMake according
 # to value given with "project()" in the root CMakeLists.txt.
 include_directories(${Itest_SOURCE_DIR}/inc)
-include_directories(${Itest_SOURCE_DIR}/lib/openssl-1.1.1h)
-include_directories(${Itest_SOURCE_DIR}/${SECO_LIB_PATH}/include)
-include_directories(${Itest_SOURCE_DIR}/${SECO_LIB_PATH}/include/hsm)
+include_directories(${Itest_SOURCE_DIR}/lib/openssl/include)
+include_directories(${SECO_LIB_PATH}/include)
+include_directories(${SECO_LIB_PATH}/include/hsm)
 include_directories(${Itest_SOURCE_DIR}/lib/json-c)
 include_directories(${Itest_SOURCE_DIR}/lib/json-c/build)
 
@@ -53,11 +53,12 @@ find_package(OpenMP)
 # add the executable
 add_executable(Itest ${SOURCES})
 
+#  -static
 target_link_libraries(
   Itest
-  ${CMAKE_SOURCE_DIR}/${SECO_LIB_PATH}/she_lib.a
-  ${CMAKE_SOURCE_DIR}/${SECO_LIB_PATH}/hsm_lib.a
-  ${CMAKE_SOURCE_DIR}/${SECO_LIB_PATH}/seco_nvm_manager.a
+  ${SECO_LIB_PATH}/she_lib.a
+  ${SECO_LIB_PATH}/hsm_lib.a
+  ${SECO_LIB_PATH}/seco_nvm_manager.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libcrypto.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libgomp.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libssl.a

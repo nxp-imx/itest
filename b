@@ -1,11 +1,12 @@
 #!/bin/bash +x
 
+WORKDIR=$PWD
 HELP=0
 HOST_BUILD=0
 BOARD_BUILD=1
 FORCE_BUILD_JSON=0
 SETUP_ENV=0
-SECO_LIB_PATH=../seco_libs
+SECO_LIB_PATH=$WORKDIR/lib/seco_lib
 ARCH=arm64
 TOOLCHAIN=/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu
 TOOLCHAIN_ENV_PATH=/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu
@@ -60,8 +61,8 @@ build script:
 -S <path>: path to seco_libs
 -T <path>: path to the toolchain cc  (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu)
 -E <path>: path to the toolchain env (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu)
--f: force rebuild static lib json-c
--s: init git submodule (lib json-c)
+-f: force rebuild static lib seco_lib, json-c
+-s: init git submodule (lib seco_lib, json-c)
    "
    exit 0
 fi
@@ -79,7 +80,8 @@ cd build
 if [ $BOARD_BUILD -eq 1 ]; then
 
    if [ $FORCE_BUILD_JSON -eq 1 ]; then
-       cd ../lib/json-c
+       # build json-c
+       cd $WORKDIR/lib/json-c
        rm ../../$ARCH/libjson-c.a
        rm -rf build
        mkdir build
@@ -87,7 +89,17 @@ if [ $BOARD_BUILD -eq 1 ]; then
        cmake ../ -DCMAKE_C_COMPILER=${TOOLCHAIN}-gcc
        make json-c-static
        cp libjson-c.a ../../$ARCH/libjson-c.a
-       cd ../../../build
+       # build seco lib
+       cd $WORKDIR
+       cd $SECO_LIB_PATH
+       make clean && make all -j4 CC=$TOOLCHAIN-gcc
+       cp *.a $WORKDIR/lib/$ARCH
+       # build openssl
+       cd $WORKDIR/lib/openssl
+       ./Configure linux-aarch64
+       make clean all CC=$TOOLCHAIN-gcc
+       cp *.a $WORKDIR/lib/$ARCH
+       cd $WORKDIR/build
     fi
 
    cmake ../ -DSECO_LIB_PATH=$SECO_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH -DTOOLCHAIN_PATH=$TOOLCHAIN -DTOOLCHAIN_ROOT_PATH=$TOOLCHAIN_ENV_PATH
@@ -96,7 +108,8 @@ if [ $BOARD_BUILD -eq 1 ]; then
    cp Itest ../itest
 elif [ $HOST_BUILD -eq 1 ]; then
    if [ $FORCE_BUILD_JSON -eq 1 ]; then
-       cd ../lib/json-c
+       # build json-c
+       cd $WORKDIR/lib/json-c
        rm ../../$ARCH/libjson-c.a
        rm -rf build
        mkdir build
@@ -104,7 +117,17 @@ elif [ $HOST_BUILD -eq 1 ]; then
        cmake ../
        make json-c-static
        cp libjson-c.a ../../$ARCH/libjson-c.a
-       cd ../../../build
+       # build seco lib
+       cd $WORKDIR
+       cd $SECO_LIB_PATH
+       make clean && make all -j4
+       cp *.a $WORKDIR/lib/$ARCH
+       # build openssl
+       cd $WORKDIR/lib/openssl
+       ./Configure linux-x86_64
+       make clean all
+       cp *.a $WORKDIR/lib/$ARCH
+       cd $WORKDIR/build
     fi
 
    cmake ../ -DSECO_LIB_PATH=$SECO_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH
