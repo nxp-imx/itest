@@ -6,6 +6,8 @@ HOST_BUILD=0
 BOARD_BUILD=1
 FORCE_BUILD_JSON=0
 SETUP_ENV=0
+SETUP_OPTION="submodule"
+RESET_ENV=0
 SECO_LIB_PATH=$WORKDIR/lib/seco_lib
 ARCH=arm64
 TOOLCHAIN=/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu
@@ -38,6 +40,12 @@ do
 	    ;;
 	-s)
 	    SETUP_ENV=1
+        SETUP_OPTION=$2
+	    shift
+        shift
+	    ;;
+	-r)
+	    RESET_ENV=1
 	    shift
 	    ;;
 	-T)
@@ -61,13 +69,31 @@ build script:
 -S <path>: path to seco_libs
 -T <path>: path to the toolchain cc  (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu)
 -E <path>: path to the toolchain env (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu)
--f: force rebuild static lib seco_lib, json-c
--s: init git submodule (lib seco_lib, json-c)
+-f: force rebuild static lib seco_lib, json-c, openssl
+-s <OPTION>: option(all/submodule) init git submodule (lib seco_lib, json-c, openssl)
+-r: reset env (clean repo and submodule)
    "
    exit 0
 fi
 
 if [ $SETUP_ENV -eq 1 ]; then
+   if [ $SETUP_OPTION == "submodule" ]; then
+      git submodule update --init --recursive
+      exit 0
+   fi
+   if [ $SETUP_OPTION == "toolchain" ]; then
+      wget --no-check-certificate https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
+      echo "Extrating toolchain..."
+      sudo tar -xf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz -C /opt/
+      exit 0
+   fi
+fi
+
+if [ $RESET_ENV -eq 1 ]; then
+   git clean -xfd
+   git submodule foreach --recursive git clean -xfd
+   git reset --hard
+   git submodule foreach --recursive git reset --hard
    git submodule update --init --recursive
    exit 0
 fi

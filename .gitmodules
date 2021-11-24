@@ -4,6 +4,7 @@
 [submodule "lib/seco_lib"]
 	path = lib/seco_lib
 	url = ssh://git@bitbucket.sw.nxp.com/mcusec/seco_libs.git
+	branch = master
 [submodule "lib/openssl"]
 	path = lib/openssl
 	url = git://git.openssl.org/openssl.git
