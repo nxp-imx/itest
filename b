@@ -1,5 +1,6 @@
 #!/bin/bash +x
 
+NPROC=$(nproc)
 WORKDIR=$PWD
 HELP=0
 HOST_BUILD=0
@@ -113,17 +114,17 @@ if [ $BOARD_BUILD -eq 1 ]; then
        mkdir build
        cd build
        cmake ../ -DCMAKE_C_COMPILER=${TOOLCHAIN}-gcc
-       make json-c-static
+       make -j$NPROC json-c-static
        cp libjson-c.a ../../$ARCH/libjson-c.a
        # build seco lib
        cd $WORKDIR
        cd $SECO_LIB_PATH
-       make clean && make all -j4 CC=$TOOLCHAIN-gcc
+       make clean && make all -j$NPROC CC=$TOOLCHAIN-gcc
        cp *.a $WORKDIR/lib/$ARCH
        # build openssl
        cd $WORKDIR/lib/openssl
-       ./Configure linux-aarch64
-       make clean all CC=$TOOLCHAIN-gcc
+       ./Configure -static linux-aarch64
+       make clean && make -j$NPROC CC=$TOOLCHAIN-gcc
        cp *.a $WORKDIR/lib/$ARCH
        cd $WORKDIR/build
     fi
@@ -141,17 +142,17 @@ elif [ $HOST_BUILD -eq 1 ]; then
        mkdir build
        cd build
        cmake ../
-       make json-c-static
+       make -j$NPROC json-c-static
        cp libjson-c.a ../../$ARCH/libjson-c.a
        # build seco lib
        cd $WORKDIR
        cd $SECO_LIB_PATH
-       make clean && make all -j4
+       make clean && make all -j$NPROC
        cp *.a $WORKDIR/lib/$ARCH
        # build openssl
        cd $WORKDIR/lib/openssl
-       ./Configure linux-x86_64
-       make clean all
+       ./Configure -static linux-x86_64
+       make clean && make -j$NPROC
        cp *.a $WORKDIR/lib/$ARCH
        cd $WORKDIR/build
     fi
