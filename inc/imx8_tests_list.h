@@ -83,6 +83,7 @@ int seco_ks_import_export_001(void);
 int seco_ks_import_export_001_part2(void);
 int seco_ks_bad_auth_001(void);
 int seco_aes_gcm_iv_001(void);
+int seco_cmac_mmcau_001(void);
 int seco_auth_enc_test(void);
 int seco_rng_srv_001(void);
 int seco_hash_one_go_all_001(void);
@@ -162,6 +163,7 @@ testsuite imx8_ts[] = {
     {seco_ks_import_export_001_part2,        "seco_ks_import_export_001_part2",        DXL_A1 | DXL_B0 | QXP_C0},
     {seco_ks_bad_auth_001,                   "seco_ks_bad_auth_001",                   DXL_A1 | DXL_B0 | QXP_C0},
     {seco_aes_gcm_iv_001,                    "seco_aes_gcm_iv_001",                    DXL_A1 | DXL_B0 | QXP_C0},
+    {seco_cmac_mmcau_001,                    "seco_cmac_mmcau_001",                    DXL_A1 | DXL_B0 | QXP_C0},
     {seco_auth_enc_test,                     "seco_auth_enc_test",                     DXL_A1 | DXL_B0 | QXP_C0},
     {seco_hash_one_go_all_001,               "seco_hash_one_go_all_001",               DXL_A1 | DXL_B0 | QXP_C0},
     {seco_rng_srv_001,                       "seco_rng_srv_001",                       DXL_A1 | DXL_B0 | QXP_C0},
