@@ -6,6 +6,7 @@ This is a small tools to test seco/v2x api bridge on the seco_libs layer
 Supported Arch: x86_64, arm64
 
 Supported OS: Linux
+
 dependency: zlib, openssl, seco_lib, json-c
 
 cmake_minimum_required 3.10
@@ -29,9 +30,6 @@ build for Host ()
 build for target using the toolchain
 + ex: run `./b -H arm64`
 
-build for target using a toolchain
-+ ex: run `./b -T /opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu -E /opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu`
-
 Build script Help
 + run `./b -h`
 
@@ -39,8 +37,6 @@ build script:
 + -h: print this help
 + -H <ARCH>: select the arch (arm64 or x86_64)
 + -S <path>: path to seco_libs
-+ -T <path>: path to the toolchain cc  (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu)
-+ -E <path>: path to the toolchain env (ex:/opt/toolchains/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu)
 + -f: force rebuild static lib json-c
 + -s: init git submodule (lib json-c)
 
