@@ -40,6 +40,12 @@ execute_process(COMMAND
   OUTPUT_VARIABLE GIT_SHA1
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(COMMAND
+  git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty
+  WORKING_DIRECTORY "${SECO_LIB_PATH}"
+  OUTPUT_VARIABLE GIT_SHA1_SECO_LIB
+  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 # the date of the commit
 execute_process(COMMAND
   git log -1 --format=%ad --date=local
@@ -47,11 +53,11 @@ execute_process(COMMAND
   OUTPUT_VARIABLE GIT_DATE
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# the subject of the commit
+# the date of the commit
 execute_process(COMMAND
-  git log -1 --format=%s
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE GIT_COMMIT_SUBJECT
+  git log -1 --format=%ad --date=local
+  WORKING_DIRECTORY "${SECO_LIB_PATH}"
+  OUTPUT_VARIABLE GIT_DATE_SECO_LIB
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 configure_file(${Itest_SOURCE_DIR}/inc/version.h.in ${Itest_SOURCE_DIR}/inc/version.h )
@@ -84,7 +90,7 @@ target_link_libraries(
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libssl.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libjson-c.a
   z
-  gomp
+  gomp.a
   pthread
   dl
   ${CMAKE_DL_LIBS}

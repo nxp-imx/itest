@@ -5,7 +5,9 @@
 #define Itest_VERSION_MINOR @Itest_VERSION_MINOR@
 
 const char GIT_SHA1[] = "@GIT_SHA1@";
+const char GIT_SHA1_SECO_LIB[] = "@GIT_SHA1_SECO_LIB@";
 const char GIT_DATE[] = "@GIT_DATE@";
+const char GIT_DATE_SECO_LIB[] = "@GIT_DATE_SECO_LIB@";
 const char GIT_COMMIT_SUBJECT[] = "@GIT_COMMIT_SUBJECT@";
 
 #endif

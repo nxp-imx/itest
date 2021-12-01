@@ -124,7 +124,6 @@ if [ $ARCH_BUILD -eq 1 ]; then
        mkdir -p $WORKDIR/lib/$ARCH
        # build json-c
        cd $WORKDIR/lib/json-c
-       rm ../../$ARCH/libjson-c.als
        rm -rf build
        mkdir build
        cd build
