@@ -5,12 +5,8 @@
 #include <getopt.h>
 #include "ijson_utils.h"
 #include "itest.h"
+#include "version.h"
 #include "imx8_tests_list.h"
-
-#define ITEST_VERSION "2.0"
-#ifndef GIT_COMMIT
-#define GIT_COMMIT "no commit id"
-#endif
 
 int parse_test(int argc, char **argv);
 
@@ -21,7 +17,7 @@ static int total_run = 0, fails = 0;
 
 static inline void print_version()
 {
-    ITEST_LOG("itest %s, commit %s\n", ITEST_VERSION, GIT_COMMIT);
+    ITEST_LOG("itest %d.%d \ncommit %s \n%s\n", Itest_VERSION_MAJOR, Itest_VERSION_MINOR, GIT_SHA1, GIT_DATE);
 }
 
 static inline void print_stats()

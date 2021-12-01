@@ -39,8 +39,8 @@ build script:
 + -h: print this help
 + -H <ARCH>: select the arch (arm64 or x86_64)
 + -S <path>: path to seco_libs
-+ -f: force rebuild static lib json-c
-+ -s: init git submodule (lib json-c)
++ -f: force rebuild static lib json-c, openssl, seco_lib
++ -s: init git submodule (lib json-c, openssl, seco_lib)
 
 How to use itest
 ------------

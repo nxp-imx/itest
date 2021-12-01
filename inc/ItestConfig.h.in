@@ -1,2 +1,0 @@
-#define Itest_VERSION_MAJOR @Itest_VERSION_MAJOR@
-#define Itest_VERSION_MINOR @Itest_VERSION_MINOR@
