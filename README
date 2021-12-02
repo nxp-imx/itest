@@ -14,7 +14,7 @@ cmake_minimum_required 3.10
 Setup
 ------------
 
-To install the toolchain: `./b -s toolchain`
+To install the toolchain: `./b -s toolchain -T ../`
 
 To setup git submodule; `./b -s submodule`
 
@@ -41,6 +41,7 @@ build script:
 + -S <path>: path to seco_libs
 + -f: force rebuild static lib json-c, openssl, seco_lib
 + -s: init git submodule (lib json-c, openssl, seco_lib)
++ -T <Toolchain path>: toolchain path (where will be installed the toolchain)
 
 How to use itest
 ------------

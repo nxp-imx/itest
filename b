@@ -7,6 +7,7 @@ ARCH_BUILD=0
 FORCE_BUILD_JSON=0
 SETUP_ENV=0
 SETUP_OPTION="submodule"
+TOOLCHAIN_PATH=/opt
 RESET_ENV=0
 SECO_LIB_PATH=$WORKDIR/lib/seco_lib
 ARCH=arm64
@@ -53,8 +54,16 @@ do
 	    RESET_ENV=1
 	    shift
 	    ;;
+    -T)
+        TOOLCHAIN_PATH=$2
+	    shift
+        shift
+	    ;;
     esac
 done
+
+TOOLCHAIN_PATH=$(readlink -f "$TOOLCHAIN_PATH")
+echo $TOOLCHAIN_PATH
 
 if [ $HELP -eq 1 ]; then
    echo "
@@ -65,6 +74,7 @@ build script:
 -f: force rebuild static lib seco_lib, json-c, openssl
 -s <OPTION>: option(all/submodule) init git submodule (lib seco_lib, json-c, openssl)
 -r: reset env (clean repo and submodule)
+-T <Toolchain path>: toolchain path (where will be installed the toolchain)
    "
    exit 0
 fi
@@ -82,23 +92,23 @@ if [ $SETUP_ENV -eq 1 ]; then
    elif [ $SETUP_OPTION == "toolchain" ]; then
       wget --no-check-certificate https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
       echo "Extrating toolchain..."
-      sudo tar -xf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz -C /opt/
-      echo "export PATH=/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
-export CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc
-export AR=/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-ar
+      tar -xf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz -C $TOOLCHAIN_PATH/
+      echo "export PATH=$TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+export CC=$TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc
+export AR=$TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-ar
 export CROSS_COMPILE=aarch64-linux-gnu-
 export ARCH=arm64
-export SDKTARGETSYSROOT=/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/
-export INCLUDEDIR=/opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/include
+export SDKTARGETSYSROOT=$TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/
+export INCLUDEDIR=$TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/include
 " > setup_linaro_aarch64.sh
-      sudo mv setup_linaro_aarch64.sh /opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh
-      sudo chmod +x /opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh
+      mv setup_linaro_aarch64.sh $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh
+      chmod +x $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh
       echo "Install zlib..."
-      sudo cp lib/zlib1.2.11_aarch64/zlib.h /opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc/usr/include/zlib.h
-      sudo cp lib/zlib1.2.11_aarch64/zconf.h /opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc/usr/include/zconf.h
-      sudo cp lib/zlib1.2.11_aarch64/libz.so /opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/lib64/libz.so
-      sudo cp lib/zlib1.2.11_aarch64/libz.so.1.2.11 /opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/lib64/libz.so.1.2.11
-      echo "to use the toolchain: source /opt/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh"
+      cp lib/zlib1.2.11_aarch64/zlib.h $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc/usr/include/zlib.h
+      cp lib/zlib1.2.11_aarch64/zconf.h $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc/usr/include/zconf.h
+      cp lib/zlib1.2.11_aarch64/libz.so $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/lib64/libz.so
+      cp lib/zlib1.2.11_aarch64/libz.so.1.2.11 $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/lib64/libz.so.1.2.11
+      echo "to use the toolchain: source $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh"
       rm gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
       exit 0
    fi
