@@ -155,6 +155,7 @@ int seco_hsm_fast_cmac_perf_test(void){
     finalize_timer(&t_perf, iter);
     ITEST_CHECK_KPI_OPS(t_perf.op_sec, 10000);
 
+    ASSERT_EQUAL(hsm_close_mac_service(sg0_mac_hdl), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_management_service(sg0_key_mgmt_srv), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_store_service(sg0_key_store_serv), HSM_NO_ERROR);
 
