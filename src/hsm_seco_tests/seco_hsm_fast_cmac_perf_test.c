@@ -42,7 +42,7 @@ int seco_hsm_fast_cmac_perf_test(void){
     key_store_srv_args.key_store_identifier = (uint32_t) 0x12121212;
     key_store_srv_args.authentication_nonce = (uint32_t) 0x12345678;
     key_store_srv_args.max_updates_number = 12;
-    key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE | HSM_SVC_KEY_STORE_FLAGS_FAST_CMAC;
+    key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE | HSM_SVC_KEY_STORE_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE;
     key_store_srv_args.signed_message = NULL;
     key_store_srv_args.signed_msg_size = 0;
     ASSERT_EQUAL(hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv), HSM_NO_ERROR);
@@ -77,7 +77,7 @@ int seco_hsm_fast_cmac_perf_test(void){
     ITEST_LOG("CMAC aes 128 gen\n");
     mac_one_go.key_identifier = key_id;
     mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
-    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION | HSM_OP_MAC_ONE_GO_FLAGS_FAST_CMAC;
+    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION | HSM_OP_MAC_ONE_GO_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE;
     mac_one_go.payload = aes128_test_message;
     mac_one_go.mac = work_area;
     mac_one_go.payload_size = 16u;
@@ -97,7 +97,7 @@ int seco_hsm_fast_cmac_perf_test(void){
     ITEST_LOG("CMAC aes 128 verify\n");
     mac_one_go.key_identifier = key_id;
     mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
-    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION | HSM_OP_MAC_ONE_GO_FLAGS_FAST_CMAC;
+    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION | HSM_OP_MAC_ONE_GO_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE;
     mac_one_go.payload = aes128_test_message;
     mac_one_go.mac = work_area;
     mac_one_go.payload_size = 16u;
