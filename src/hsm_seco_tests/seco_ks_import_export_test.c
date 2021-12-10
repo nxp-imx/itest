@@ -124,7 +124,7 @@ int seco_ks_import_export_001_part2(void){
     key_store_srv_args.key_store_identifier = (uint32_t) 0x12121212;
     key_store_srv_args.authentication_nonce = (uint32_t) 0x12345678;
     key_store_srv_args.max_updates_number = 12;
-    key_store_srv_args.flags = 0;
+    key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE;
     key_store_srv_args.signed_message = NULL;
     key_store_srv_args.signed_msg_size = 0;
     ASSERT_EQUAL(hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv), HSM_NO_ERROR);

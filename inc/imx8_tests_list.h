@@ -77,6 +77,7 @@ int v2x_perf_sig_ver_brainpool_t1p384_ops(void);
 int v2x_perf_sig_ver_brainpool_t1p384_lat(void);
 int v2x_perf_pub_key_decompression_nistp256(void);
 int v2x_perf_pub_key_reconstruction_nistp256(void);
+int v2x_key_store_benchmark_001(void);
 
 // seco hsm
 int seco_ks_import_export_001(void);
@@ -91,6 +92,7 @@ int seco_hash_one_go_all_001(void);
 int seco_prepare_signature_001(void);
 int seco_prepare_signature_002(void);
 int seco_prepare_signature_003(void);
+int seco_key_store_benchmark_001(void);
 // seco she
 int seco_she_load_key_001(void);
 /*===============================*/
@@ -125,6 +127,7 @@ testsuite imx8_ts[] = {
     {v2x_prepare_signature_001,              "v2x_prepare_signature_001",              DXL_A1 | DXL_B0},
     {v2x_prepare_signature_002,              "v2x_prepare_signature_002",              DXL_A1 | DXL_B0},
     {v2x_prepare_signature_003,              "v2x_prepare_signature_003",              DXL_A1 | DXL_B0},
+    {v2x_key_store_benchmark_001,            "v2x_key_store_benchmark_001",            DXL_A1 | DXL_B0},
     {v2x_hash_one_go_all_001,                "v2x_hash_one_go_all_001",                DXL_A1 | DXL_B0},
     {v2x_sm2_eces_001,                       "v2x_sm2_eces_001",                       DXL_A1 | DXL_B0},
     {v2x_sm2_eces_002,                       "v2x_sm2_eces_002",                       DXL_A1 | DXL_B0},
@@ -172,6 +175,7 @@ testsuite imx8_ts[] = {
     {seco_prepare_signature_001,             "seco_prepare_signature_001",             DXL_A1 | DXL_B0 | QXP_C0},
     {seco_prepare_signature_002,             "seco_prepare_signature_002",             DXL_A1 | DXL_B0 | QXP_C0},
     {seco_prepare_signature_003,             "seco_prepare_signature_003",             DXL_A1 | DXL_B0 | QXP_C0},
+    {seco_key_store_benchmark_001,           "seco_key_store_benchmark_001",           DXL_A1 | DXL_B0 | QXP_C0},
     {seco_she_load_key_001,                  "seco_she_load_key_001",                  DXL_A1 | DXL_B0 | QXP_C0 | QXP_B0},
 
 /*=========================================================================================================================
