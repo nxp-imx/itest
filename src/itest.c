@@ -229,6 +229,35 @@ void print_perf(timer_perf_t *timer) {
     ITEST_LOG("============\n");
 }
 
+static uint32_t load_signed_msg(char *path, uint8_t *msg, uint32_t max_size){
+
+    FILE *f = NULL;
+    long fsize = 0U;
+
+    do {
+
+        f = fopen(path, "rb");
+        if (f == NULL) {
+            ITEST_LOG("Fail to load file %s.\n", path);
+            break;
+        }
+        fseek(f, 0, SEEK_END);
+        fsize = ftell(f);
+        if (fsize+1 > max_size) {
+            ITEST_LOG("Fail to load file, file too big\n");
+            break;
+        }
+        fseek(f, 0, SEEK_SET);
+        fread(msg, fsize, 1, f);
+
+    } while (0U);
+
+    if (f != NULL) {
+        fclose(f);
+    }
+    return (uint32_t) fsize;
+}
+
 /*==========LOW LEVEL TESTING LINUX ABSTRACTION==========*/
 
 #define NB_MU 8
@@ -287,11 +316,11 @@ uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi) {
     }
 
     count = seco_os_abs_send_mu_message(mu_list[mu_lib_id].hdl, msg, size);
-    printf("send msg (mu %d, nmi %d, count %d) -> ", mu_lib_id, nmi, count);
+    ITEST_LOG("send msg (mu %d, nmi %d, count %d) -> ", mu_lib_id, nmi, count);
     for (i = 0; i < size/sizeof(uint32_t); i++) {
-        printf("0x%x ", msg[i]);
+        ITEST_LOG("0x%x ", msg[i]);
     }
-    printf("\n");
+    ITEST_LOG("\n");
     return count;
 }
 uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id) {
@@ -306,11 +335,11 @@ uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id) {
     }
 
     count = seco_os_abs_read_mu_message(mu_list[mu_lib_id].hdl, msg, size);
-    printf("rcv msg (mu %d, count %d)          -> ", mu_lib_id, count);
+    ITEST_LOG("rcv msg (mu %d, count %d)          -> ", mu_lib_id, count);
     for (i = 0; i < size/sizeof(uint32_t); i++) {
-        printf("0x%x ", msg[i]);
+        ITEST_LOG("0x%x ", msg[i]);
     }
-    printf("\n");
+    ITEST_LOG("\n");
     return count;
 }
 uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi) {
@@ -322,5 +351,29 @@ uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uin
     count = rcv_msg(msg_out, size_out, mu_id);
     if (count != size_out)
         return 0;
+    return count;
+}
+
+uint32_t send_signed_msg(char *path) {
+    uint32_t count = 0;
+    uint32_t mu_lib_id = mu_id2lib_muid(1);
+    uint32_t ret;
+    uint8_t msg[1024*4];
+    uint32_t size = load_signed_msg(path, msg, 1024*4);
+
+    if (size == 0U) {
+        return count;
+    }
+
+    if (mu_list[mu_lib_id].hdl == NULL) {
+        mu_list[mu_lib_id].hdl = seco_os_abs_open_mu_channel(1, &mu_list[mu_lib_id].mu_info);
+        if (mu_list[mu_lib_id].hdl == NULL) {
+            ITEST_LOG("Fail to open Mu\n");
+            return count;
+        }
+    }
+    ret = seco_os_abs_send_signed_message(mu_list[mu_lib_id].hdl, msg, size);
+    ITEST_LOG("send msg signed -> ret code = 0x%08x\n", ret);
+    seco_os_abs_close_session(mu_list[mu_lib_id].hdl);
     return count;
 }

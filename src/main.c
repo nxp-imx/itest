@@ -33,6 +33,7 @@ static void print_help(void) {
 $ ./itest [OPTION] <argument>\n\n\
 OPTIONS:\n\
   -h: Print this help\n\
+  -m <signed msg bin>: send a signed message to seco\n\
   -v: Print test suite version\n\
   -j <json file> : Run json test vector from wycheproof tv\n\
   -l: List all tests\n\
@@ -99,6 +100,7 @@ int main(int argc, char *argv[]){
     int status = 0;
     int c;
     int print_ts = 0;
+    char *sign_msg_path = NULL;
 
     itest_init();
     opterr = 0;
@@ -118,6 +120,9 @@ int main(int argc, char *argv[]){
         case 'l':
             print_ts = 1;
             break;
+        case 'm':
+            sign_msg_path = optarg;
+            break;
         case 'c':
             if (!init_conf(optarg))
                 return 0;
@@ -126,7 +131,7 @@ int main(int argc, char *argv[]){
             print_help();
             return 0;
         case '?':
-            if ((optopt == 't') || (optopt == 'g') || (optopt == 'c')){
+            if ((optopt == 't') || (optopt == 'g') || (optopt == 'c') || (optopt == 'm')){
                 fprintf (stderr, "Option -%c requires an argument.\n", optopt);
                 print_help();
                 return 0;
@@ -143,6 +148,11 @@ int main(int argc, char *argv[]){
 
     if (print_ts == 1) {
         print_test_suite(itest_ctx.ts);
+        return 0;
+    }
+
+    if (sign_msg_path != NULL) {
+        send_signed_msg(sign_msg_path);
         return 0;
     }
 

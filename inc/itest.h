@@ -166,6 +166,7 @@ void finalize_timer(timer_perf_t *timer, uint32_t nb_iter);
 uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
 void print_perf(timer_perf_t *timer);
 /*==========LOW LEVEL API========*/
+uint32_t send_signed_msg(char *path);
 uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi);
 uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id);
 uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi);
