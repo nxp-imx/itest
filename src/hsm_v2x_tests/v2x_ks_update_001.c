@@ -46,7 +46,7 @@ int v2x_ks_update_001(void){
     gen_key_args.key_identifier = &ctx.key_id;
     gen_key_args.out_size = 64;
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
-    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     gen_key_args.key_group = 1;
     gen_key_args.key_info = 0U;
     gen_key_args.out_key = buff_out;
@@ -105,7 +105,7 @@ int v2x_ks_update_001_part2(void){
     gen_key_args.key_identifier = &ctx.key_id;
     gen_key_args.out_size = 64;
     gen_key_args.flags =  HSM_OP_KEY_GENERATION_FLAGS_UPDATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
-    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     gen_key_args.key_group = 1;
     gen_key_args.key_info = 0U;
     gen_key_args.out_key = buff_out;

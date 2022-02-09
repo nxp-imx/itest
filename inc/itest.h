@@ -17,6 +17,7 @@
 #define DXL_A1 0x4
 #define DXL_B0 0x8
 #define DBG    0x10
+#define FIPS   0x80
 
 #define TRUE_TEST 1
 #define FALSE_TEST 0
