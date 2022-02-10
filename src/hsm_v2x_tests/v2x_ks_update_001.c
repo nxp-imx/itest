@@ -42,7 +42,7 @@ int v2x_ks_update_001(void){
     key_mgmt_srv_args.flags = 0;
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
-    // PARAM SM4 KEY_GEN strict_update
+    // PARAM NIST P256 KEY_GEN strict_update
     gen_key_args.key_identifier = &ctx.key_id;
     gen_key_args.out_size = 64;
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
@@ -101,7 +101,7 @@ int v2x_ks_update_001_part2(void){
     key_mgmt_srv_args.flags = 0;
     ASSERT_EQUAL(hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv), HSM_NO_ERROR);
 
-    // PARAM SM4 KEY_GEN strict_update
+    // PARAM NIST P256 KEY_GEN strict_update
     gen_key_args.key_identifier = &ctx.key_id;
     gen_key_args.out_size = 64;
     gen_key_args.flags =  HSM_OP_KEY_GENERATION_FLAGS_UPDATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
