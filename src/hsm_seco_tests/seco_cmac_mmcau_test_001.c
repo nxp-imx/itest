@@ -115,6 +115,7 @@ int seco_cmac_mmcau_001(void){
     mac_one_go.payload_size = 128u;
     mac_one_go.mac_size = 8u;
     ASSERT_EQUAL(hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status), HSM_NO_ERROR);
+    ASSERT_EQUAL(HSM_MAC_VERIFICATION_STATUS_SUCCESS, mac_status);
 
     // CORNER CASE IN SIZE NOT ALIGNE
     mac_one_go.key_identifier = key_id;
@@ -135,6 +136,8 @@ int seco_cmac_mmcau_001(void){
     mac_one_go.mac_size = 8u;
     ASSERT_EQUAL(hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status), HSM_NO_ERROR);
 
+    ASSERT_EQUAL(HSM_MAC_VERIFICATION_STATUS_SUCCESS, mac_status);
+
     // CORNER CASE MAC SIZE NOT ALIGNE
     mac_one_go.key_identifier = key_id;
     mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
@@ -153,6 +156,29 @@ int seco_cmac_mmcau_001(void){
     mac_one_go.payload_size = 123u;
     mac_one_go.mac_size = 9u;
     ASSERT_EQUAL(hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status), HSM_NO_ERROR);
+
+    ASSERT_EQUAL(HSM_MAC_VERIFICATION_STATUS_SUCCESS, mac_status);
+
+    // CORNER CASE MAC IN SIZE NULL
+    mac_one_go.key_identifier = key_id;
+    mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION | HSM_OP_MAC_ONE_GO_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE;
+    mac_one_go.payload = aes128_test_message;
+    mac_one_go.mac = work_area;
+    mac_one_go.payload_size = 0u;
+    mac_one_go.mac_size = 15u;
+    ASSERT_EQUAL(hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status), HSM_NO_ERROR);
+
+    mac_one_go.key_identifier = key_id;
+    mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION | HSM_OP_MAC_ONE_GO_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE;
+    mac_one_go.payload = aes128_test_message;
+    mac_one_go.mac = work_area;
+    mac_one_go.payload_size = 0;
+    mac_one_go.mac_size = 9u;
+    ASSERT_EQUAL(hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status), HSM_NO_ERROR);
+
+    ASSERT_EQUAL(HSM_MAC_VERIFICATION_STATUS_SUCCESS, mac_status);
 
     ASSERT_EQUAL(hsm_close_mac_service(sg0_mac_hdl), HSM_NO_ERROR);
     ASSERT_EQUAL(hsm_close_key_management_service(sg0_key_mgmt_srv), HSM_NO_ERROR);
