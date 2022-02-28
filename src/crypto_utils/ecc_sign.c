@@ -89,7 +89,7 @@ static int EC_KEY_key2bin(EC_KEY *eckey, unsigned char *outpub, int *size_pub, u
         *size_priv = BN_bn2bin(priv, outpriv);
     else
         *size_priv = BN_bn2binpad(priv, outpriv, *size_priv);
-    ITEST_LOG("BN_bn2bin priv key size = %d...\n", *size_priv);
+    //ITEST_LOG("BN_bn2bin priv key size = %d...\n", *size_priv);
     *size_pub = 0;
     *size_pub += BN_bn2binpad(x, outpub, *size_priv);
     *size_pub += BN_bn2binpad(y, &outpub[*size_pub], *size_priv);

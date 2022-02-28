@@ -81,17 +81,39 @@ int v2x_cipher_ccm_perf(void){
     gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
     ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args), HSM_NO_ERROR);
 
-    ITEST_LOG("aes ccm key_aes_128 encrypt\n");
+    ITEST_LOG("aes ccm key_aes_128 encrypt full iv gen\n");
     // CIPHER ONE GO AES_128 CCM -> ENCRYPT
     cipher_args.key_identifier = key_id_aes_128;
-    cipher_args.iv = iv;
-    cipher_args.iv_size = 12;
+    cipher_args.iv = NULL;
+    cipher_args.iv_size = 0;
     cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
-    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_ONE_GO_FLAGS_GENERATE_FULL_IV;
     cipher_args.input = msg;
     cipher_args.output = buff_encr;
     cipher_args.input_size = msg_size;
-    cipher_args.output_size = msg_size + 16;
+    cipher_args.output_size = msg_size + 16 + 12;
+
+    init_timer(&t_perf);
+    for (i = 0; i <= iter; i++) {
+        start_timer(&t_perf);
+        ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        stop_timer(&t_perf);
+    }
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
+
+    ITEST_LOG("aes ccm key_aes_128 encrypt counter iv gen\n");
+    // CIPHER ONE GO AES_128 CCM -> ENCRYPT
+    cipher_args.key_identifier = key_id_aes_128;
+    cipher_args.iv = iv;
+    cipher_args.iv_size = 4;
+    cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
+    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_ONE_GO_FLAGS_GENERATE_COUNTER_IV;
+    cipher_args.input = msg;
+    cipher_args.output = buff_encr;
+    cipher_args.input_size = msg_size;
+    cipher_args.output_size = msg_size + 16 + 12;
 
     init_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
@@ -106,7 +128,7 @@ int v2x_cipher_ccm_perf(void){
     ITEST_LOG("aes ccm key_aes_128 decrypt\n");
     // CIPHER ONE GO AES_128 CCM -> DECRYPT
     cipher_args.key_identifier = key_id_aes_128;
-    cipher_args.iv = iv;
+    cipher_args.iv = buff_encr + msg_size + 16;
     cipher_args.iv_size = 12;
     cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
     cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
@@ -127,17 +149,39 @@ int v2x_cipher_ccm_perf(void){
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-    ITEST_LOG("aes ccm key_aes_192 encrypt\n");
+    ITEST_LOG("aes ccm key_aes_192 encrypt full iv gen\n");
     // CIPHER ONE GO AES_192 CCM -> ENCRYPT
     cipher_args.key_identifier = key_id_aes_192;
-    cipher_args.iv = iv;
-    cipher_args.iv_size = 12;
+    cipher_args.iv = NULL;
+    cipher_args.iv_size = 0;
     cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
-    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_ONE_GO_FLAGS_GENERATE_FULL_IV;
     cipher_args.input = msg;
     cipher_args.output = buff_encr;
     cipher_args.input_size = msg_size;
-    cipher_args.output_size = msg_size + 16;
+    cipher_args.output_size = msg_size + 16 + 12;
+
+    start_timer(&t_perf);
+    for (i = 0; i <= iter; i++) {
+        start_timer(&t_perf);
+        ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        stop_timer(&t_perf);
+    }
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
+
+    ITEST_LOG("aes ccm key_aes_192 encrypt counter iv gen\n");
+    // CIPHER ONE GO AES_192 CCM -> ENCRYPT
+    cipher_args.key_identifier = key_id_aes_192;
+    cipher_args.iv = iv;
+    cipher_args.iv_size = 4;
+    cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
+    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_ONE_GO_FLAGS_GENERATE_COUNTER_IV;
+    cipher_args.input = msg;
+    cipher_args.output = buff_encr;
+    cipher_args.input_size = msg_size;
+    cipher_args.output_size = msg_size + 16 + 12;
 
     start_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
@@ -152,7 +196,7 @@ int v2x_cipher_ccm_perf(void){
     ITEST_LOG("aes ccm key_aes_192 decrypt\n");
     // CIPHER ONE GO AES_192 CCM -> DECRYPT
     cipher_args.key_identifier = key_id_aes_192;
-    cipher_args.iv = iv;
+    cipher_args.iv = buff_encr + msg_size + 16;
     cipher_args.iv_size = 12;
     cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
     cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
@@ -173,17 +217,39 @@ int v2x_cipher_ccm_perf(void){
     // CHECK DECRYPTED OUTPUT
     ASSERT_EQUAL(memcmp(msg, buff_decr, msg_size), 0);
 
-    ITEST_LOG("aes ccm key_aes_256 encrypt\n");
+    ITEST_LOG("aes ccm key_aes_256 encrypt full iv gen\n");
     // CIPHER ONE GO AES_256 CCM -> ENCRYPT
     cipher_args.key_identifier = key_id_aes_256;
-    cipher_args.iv = iv;
-    cipher_args.iv_size = 12;
+    cipher_args.iv = NULL;
+    cipher_args.iv_size = 0;
     cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
-    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_ONE_GO_FLAGS_GENERATE_FULL_IV;
     cipher_args.input = msg;
     cipher_args.output = buff_encr;
     cipher_args.input_size = msg_size;
-    cipher_args.output_size = msg_size + 16;
+    cipher_args.output_size = msg_size + 16 + 12;
+
+    init_timer(&t_perf);
+    for (i = 0; i <= iter; i++) {
+        start_timer(&t_perf);
+        ASSERT_EQUAL(hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args), HSM_NO_ERROR);
+        stop_timer(&t_perf);
+    }
+    /* Finalize time to get stats */
+    finalize_timer(&t_perf, iter);
+    print_perf(&t_perf);
+
+    ITEST_LOG("aes ccm key_aes_256 encrypt counter iv gen\n");
+    // CIPHER ONE GO AES_256 CCM -> ENCRYPT
+    cipher_args.key_identifier = key_id_aes_256;
+    cipher_args.iv = iv;
+    cipher_args.iv_size = 4;
+    cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
+    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_ONE_GO_FLAGS_GENERATE_COUNTER_IV;
+    cipher_args.input = msg;
+    cipher_args.output = buff_encr;
+    cipher_args.input_size = msg_size;
+    cipher_args.output_size = msg_size + 16 + 12;
 
     init_timer(&t_perf);
     for (i = 0; i <= iter; i++) {
@@ -198,7 +264,7 @@ int v2x_cipher_ccm_perf(void){
     ITEST_LOG("aes ccm key_aes_256 decrypt\n");
     // CIPHER ONE GO AES_256 CCM -> DECRYPT
     cipher_args.key_identifier = key_id_aes_256;
-    cipher_args.iv = iv;
+    cipher_args.iv = buff_encr + msg_size + 16;
     cipher_args.iv_size = 12;
     cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
     cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
