@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
-// requirement: enc/decr with all aes algos
+// requirement: enc/decr with all aes algos and ccm mode
 
-int v2x_cipher_aes_ecb_cbc_001(void){
+int v2x_cipher_aes_ecb_cbc_ccm_mode_001(void){
 
     open_session_args_t args;
     open_svc_key_store_args_t key_store_srv_args;

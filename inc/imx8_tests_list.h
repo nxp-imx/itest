@@ -15,7 +15,7 @@ int v2x_ks_update_001(void);
 int v2x_ks_update_001_part2(void);
 int v2x_pub_key_recovery_001(void);
 int v2x_pub_key_recovery_001_part2(void);
-int v2x_cipher_aes_ecb_cbc_001(void);
+int v2x_cipher_aes_ecb_cbc_ccm_mode_001(void);
 int v2x_cipher_aes_ccm_001(void);
 int v2x_aes_gcm_iv_001(void);
 int v2x_pub_key_decompression_001(void);
@@ -135,7 +135,7 @@ testsuite imx8_ts[] = {
     {v2x_pub_key_reconstruction_sm2,         "v2x_pub_key_reconstruction_sm2",         DXL_A1 | DXL_B0},
     {v2x_pub_key_recovery_001,               "v2x_pub_key_recovery_001",               DXL_A1 | DXL_B0},
     {v2x_pub_key_recovery_001_part2,         "v2x_pub_key_recovery_001_part2",         DXL_A1 | DXL_B0},
-    {v2x_cipher_aes_ecb_cbc_001,             "v2x_cipher_aes_ecb_cbc_001",             DXL_A1 | DXL_B0},
+    {v2x_cipher_aes_ecb_cbc_ccm_mode_001,    "v2x_cipher_aes_ecb_cbc_ccm_mode_001",    DXL_A1 | DXL_B0},
     {v2x_cipher_aes_ccm_001,                 "v2x_cipher_aes_ccm_001",                 DXL_A1 | DXL_B0},
     {v2x_aes_gcm_iv_001,                     "v2x_aes_gcm_iv_001",                     DXL_A1 | DXL_B0},
     {v2x_auth_enc_test,                      "v2x_auth_enc_test",                      DXL_A1 | DXL_B0},
