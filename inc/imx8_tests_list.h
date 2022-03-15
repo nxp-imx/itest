@@ -46,6 +46,7 @@ int v2x_sm2_st_butt_key_exp_swap_002(void);
 int v2x_generic_crypto_sm4_ccm_test(void);
 int v2x_st_butt_key_exp_swap_001(void);
 int v2x_all_services(void);
+int v2x_ba414_issue_sign_verify(void);
 
 int v2x_perf_sig_gen_nistp256_ops(void);
 int v2x_perf_sig_gen_nistp256_lat(void);
@@ -158,6 +159,7 @@ testsuite imx8_ts[] = {
     {v2x_generic_crypto_sm4_ccm_test,        "v2x_generic_crypto_sm4_ccm_test",        DXL_A1 | DXL_B0},
     {v2x_all_services,                       "v2x_all_services",                       DXL_A1 | DXL_B0},
     {v2x_ping_all_mu,                        "v2x_ping_all_mu",                        DXL_A1 | DXL_B0},
+    {v2x_ba414_issue_sign_verify,            "v2x_ba414_issue_sign_verify",            DXL_A1 | DXL_B0},
 
 /*=========================================================================================================================
 ====================================================== SECO ===============================================================
