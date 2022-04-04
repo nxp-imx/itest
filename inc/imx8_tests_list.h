@@ -47,6 +47,8 @@ int v2x_generic_crypto_sm4_ccm_test(void);
 int v2x_st_butt_key_exp_swap_001(void);
 int v2x_all_services(void);
 int v2x_ba414_issue_sign_verify(void);
+int v2x_otp_kek_001_test(void);
+int v2x_otp_kek_002_test(void);
 
 int v2x_perf_sig_gen_nistp256_ops(void);
 int v2x_perf_sig_gen_nistp256_lat(void);
@@ -94,6 +96,7 @@ int seco_prepare_signature_001(void);
 int seco_prepare_signature_002(void);
 int seco_prepare_signature_003(void);
 int seco_key_store_benchmark_001(void);
+int seco_otp_kek_001_test(void);
 // seco she
 int seco_she_load_key_001(void);
 /*===============================*/
@@ -160,6 +163,8 @@ testsuite imx8_ts[] = {
     {v2x_all_services,                       "v2x_all_services",                       DXL_A1 | DXL_B0},
     {v2x_ping_all_mu,                        "v2x_ping_all_mu",                        DXL_A1 | DXL_B0},
     {v2x_ba414_issue_sign_verify,            "v2x_ba414_issue_sign_verify",            DXL_A1 | DXL_B0},
+    {v2x_otp_kek_001_test,                   "v2x_otp_kek_001_test",                   DXL_B0},
+    {v2x_otp_kek_002_test,                   "v2x_otp_kek_002_test",                   DXL_B0},
 
 /*=========================================================================================================================
 ====================================================== SECO ===============================================================
@@ -178,6 +183,7 @@ testsuite imx8_ts[] = {
     {seco_prepare_signature_002,             "seco_prepare_signature_002",             DXL_A1 | DXL_B0 | QXP_C0},
     {seco_prepare_signature_003,             "seco_prepare_signature_003",             DXL_A1 | DXL_B0 | QXP_C0},
     {seco_key_store_benchmark_001,           "seco_key_store_benchmark_001",           DXL_A1 | DXL_B0 | QXP_C0},
+    {seco_otp_kek_001_test,                  "seco_otp_kek_001_test",                  DXL_B0},
     {seco_she_load_key_001,                  "seco_she_load_key_001",                  DXL_A1 | DXL_B0 | QXP_C0 | QXP_B0},
 
 /*=========================================================================================================================

@@ -51,7 +51,11 @@ int icrypto_cipher_one_go(unsigned char *in, unsigned char *out, int size_in, ch
 			cipher_ossl = EVP_aes_256_ccm();
 			break;
 		case ICRYPTO_SM4_128_ECB:
+			cipher_ossl = EVP_sm4_ecb();
+			break;
 		case ICRYPTO_SM4_128_CBC:
+			cipher_ossl = EVP_sm4_cbc();
+			break;
 		default:
 			return size_out;
 	}

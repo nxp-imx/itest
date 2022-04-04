@@ -179,5 +179,10 @@ int isen_hsm_key_injection_custom(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, 
                            uint16_t key_group, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
 int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in,
                         uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size);
+int isen_hsm_key_injection_custom_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type,
+                           uint8_t *key_in, uint8_t *kek_data, uint32_t key_size,
+                           uint16_t key_group, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
+int isen_hsm_key_injection_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t key_size);
+int isen_hsm_key_injection_v2x_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t key_size);
 
 #endif

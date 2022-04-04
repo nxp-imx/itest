@@ -71,10 +71,13 @@ static int EC_KEY_key2bin(EC_KEY *eckey, unsigned char *outpub, int *size_pub, u
     {
         case NID_X9_62_prime256v1:
         case NID_brainpoolP256r1:
+        case NID_brainpoolP256t1:
+        case NID_sm2:
             *size_priv = 0x20;
             break;
         case NID_secp384r1:
         case NID_brainpoolP384r1:
+        case NID_brainpoolP384t1:
             *size_priv = 0x30;
             break;
         case NID_secp521r1:
@@ -118,12 +121,15 @@ int icrypto_generate_key_pair(int curve, unsigned char *outpub, int *size_pub, u
 
     if (EC_KEY_generate_key(eckey) == 0) {
         ITEST_LOG("Fail to generate the key...\n");
+        if (eckey != NULL)
+            EC_KEY_free(eckey);
         return ret;
     }
 
     ret = EC_KEY_key2bin(eckey, outpub, size_pub, outpriv, size_priv, curve);
     if (eckey != NULL)
         EC_KEY_free(eckey);
+
     return ret;
 }
 
