@@ -259,7 +259,6 @@ int isen_hsm_key_injection_custom_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *
     return FALSE_TEST;
 }
 
-#if 1
 int isen_hsm_key_injection_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t key_size)
 {
     uint8_t key_enc_key[32] = { 0x6a, 0xb5, 0x3e, 0x0e, 0x4d, 0xa4, 0x9f, 0x95, 0xd5, 0xb5, 0xee, 0x7f, 
@@ -277,19 +276,3 @@ int isen_hsm_key_injection_v2x_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key
     };
     return isen_hsm_key_injection_custom_otp_kek(sg0_key_mgmt_srv, key_id, key_type, key_in, key_enc_key, key_size, 1U, 0U, HSM_OP_KEY_GENERATION_FLAGS_CREATE| HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK);
 }
-#else
-
-int isen_hsm_key_injection_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t key_size)
-{
-    uint8_t key_enc_key[32] = { 0x80, 0x89, 0xca, 0x0d, 0xd5, 0xf6, 0x8b, 0xfa, 0x05, 0xd7, 0x8c, 0xc0, 0xf0, 0xd5, 0x82, 0x2e, 0xdd, 0x71, 0x06, 0xfe, 0x5a, 0x52, 0xfd, 0xbf, 0x3d, 0xae, 0x96, 0xb4, 0x78, 0x6a, 0x74, 0x09
-    };
-    return isen_hsm_key_injection_custom_otp_kek(sg0_key_mgmt_srv, key_id, key_type, key_in, key_enc_key, key_size, 1U, 0U, HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK);
-}
-
-int isen_hsm_key_injection_v2x_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t key_size)
-{
-    uint8_t key_enc_key[32] = { 0x14, 0xff, 0x1f, 0xff, 0xd7, 0xfe, 0x97, 0x7c, 0x68, 0xa2, 0x15, 0x98, 0x92, 0x76, 0x31, 0x0e, 0x21, 0xdc, 0xf9, 0x13, 0x78, 0x49, 0x0e, 0x46, 0xc1, 0xa4, 0x64, 0xbb, 0x66, 0xc9, 0xff, 0xa7
-    };
-    return isen_hsm_key_injection_custom_otp_kek(sg0_key_mgmt_srv, key_id, key_type, key_in, key_enc_key, key_size, 1U, 0U, HSM_OP_KEY_GENERATION_FLAGS_CREATE| HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK);
-}
-#endif
