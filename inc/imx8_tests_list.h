@@ -80,6 +80,7 @@ int v2x_perf_sig_ver_brainpool_t1p384_ops(void);
 int v2x_perf_sig_ver_brainpool_t1p384_lat(void);
 int v2x_perf_pub_key_decompression_nistp256(void);
 int v2x_perf_pub_key_reconstruction_nistp256(void);
+int v2x_perf_sm4_cipher_001(void);
 int v2x_key_store_benchmark_001(void);
 
 // seco hsm
@@ -222,6 +223,7 @@ testsuite imx8_ts[] = {
     {v2x_perf_sig_ver_nistp384_lat,          "v2x_perf_sig_ver_nistp384_lat",          DXL_A1 | DXL_B0 | FIPS},
     {v2x_perf_pub_key_decompression_nistp256, "v2x_perf_pub_key_decompression_nistp256", DXL_A1 | DXL_B0},
     {v2x_perf_pub_key_reconstruction_nistp256, "v2x_perf_pub_key_reconstruction_nistp256", DXL_A1 | DXL_B0},
+    {v2x_perf_sm4_cipher_001,                "v2x_perf_sm4_cipher_001",                DXL_A1 | DXL_B0},
 
 /*=========================================================================================================================
 ======================================================= DBG CMD ===========================================================
