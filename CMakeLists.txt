@@ -66,13 +66,18 @@ configure_file(${Itest_SOURCE_DIR}/inc/version.h.in ${Itest_SOURCE_DIR}/inc/vers
 # to value given with "project()" in the root CMakeLists.txt.
 include_directories(${Itest_SOURCE_DIR}/inc)
 include_directories(${Itest_SOURCE_DIR}/lib/openssl/include)
-include_directories(${SECO_LIB_PATH}/include)
-include_directories(${SECO_LIB_PATH}/include/hsm)
+include_directories(${ELE_LIB_PATH}/include)
+include_directories(${ELE_LIB_PATH}/include/hsm)
+include_directories(${ELE_LIB_PATH}/include/hsm/internal)
+include_directories(${ELE_LIB_PATH}/src/plat/ele/include)
+include_directories(${ELE_LIB_PATH}/src/common/sab_msg/include)
+include_directories(${ELE_LIB_PATH}/src/common/include)
 include_directories(${Itest_SOURCE_DIR}/lib/json-c)
 include_directories(${Itest_SOURCE_DIR}/lib/json-c/build)
 
 file(GLOB SOURCES src/*/*.c src/*.c)
-add_compile_options(-Wall -Wextra -pedantic -Werror -fopenmp)
+add_compile_options(-Wall -Wextra -pedantic -fopenmp)
+add_definitions(-DPSA_COMPLIANT)
 
 find_package(ZLIB)
 find_package(OpenMP)
@@ -83,12 +88,12 @@ add_executable(Itest ${SOURCES})
 #  -static
 target_link_libraries(
   Itest
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/she_lib.a
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/hsm_lib.a
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/seco_nvm_manager.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libcrypto.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libssl.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libjson-c.a
+  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so
+  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so.1
+  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so.1.0
   z
   gomp.a
   pthread

@@ -159,7 +159,7 @@ if [ $ARCH_BUILD -eq 1 ]; then
        cd $WORKDIR/build
     fi
 
-   cmake ../ -DSECO_LIB_PATH=$SECO_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH
+   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DSECO_LIB_PATH=$SECO_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH
    make clean
    make -j$NPROC
    cp Itest ../itest
