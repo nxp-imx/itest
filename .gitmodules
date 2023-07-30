@@ -8,3 +8,7 @@
 [submodule "lib/openssl"]
 	path = lib/openssl
 	url = git://git.openssl.org/openssl.git
+[submodule "lib/secure_enclave"]
+	path = lib/secure_enclave
+	url = ssh://git@bitbucket.sw.nxp.com/lfac/secure_enclave.git
+	branch = integration
