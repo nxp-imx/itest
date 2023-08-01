@@ -17,7 +17,8 @@ static int total_run = 0, fails = 0;
 
 static inline void print_version()
 {
-    ITEST_LOG("itest %d.%d commit: %s %s\nseco_lib  commit: %s %s\n", Itest_VERSION_MAJOR, Itest_VERSION_MINOR, GIT_SHA1, GIT_DATE, GIT_SHA1_SECO_LIB, GIT_DATE_SECO_LIB);
+	ITEST_LOG("itest %d.%d commit: %s %s\nsecure_enclave commit: %s %s\n",
+Itest_VERSION_MAJOR, Itest_VERSION_MINOR, GIT_SHA1, GIT_DATE, GIT_SHA1_ELE_LIB, GIT_DATE_ELE_LIB);
 }
 
 static inline void print_stats()
@@ -29,16 +30,15 @@ static inline void print_stats()
 }
 static void print_help(void) {
 
-    ITEST_LOG("\nitest Help Menu:\n\n\
-$ ./itest [OPTION] <argument>\n\n\
-OPTIONS:\n\
-  -h: Print this help\n\
-  -m <signed msg bin>: send a signed message to seco\n\
-  -v: Print test suite version\n\
-  -j <json file> : Run json test vector from wycheproof tv\n\
-  -l: List all tests\n\
-  -c: <dut config> DXL_A1 - QXP_C0 - QXP_B0\n\
-  -t <test_name> : Run test test_name\n");
+	ITEST_LOG("\nitest Help Menu:\n\n");
+	ITEST_LOG("$ ./itest [OPTION] <argument>\n\n");
+	ITEST_LOG("OPTIONS:\n");
+	ITEST_LOG("  -h : Print this help\n");
+	ITEST_LOG("  -v : Print test suite version\n");
+	ITEST_LOG("  -j < json file > : Run json test vector from wycheproof tv\n");
+	ITEST_LOG("  -l : List all tests\n");
+	ITEST_LOG("  -c : < dut config > MX8ULP_A2 - MX93_A1\n");
+	ITEST_LOG("  -t < test_name > : Run test test_name\n");
 }
 
 void print_test_suite(testsuite *ts){
@@ -64,34 +64,25 @@ static void catch_failure_continue(int signo) {
 }
 
 static void itest_init(void) {
-    itest_ctx.test_name = NULL;
-    itest_ctx.nb_assert_fails = 0;
-    itest_ctx.ts = imx8_ts;
-    itest_ctx.target = DXL_A1; // dxl_ts as default
+	itest_ctx.test_name = NULL;
+	itest_ctx.nb_assert_fails = 0;
+	itest_ctx.ts = imx8_ts;
+	itest_ctx.target = MX8ULP_A2; // MX8ULP as default
 }
 
 int init_conf(char *target) {
 
-    if (!strcmp(target, "DXL_A1")) {
-        itest_ctx.target = DXL_A1;
-    }
-    else if (!strcmp(target, "DXL_B0")) {
-        itest_ctx.target = DXL_B0;
-    }
-    else if (!strcmp(target, "QXP_B0")) {
-        itest_ctx.target = QXP_B0;
-    }
-    else if (!strcmp(target, "QXP_C0")) {
-        itest_ctx.target = QXP_C0;
-    }
-    else if (!strcmp(target, "DBG")) {
-        itest_ctx.target = DBG;
-    }
-    else {
-        ITEST_LOG(" unknow target (DXL_A1 / DXL_B0 / QXP_B0 / QXP_C0 / DBG) \n");
-        return 0;
-    }
-    return 1;
+	if (!strcmp(target, "MX8ULP_A2")) {
+		itest_ctx.target = MX8ULP_A2;
+	} else if (!strcmp(target, "MX93_A1")) {
+		itest_ctx.target = MX93_A1;
+	} else if (!strcmp(target, "DBG")) {
+		itest_ctx.target = DBG;
+	} else {
+		ITEST_LOG("unknown target (MX8ULP_A2 / MX93_A1 / DBG)\n");
+		return 0;
+	}
+	return 1;
 }
 
 int main(int argc, char *argv[]){
@@ -100,7 +91,6 @@ int main(int argc, char *argv[]){
     int status = 0;
     int c;
     int print_ts = 0;
-    char *sign_msg_path = NULL;
 
     itest_init();
     opterr = 0;
@@ -119,9 +109,6 @@ int main(int argc, char *argv[]){
             return 0;
         case 'l':
             print_ts = 1;
-            break;
-        case 'm':
-            sign_msg_path = optarg;
             break;
         case 'c':
             if (!init_conf(optarg))
@@ -148,11 +135,6 @@ int main(int argc, char *argv[]){
 
     if (print_ts == 1) {
         print_test_suite(itest_ctx.ts);
-        return 0;
-    }
-
-    if (sign_msg_path != NULL) {
-        send_signed_msg(sign_msg_path);
         return 0;
     }
 

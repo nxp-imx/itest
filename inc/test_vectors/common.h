@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Max public key size is 96 byte for P521 */
-#define MAX_KEY_SIZE     (0x90)
+/* Max public key size is 132 byte for P521 */
+#define MAX_KEY_SIZE     (0x84)
 /*
  * Max size for msg is 332 bytes.
  *  for SM2 test:

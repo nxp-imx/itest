@@ -8,8 +8,8 @@ if (DEFINED SYSTEM_PROCESSOR)
   set(CMAKE_SYSTEM_PROCESSOR ${SYSTEM_PROCESSOR})
 endif()
 
-if (NOT DEFINED SECO_LIB_PATH)
-  set(SECO_LIB_PATH ../seco_libs)
+if (NOT DEFINED ELE_LIB_PATH)
+  set(ELE_LIB_PATH ../secure_enclave)
 endif()
   
 if (DEFINED TOOLCHAIN_PATH)
@@ -42,8 +42,8 @@ execute_process(COMMAND
 
 execute_process(COMMAND
   git describe --match=NeVeRmAtCh --always --abbrev=8 --dirty
-  WORKING_DIRECTORY "${SECO_LIB_PATH}"
-  OUTPUT_VARIABLE GIT_SHA1_SECO_LIB
+  WORKING_DIRECTORY "${ELE_LIB_PATH}"
+  OUTPUT_VARIABLE GIT_SHA1_ELE_LIB
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # the date of the commit
@@ -56,8 +56,8 @@ execute_process(COMMAND
 # the date of the commit
 execute_process(COMMAND
   git log -1 --format=%ad --date=local
-  WORKING_DIRECTORY "${SECO_LIB_PATH}"
-  OUTPUT_VARIABLE GIT_DATE_SECO_LIB
+  WORKING_DIRECTORY "${ELE_LIB_PATH}"
+  OUTPUT_VARIABLE GIT_DATE_ELE_LIB
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 configure_file(${Itest_SOURCE_DIR}/inc/version.h.in ${Itest_SOURCE_DIR}/inc/version.h )

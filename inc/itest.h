@@ -7,15 +7,11 @@
 #include <time.h>
 #include <signal.h>
 #include "hsm_api.h"
-#include "she_api.h"
-#include "../src/seco_os_abs.h"
-#include "seco_nvm.h"
+#include "she/she_api.h"
 
 /*===========Test API============*/
-#define QXP_C0 0x1
-#define QXP_B0 0x2
-#define DXL_A1 0x4
-#define DXL_B0 0x8
+#define MX8ULP_A2 0x1
+#define MX93_A1 0x2
 #define DBG    0x10
 #define FIPS   0x80
 
@@ -145,16 +141,6 @@ typedef struct{
     int target;
 } itest_ctx_t;
 
-/*==============NVM==============*/
-hsm_err_t start_nvm_seco(void);
-hsm_err_t start_nvm_v2x(void);
-hsm_err_t start_nvm_she_seco(void);
-hsm_err_t stop_nvm_v2x(void);
-hsm_err_t stop_nvm_seco(void);
-hsm_err_t stop_nvm_she_seco(void);
-uint32_t clear_v2x_nvm(void);
-uint32_t clear_seco_nvm(void);
-uint32_t clear_she_seco_nvm(void);
 /*===========TEST CTX============*/
 size_t save_test_ctx(void *ctx, size_t count, char *file);
 size_t load_test_ctx(void *ctx, size_t count, char *file);
@@ -166,23 +152,5 @@ void stop_timer(timer_perf_t *timer);
 void finalize_timer(timer_perf_t *timer, uint32_t nb_iter);
 uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
 void print_perf(timer_perf_t *timer);
-/*==========LOW LEVEL API========*/
-uint32_t send_signed_msg(char *path);
-uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi);
-uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id);
-uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi);
-/*==========HIGH LEVEL SENTINEL API*/
-int get_key_param(hsm_key_type_t key_type,hsm_signature_scheme_id_t *scheme_id, uint16_t *size_pubk, uint16_t *size_privk);
-int isen_kek_generation(hsm_hdl_t sg0_key_mgmt_srv, uint8_t *kek_data, uint32_t key_size, uint32_t *kek_handle);
-int isen_hsm_key_injection_custom(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type,
-                           uint8_t *key_in, uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size,
-                           uint16_t key_group, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
-int isen_hsm_key_injection(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in,
-                        uint32_t kek_handle, uint8_t *kek_data, uint32_t key_size);
-int isen_hsm_key_injection_custom_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type,
-                           uint8_t *key_in, uint8_t *kek_data, uint32_t key_size,
-                           uint16_t key_group, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
-int isen_hsm_key_injection_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t key_size);
-int isen_hsm_key_injection_v2x_otp_kek(hsm_hdl_t sg0_key_mgmt_srv, uint32_t *key_id, hsm_key_type_t key_type, uint8_t *key_in, uint32_t key_size);
 
 #endif

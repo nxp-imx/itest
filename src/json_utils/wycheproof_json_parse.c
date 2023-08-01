@@ -21,29 +21,26 @@ typedef struct {
 
 static wycheproof_sign_json_t sign_verify_ctx;
 
-#define NB_ALGO_WY 5
+#define NB_ALGO_WY 4
 
 static hsm_signature_scheme_id_t curve2seco_libs(const char *in_c, uint8_t *pub_key) {
-	const char curve_list[5][255] = {
+	const char curve_list[4][255] = {
+		"secp224r1",
 		"secp256r1",
 		"secp384r1",
 		"secp521r1",
-		"brainpoolP256r1",
-		"brainpoolP384r1"
 	};
-	const hsm_signature_scheme_id_t seco_libs_list[5] = {
-		HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256,
-		HSM_SIGNATURE_SCHEME_ECDSA_NIST_P384_SHA_384,
-		HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512,
-		HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256,
-		HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384,
+	const hsm_signature_scheme_id_t seco_libs_list[4] = {
+		HSM_SIGNATURE_SCHEME_ECDSA_SHA224,
+		HSM_SIGNATURE_SCHEME_ECDSA_SHA256,
+		HSM_SIGNATURE_SCHEME_ECDSA_SHA384,
+		HSM_SIGNATURE_SCHEME_ECDSA_SHA512,
 	};
-	const uint8_t size_pubkey[5] = {
+	const uint8_t size_pubkey[4] = {
+		0x38,
 		0x40,
 		0x60,
 		0x84,
-		0x40,
-		0x60,		
 	};
 	int i;
 	*pub_key = 0;
@@ -55,7 +52,7 @@ static hsm_signature_scheme_id_t curve2seco_libs(const char *in_c, uint8_t *pub_
 			return seco_libs_list[i];
 		}
 	}
-	return HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+	return HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
 }
 
 #if 0
@@ -147,23 +144,24 @@ int sign_hexstr2char(const char* hexstr, char *out, int buff_out_len) {
 
 	switch (sign_verify_ctx.curve)
     {
-        case HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256:
-        case HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256:
-            total_size = 0x40;
-            break;
-        case HSM_SIGNATURE_SCHEME_ECDSA_NIST_P384_SHA_384:
-        case HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384:
-            total_size = 0x60;
-            break;
-        case HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512:
-            total_size = 0x84;
-            break;
-        default:
-            total_size = 0;
-            break;
+	case HSM_SIGNATURE_SCHEME_ECDSA_SHA224:
+		total_size = 0x38;
+		break;
+	case HSM_SIGNATURE_SCHEME_ECDSA_SHA256:
+		total_size = 0x40;
+		break;
+	case HSM_SIGNATURE_SCHEME_ECDSA_SHA384:
+		total_size = 0x60;
+		break;
+	case HSM_SIGNATURE_SCHEME_ECDSA_SHA512:
+		total_size = 0x84;
+		break;
+	default:
+		total_size = 0;
+		break;
     }
 
-	if (sign_verify_ctx.curve == HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512) {
+	if (sign_verify_ctx.curve == HSM_SIGNATURE_SCHEME_ECDSA_SHA512) {
 		r_size = tmp_sign[4];
 		r_ptr = tmp_sign + 5;
 		s_ptr = r_ptr + r_size;
@@ -274,7 +272,6 @@ static int handle_testcases(struct json_object *testcases) {
     ASSERT_EQUAL(hsm_open_session(&args, &sv0_sess), HSM_NO_ERROR);
 
     /* Open signature verification service */
-    sig_ver_srv_args.flags = 0;
     ASSERT_EQUAL(hsm_open_signature_verification_service(sv0_sess,
         &sig_ver_srv_args, &sv0_sig_ver_serv), HSM_NO_ERROR);
 
@@ -400,7 +397,7 @@ static int parse_tv(struct json_object *new_obj) {
 	sign_verify_ctx.expected_result = INVALID;
 	sign_verify_ctx.nb_fails = 0;
 	sign_verify_ctx.nb_tests = 0;
-	sign_verify_ctx.curve = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+	sign_verify_ctx.curve = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
 
 	if (json_object_object_get_ex(new_obj, "algorithm", &testgroups))
     {
