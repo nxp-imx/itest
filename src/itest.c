@@ -9,16 +9,7 @@
 #include "itest.h"
 #include <stdarg.h>
 
-static uint32_t nvm_status_v2x = NVM_STATUS_STOPPED;
-static uint32_t nvm_status_seco = NVM_STATUS_STOPPED;
-static uint32_t nvm_status_seco_she = NVM_STATUS_STOPPED;
-static pthread_t tid_v2x;
-static pthread_t tid_seco;
-static pthread_t tid_seco_she;
 static char ITEST_CTX_PATH[] = "/etc/itest/";
-
-#define TIMEOUT_START_NVM 10000
-#define T_NVM_WAIT 1000
 
 /* Log function */
 void outputLog(const char *const format, ...)
@@ -29,66 +20,6 @@ void outputLog(const char *const format, ...)
 	vprintf(format, ap);
 	va_end(ap);
 	fflush(stdout);
-}
-
-static void *hsm_storage_thread(void *arg)
-{
-    if(*(uint8_t *)arg == (NVM_FLAGS_V2X | NVM_FLAGS_HSM))
-	seco_nvm_manager(*(uint8_t *)arg, &nvm_status_v2x);
-    else
-	seco_nvm_manager(*(uint8_t *)arg, &nvm_status_seco);
-    return (void *) NULL;
-}
-
-static hsm_err_t start_nvm(uint8_t arg, uint32_t *nvm_status, pthread_t *tid){
-
-    int i = 0;
-    *nvm_status = NVM_STATUS_UNDEF;
-    (void)pthread_create(tid, NULL, hsm_storage_thread, &arg);
-    while (*nvm_status <= NVM_STATUS_STARTING) {
-        usleep(T_NVM_WAIT);
-        if ((i += T_NVM_WAIT) > TIMEOUT_START_NVM){
-            *nvm_status = NVM_STATUS_UNDEF;
-            break;
-        }
-    }
-    return *nvm_status;
-}
-
-hsm_err_t start_nvm_v2x(void){
-    return start_nvm(NVM_FLAGS_V2X | NVM_FLAGS_HSM, &nvm_status_v2x, &tid_v2x);
-}
-
-hsm_err_t start_nvm_seco(void){
-    return start_nvm(NVM_FLAGS_HSM, &nvm_status_seco, &tid_seco);
-}
-
-hsm_err_t start_nvm_she_seco(void){
-    return start_nvm(NVM_FLAGS_SHE, &nvm_status_seco_she, &tid_seco_she);
-}
-
-hsm_err_t stop_nvm_v2x(void){
-    if (nvm_status_v2x != NVM_STATUS_STOPPED) {
-        pthread_cancel(tid_v2x);
-    }
-    seco_nvm_close_session();
-    return nvm_status_v2x;
-}
-
-hsm_err_t stop_nvm_seco(void){
-    if (nvm_status_seco != NVM_STATUS_STOPPED) {
-        pthread_cancel(tid_seco);
-    }
-    seco_nvm_close_session();
-    return nvm_status_seco;
-}
-
-hsm_err_t stop_nvm_she_seco(void){
-    if (nvm_status_seco_she != NVM_STATUS_STOPPED) {
-        pthread_cancel(tid_seco_she);
-    }
-    seco_nvm_close_session();
-    return nvm_status_seco_she;
 }
 
 size_t save_test_ctx(void *ctx, size_t count, char *file)
@@ -161,27 +92,6 @@ size_t randomize(void *out, size_t count){
     return rout;
 }
 
-uint32_t clear_v2x_nvm(void) {
-
-    system("rm -rf /etc/v2x_hsm");
-    system("sync");
-    return 0;
-}
-
-uint32_t clear_seco_nvm(void) {
-
-    system("rm -rf /etc/seco_hsm");
-    system("sync");
-    return 0;
-}
-
-uint32_t clear_she_seco_nvm(void) {
-
-    system("rm -rf /etc/seco_she_nvm");
-    system("sync");
-    return 0;
-}
-
 void init_timer(timer_perf_t *timer) {
     timer->min_time_us = UINT64_MAX;
     timer->max_time_us = 0U;
@@ -227,153 +137,4 @@ void print_perf(timer_perf_t *timer) {
     ITEST_LOG("Average time single op = %u us, Min latency = %lu us, Total time = %lu us, Num of op = %d\n",
         timer->t_per_op, timer->min_time_us, timer->time_us, timer->nb_iter);
     ITEST_LOG("============\n");
-}
-
-static uint32_t load_signed_msg(char *path, uint8_t *msg, uint32_t max_size){
-
-    FILE *f = NULL;
-    long fsize = 0U;
-
-    do {
-
-        f = fopen(path, "rb");
-        if (f == NULL) {
-            ITEST_LOG("Fail to load file %s.\n", path);
-            break;
-        }
-        fseek(f, 0, SEEK_END);
-        fsize = ftell(f);
-        if (fsize+1 > max_size) {
-            ITEST_LOG("Fail to load file, file too big\n");
-            break;
-        }
-        fseek(f, 0, SEEK_SET);
-        fread(msg, fsize, 1, f);
-
-    } while (0U);
-
-    if (f != NULL) {
-        fclose(f);
-    }
-    return (uint32_t) fsize;
-}
-
-/*==========LOW LEVEL TESTING LINUX ABSTRACTION==========*/
-
-#define NB_MU 8
-
-struct ll_mu_t {
-    uint32_t fd;
-    struct seco_mu_params mu_info;
-    struct seco_os_abs_hdl *hdl;
-};
-
-static uint32_t mu_id2lib_muid(uint32_t mu_id) {
-    uint32_t mu_lib_id = 0;
-    switch (mu_id) {
-    case MU_CHANNEL_SECO_SHE:
-        mu_lib_id = 0;
-        break;
-    case MU_CHANNEL_SECO_HSM:
-        mu_lib_id = 1;
-        break;
-    case MU_CHANNEL_SECO_HSM_2ND:
-        mu_lib_id = 2;
-        break;
-    case MU_CHANNEL_V2X_SV0:
-        mu_lib_id = 3;
-        break;
-    case MU_CHANNEL_V2X_SV1:
-        mu_lib_id = 4;
-        break;
-    case MU_CHANNEL_V2X_SHE:
-        mu_lib_id = 5;
-        break;
-    case MU_CHANNEL_V2X_SG0:
-        mu_lib_id = 6;
-        break;
-    case MU_CHANNEL_V2X_SG1:
-        mu_lib_id = 7;
-        break;
-    default:
-        mu_lib_id = 0;
-        break;
-    }
-    return mu_lib_id;
-}
-static struct ll_mu_t mu_list[NB_MU];
-uint32_t send_msg(uint32_t *msg, uint32_t size, uint32_t mu_id, uint8_t nmi) {
-    uint32_t count = 0;
-    uint32_t mu_lib_id = mu_id2lib_muid(mu_id);
-    uint32_t i;
-
-    nmi = 0; // no nmi control on linux userspace
-
-    if (mu_list[mu_lib_id].hdl == NULL) {
-        mu_list[mu_lib_id].hdl = seco_os_abs_open_mu_channel(mu_id, &mu_list[mu_lib_id].mu_info);
-        if (mu_list[mu_lib_id].hdl == NULL)
-            return count;
-    }
-
-    count = seco_os_abs_send_mu_message(mu_list[mu_lib_id].hdl, msg, size);
-    ITEST_LOG("send msg (mu %d, nmi %d, count %d) -> ", mu_lib_id, nmi, count);
-    for (i = 0; i < size/sizeof(uint32_t); i++) {
-        ITEST_LOG("0x%x ", msg[i]);
-    }
-    ITEST_LOG("\n");
-    return count;
-}
-uint32_t rcv_msg(uint32_t *msg, uint32_t size, uint32_t mu_id) {
-    uint32_t count = 0;
-    uint32_t mu_lib_id = mu_id2lib_muid(mu_id);
-    uint32_t i;
-
-    if (mu_list[mu_lib_id].hdl == NULL) {
-        mu_list[mu_lib_id].hdl = seco_os_abs_open_mu_channel(mu_id, &mu_list[mu_lib_id].mu_info);
-        if (mu_list[mu_lib_id].hdl == NULL)
-            return count;
-    }
-
-    count = seco_os_abs_read_mu_message(mu_list[mu_lib_id].hdl, msg, size);
-    ITEST_LOG("rcv msg (mu %d, count %d)          -> ", mu_lib_id, count);
-    for (i = 0; i < size/sizeof(uint32_t); i++) {
-        ITEST_LOG("0x%x ", msg[i]);
-    }
-    ITEST_LOG("\n");
-    return count;
-}
-uint32_t send_rcv_msg(uint32_t *msg_in, uint32_t *msg_out, uint32_t size_in, uint32_t size_out, uint32_t mu_id, uint8_t nmi) {
-    uint32_t count = 0;
-
-    count = send_msg(msg_in, size_in, mu_id, nmi);
-    if (count != size_in)
-        return 0;
-    count = rcv_msg(msg_out, size_out, mu_id);
-    if (count != size_out)
-        return 0;
-    return count;
-}
-
-uint32_t send_signed_msg(char *path) {
-    uint32_t count = 0;
-    uint32_t mu_lib_id = mu_id2lib_muid(1);
-    uint32_t ret;
-    uint8_t msg[1024*4];
-    uint32_t size = load_signed_msg(path, msg, 1024*4);
-
-    if (size == 0U) {
-        return count;
-    }
-
-    if (mu_list[mu_lib_id].hdl == NULL) {
-        mu_list[mu_lib_id].hdl = seco_os_abs_open_mu_channel(1, &mu_list[mu_lib_id].mu_info);
-        if (mu_list[mu_lib_id].hdl == NULL) {
-            ITEST_LOG("Fail to open Mu\n");
-            return count;
-        }
-    }
-    ret = seco_os_abs_send_signed_message(mu_list[mu_lib_id].hdl, msg, size);
-    ITEST_LOG("send msg signed -> ret code = 0x%08x\n", ret);
-    seco_os_abs_close_session(mu_list[mu_lib_id].hdl);
-    return count;
 }

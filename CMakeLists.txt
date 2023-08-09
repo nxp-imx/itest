@@ -8,8 +8,8 @@ if (DEFINED SYSTEM_PROCESSOR)
   set(CMAKE_SYSTEM_PROCESSOR ${SYSTEM_PROCESSOR})
 endif()
 
-if (NOT DEFINED SECO_LIB_PATH)
-  set(SECO_LIB_PATH ../seco_libs)
+if (NOT DEFINED ELE_LIB_PATH)
+  set(ELE_LIB_PATH ../secure_enclave)
 endif()
   
 if (DEFINED TOOLCHAIN_PATH)
@@ -42,8 +42,8 @@ execute_process(COMMAND
 
 execute_process(COMMAND
   git describe --match=NeVeRmAtCh --always --abbrev=8 --dirty
-  WORKING_DIRECTORY "${SECO_LIB_PATH}"
-  OUTPUT_VARIABLE GIT_SHA1_SECO_LIB
+  WORKING_DIRECTORY "${ELE_LIB_PATH}"
+  OUTPUT_VARIABLE GIT_SHA1_ELE_LIB
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # the date of the commit
@@ -56,8 +56,8 @@ execute_process(COMMAND
 # the date of the commit
 execute_process(COMMAND
   git log -1 --format=%ad --date=local
-  WORKING_DIRECTORY "${SECO_LIB_PATH}"
-  OUTPUT_VARIABLE GIT_DATE_SECO_LIB
+  WORKING_DIRECTORY "${ELE_LIB_PATH}"
+  OUTPUT_VARIABLE GIT_DATE_ELE_LIB
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 configure_file(${Itest_SOURCE_DIR}/inc/version.h.in ${Itest_SOURCE_DIR}/inc/version.h )
@@ -66,13 +66,18 @@ configure_file(${Itest_SOURCE_DIR}/inc/version.h.in ${Itest_SOURCE_DIR}/inc/vers
 # to value given with "project()" in the root CMakeLists.txt.
 include_directories(${Itest_SOURCE_DIR}/inc)
 include_directories(${Itest_SOURCE_DIR}/lib/openssl/include)
-include_directories(${SECO_LIB_PATH}/include)
-include_directories(${SECO_LIB_PATH}/include/hsm)
+include_directories(${ELE_LIB_PATH}/include)
+include_directories(${ELE_LIB_PATH}/include/hsm)
+include_directories(${ELE_LIB_PATH}/include/hsm/internal)
+include_directories(${ELE_LIB_PATH}/src/plat/ele/include)
+include_directories(${ELE_LIB_PATH}/src/common/sab_msg/include)
+include_directories(${ELE_LIB_PATH}/src/common/include)
 include_directories(${Itest_SOURCE_DIR}/lib/json-c)
 include_directories(${Itest_SOURCE_DIR}/lib/json-c/build)
 
 file(GLOB SOURCES src/*/*.c src/*.c)
-add_compile_options(-Wall -Wextra -pedantic -Werror -fopenmp)
+add_compile_options(-Wall -Wextra -pedantic -fopenmp)
+add_definitions(-DPSA_COMPLIANT)
 
 find_package(ZLIB)
 find_package(OpenMP)
@@ -83,12 +88,12 @@ add_executable(Itest ${SOURCES})
 #  -static
 target_link_libraries(
   Itest
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/she_lib.a
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/hsm_lib.a
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/seco_nvm_manager.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libcrypto.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libssl.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libjson-c.a
+  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so
+  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so.1
+  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so.1.0
   z
   gomp.a
   pthread

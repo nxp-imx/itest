@@ -9,7 +9,6 @@ SETUP_ENV=0
 SETUP_OPTION="submodule"
 TOOLCHAIN_PATH=/opt
 RESET_ENV=0
-SECO_LIB_PATH=$WORKDIR/lib/seco_lib
 ELE_LIB_PATH=$WORKDIR/lib/secure_enclave
 ARCH=arm64
 PLATFORM=linux-aarch64
@@ -37,7 +36,7 @@ do
         shift
 	    ;;
 	-S)
-	    SECO_LIB_PATH=$2
+	    ELE_LIB_PATH=$2
 	    shift
 	    shift
 	    ;;
@@ -71,9 +70,9 @@ if [ $HELP -eq 1 ]; then
 build script:
 -h: print this help
 -H <ARCH>: Set target Arch (default=arm64 or x86_64)
--S <path>: path to seco_libs
--f: force rebuild static lib seco_lib, json-c, openssl
--s <OPTION>: option(all/submodule) init git submodule (lib seco_lib, json-c, openssl)
+-S <path>: path to ele_libs
+-f: force rebuild static lib ele_lib, json-c, openssl
+-s <OPTION>: option(all/submodule) init git submodule (lib ele_lib, json-c, openssl)
 -r: reset env (clean repo and submodule)
 -T <Toolchain path>: toolchain path (where will be installed the toolchain)
    "
@@ -141,11 +140,6 @@ if [ $ARCH_BUILD -eq 1 ]; then
        cmake ../
        make -j$NPROC json-c-static
        cp libjson-c.a ../../$ARCH/libjson-c.a
-       # build seco lib
-       cd $WORKDIR
-       cd $SECO_LIB_PATH
-       make clean && make all -j$NPROC
-       cp *.a $WORKDIR/lib/$ARCH
        # build openssl
        cd $WORKDIR/lib/openssl
        ./Configure $PLATFORM
@@ -159,7 +153,7 @@ if [ $ARCH_BUILD -eq 1 ]; then
        cd $WORKDIR/build
     fi
 
-   cmake ../ -DSECO_LIB_PATH=$SECO_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH
+   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH
    make clean
    make -j$NPROC
    cp Itest ../itest
