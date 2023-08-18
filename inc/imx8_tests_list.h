@@ -9,6 +9,8 @@ int ele_rng_perf(void);
 int ele_cbc(void);
 int ele_ecb(void);
 int ele_sign_verify(void);
+int ele_cmac(void);
+int ele_hmac(void);
 
 testsuite imx8_ts[] = {
 /*==============================================================================================*/
@@ -19,6 +21,8 @@ testsuite imx8_ts[] = {
 	{ele_cbc,		"ele_cbc",		MX8ULP_A2 | MX93_A1},
 	{ele_ecb,		"ele_ecb",		MX8ULP_A2 | MX93_A1},
 	{ele_sign_verify,	"ele_sign_verify",	MX8ULP_A2 | MX93_A1},
+	{ele_cmac,		"ele_cmac",		MX8ULP_A2 | MX93_A1},
+	{ele_hmac,		"ele_hmac",		MX8ULP_A2 | MX93_A1},
 
 	{NULL, NULL, MX8ULP_A2 | MX93_A1},
 };
