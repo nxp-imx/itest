@@ -49,7 +49,6 @@ int ele_cbc(void)
 	open_svc_key_management_args_t key_mgmt_args;
 	open_svc_cipher_args_t open_cipher_args;
 	op_generate_key_args_t key_gen_args = {0};
-	op_cipher_one_go_args_t cipher_args;
 
 	hsm_err_t err;
 	hsm_hdl_t hsm_session_hdl;
@@ -144,7 +143,9 @@ int ele_cbc(void)
 			    block_size[i], iv, 16, HSM_CIPHER_ONE_GO_ALGO_CBC,
 			    HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
+	}
 
+	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-192-CBC encryption on %d byte blocks: ",
 			  block_size[i]);
 		cipher_test(cipher_hdl, key_id_aes_192, msg, buff_encr,
@@ -157,7 +158,9 @@ int ele_cbc(void)
 			    block_size[i], iv, 16, HSM_CIPHER_ONE_GO_ALGO_CBC,
 			    HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
+	}
 
+	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-256-CBC encryption on %d byte blocks: ",
 			  block_size[i]);
 		cipher_test(cipher_hdl, key_id_aes_256, msg, buff_encr,
