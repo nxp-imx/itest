@@ -13,6 +13,7 @@ int ele_cmac(void);
 int ele_hmac(void);
 int ecdsa_brainpool_sign_verify(void);
 int ele_gcm(void);
+int ele_ccm(void);
 
 testsuite imx8_ts[] = {
 /*==============================================================================================*/
@@ -27,6 +28,7 @@ testsuite imx8_ts[] = {
 {ele_hmac,	 "ele_hmac", MX8ULP_A2 | MX93_A1},
 {ecdsa_brainpool_sign_verify, "ecdsa_brainpool_sign_verify", MX8ULP_A2 | MX93_A1},
 {ele_gcm, "ele_gcm", MX8ULP_A2 | MX93_A1},
+{ele_ccm, "ele_ccm", MX8ULP_A2 | MX93_A1},
 
 {NULL, NULL, MX8ULP_A2 | MX93_A1},
 };
