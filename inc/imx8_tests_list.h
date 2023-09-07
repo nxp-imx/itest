@@ -18,6 +18,7 @@ int ele_randomness_gcm(void);
 int ele_cfb(void);
 int ele_ctr(void);
 int ele_ofb(void);
+int ele_hash(void);
 
 testsuite imx8_ts[] = {
 /*==============================================================================================*/
@@ -37,6 +38,7 @@ testsuite imx8_ts[] = {
 {ele_cfb, "ele_cfb", MX8ULP_A2 | MX93_A1},
 {ele_ctr, "ele_ctr", MX8ULP_A2 | MX93_A1},
 {ele_ofb, "ele_ofb", MX8ULP_A2 | MX93_A1},
+{ele_hash, "ele_hash", MX8ULP_A2 | MX93_A1},
 
 {NULL, NULL, MX8ULP_A2 | MX93_A1},
 };
