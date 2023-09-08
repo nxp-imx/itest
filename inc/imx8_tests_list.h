@@ -14,6 +14,11 @@ int ele_hmac(void);
 int ecdsa_brainpool_sign_verify(void);
 int ele_gcm(void);
 int ele_ccm(void);
+int ele_randomness_gcm(void);
+int ele_cfb(void);
+int ele_ctr(void);
+int ele_ofb(void);
+int ele_hash(void);
 
 testsuite imx8_ts[] = {
 /*==============================================================================================*/
@@ -29,6 +34,11 @@ testsuite imx8_ts[] = {
 {ecdsa_brainpool_sign_verify, "ecdsa_brainpool_sign_verify", MX8ULP_A2 | MX93_A1},
 {ele_gcm, "ele_gcm", MX8ULP_A2 | MX93_A1},
 {ele_ccm, "ele_ccm", MX8ULP_A2 | MX93_A1},
+{ele_randomness_gcm, "ele_randomness_gcm", MX8ULP_A2 | MX93_A1},
+{ele_cfb, "ele_cfb", MX8ULP_A2 | MX93_A1},
+{ele_ctr, "ele_ctr", MX8ULP_A2 | MX93_A1},
+{ele_ofb, "ele_ofb", MX8ULP_A2 | MX93_A1},
+{ele_hash, "ele_hash", MX8ULP_A2 | MX93_A1},
 
 {NULL, NULL, MX8ULP_A2 | MX93_A1},
 };
