@@ -104,3 +104,5 @@ target_link_libraries(
 target_include_directories(Itest PUBLIC
                            "${PROJECT_BINARY_DIR}"
                            )
+
+install(TARGETS Itest DESTINATION ${CMAKE_INSTALL_BINDIR})
