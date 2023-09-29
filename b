@@ -87,7 +87,7 @@ fi
 
 if [ $SETUP_ENV -eq 1 ]; then
    if [ $SETUP_OPTION == "submodule" ]; then
-      git submodule update --init --recursive
+      git submodule update --init --remote --recursive
       exit 0
    elif [ $SETUP_OPTION == "toolchain" ]; then
       wget --no-check-certificate https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
@@ -119,7 +119,7 @@ if [ $RESET_ENV -eq 1 ]; then
    git submodule foreach --recursive git clean -xfd
    git reset --hard
    git submodule foreach --recursive git reset --hard
-   git submodule update --init --recursive
+   git submodule update --init --remote --recursive
    exit 0
 fi
 

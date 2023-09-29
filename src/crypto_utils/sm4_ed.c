@@ -44,7 +44,7 @@ int sm4_ecb_e_chunck(sm4_data *sm4d){
     out = sm4d->block_d;
     for(i = 0; i < sm4d->nb_block; i++){
 	off = SM4_BLOCK_SIZE * i;
-	SM4_encrypt(in + off, out + off, &sm4d->key);
+	ossl_sm4_encrypt(in + off, out + off, &sm4d->key);
     }
     return i;
 }
@@ -57,7 +57,7 @@ int sm4_ecb_d_chunck(sm4_data *sm4d){
     in = sm4d->block_e;
     for(i = 0; i < sm4d->nb_block; i++){
 	off = SM4_BLOCK_SIZE * i;
-        SM4_decrypt(in + off, out + off, &sm4d->key);
+	ossl_sm4_decrypt(in + off, out + off, &sm4d->key);
     }
     return i;
 }
@@ -75,7 +75,7 @@ int sm4_cbc_e_chunck(sm4_data *sm4d){
     for(i = 0; i < sm4d->nb_block; i++){
 	off = SM4_BLOCK_SIZE * i;
 	xor_iv(sm4d->iv, in+off, sizeof(uint8_t) * SM4_BLOCK_SIZE);
-	SM4_encrypt(in + off, out + off, &sm4d->key);
+	ossl_sm4_encrypt(in + off, out + off, &sm4d->key);
 	memcpy(sm4d->iv, out+off, sizeof(uint8_t) * SM4_BLOCK_SIZE);
     }
     return i;
@@ -89,7 +89,7 @@ int sm4_cbc_d_chunck(sm4_data *sm4d){
     out = sm4d->block_d;
     for(i = 0; i < sm4d->nb_block; i++){
 	off = SM4_BLOCK_SIZE * i;
-	SM4_decrypt(in + off, out + off, &sm4d->key);
+	ossl_sm4_decrypt(in + off, out + off, &sm4d->key);
 	xor_iv(sm4d->iv, out+off, sizeof(uint8_t) * SM4_BLOCK_SIZE);
 	memcpy(sm4d->iv, in+off, sizeof(uint8_t) * SM4_BLOCK_SIZE);
     }
