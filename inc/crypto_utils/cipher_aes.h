@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright 2023 NXP
+ */
+
 #ifndef CIPHER_AES_H
 #define CIPHER_AES_H
 

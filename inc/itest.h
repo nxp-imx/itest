@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright 2023 NXP
+ */
+
 #ifndef TEST_API_H
 #define TEST_API_H
 

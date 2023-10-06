@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright 2023 NXP
+ */
+
 #ifndef ECC_SIGN_H
 #define ECC_SIGN_H
 

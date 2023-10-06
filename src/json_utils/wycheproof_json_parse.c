@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2023 NXP
+ */
+
 #include <openssl/obj_mac.h>
 #include "test_vectors/common.h"
 #include "ijson_utils.h"

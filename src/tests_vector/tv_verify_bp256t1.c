@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2023 NXP
+ */
+
 #include "test_vectors/common.h"
 
 test_data_verify_t test_data_bp256t1[] = {

@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright 2023 NXP
+ */
+
 #ifndef IMX8_TESTS_LIST_H
 #define IMX8_TESTS_LIST_H
 

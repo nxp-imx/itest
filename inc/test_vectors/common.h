@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright 2023 NXP
+ */
 
 #ifndef __COMMON_H__
 #define __COMMON_H__

@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright 2023 NXP
+ */
+
 #ifndef __IJSON_UTILS_H__
 #define __IJSON_UTILS_H__
 
