@@ -15,6 +15,7 @@ SETUP_OPTION="submodule"
 TOOLCHAIN_PATH=/opt
 RESET_ENV=0
 ELE_LIB_PATH=$WORKDIR/lib/secure_enclave
+OPENSSL_PATH=$WORKDIR/lib/openssl
 ARCH=arm64
 PLATFORM=linux-aarch64
 
@@ -150,7 +151,7 @@ if [ $ARCH_BUILD -eq 1 ]; then
        cd $WORKDIR/build
     fi
 
-   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH
+   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DOPENSSL_PATH=$OPENSSL_PATH -DSYSTEM_PROCESSOR=$ARCH
    make clean
    make -j$NPROC
    cp Itest ../itest

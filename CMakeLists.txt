@@ -16,7 +16,15 @@ endif()
 if (NOT DEFINED ELE_LIB_PATH)
   set(ELE_LIB_PATH ../secure_enclave)
 endif()
-  
+
+if (NOT DEFINED OPENSSL_PATH)
+  set(OPENSSL_PATH ../openssl)
+endif()
+
+if (NOT DEFINED LIB_PATH)
+  set(LIB_PATH ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR})
+endif()
+
 if (DEFINED TOOLCHAIN_PATH)
   # Specify the cross compiler
   set(CMAKE_C_COMPILER   ${TOOLCHAIN_PATH}-gcc)
@@ -70,7 +78,7 @@ configure_file(${Itest_SOURCE_DIR}/inc/version.h.in ${Itest_SOURCE_DIR}/inc/vers
 # Notice name prefix of this variable, set by CMake according
 # to value given with "project()" in the root CMakeLists.txt.
 include_directories(${Itest_SOURCE_DIR}/inc)
-include_directories(${Itest_SOURCE_DIR}/lib/openssl/include)
+include_directories(${OPENSSL_PATH}/include)
 include_directories(${ELE_LIB_PATH}/include)
 include_directories(${ELE_LIB_PATH}/include/hsm)
 include_directories(${ELE_LIB_PATH}/include/hsm/internal)
@@ -88,11 +96,11 @@ add_executable(Itest ${SOURCES})
 #  -static
 target_link_libraries(
   Itest
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libcrypto.a
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libssl.a
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so.1
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so.1.0
+  ${LIB_PATH}/libcrypto.a
+  ${LIB_PATH}/libssl.a
+  ${LIB_PATH}/libele_hsm.so
+  ${LIB_PATH}/libele_hsm.so.1
+  ${LIB_PATH}/libele_hsm.so.1.0
   z
   gomp.a
   pthread
