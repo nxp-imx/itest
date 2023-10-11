@@ -76,8 +76,8 @@ build script:
 -h: print this help
 -H <ARCH>: Set target Arch (default=arm64 or x86_64)
 -S <path>: path to ele_libs
--f: force rebuild static lib ele_lib, json-c, openssl
--s <OPTION>: option(all/submodule) init git submodule (lib ele_lib, json-c, openssl)
+-f: force rebuild static lib ele_lib, openssl
+-s <OPTION>: option(all/submodule) init git submodule (lib ele_lib, openssl)
 -r: reset env (clean repo and submodule)
 -T <Toolchain path>: toolchain path (where will be installed the toolchain)
    "
@@ -137,14 +137,6 @@ if [ $ARCH_BUILD -eq 1 ]; then
    if [ $FORCE_BUILD_JSON -eq 1 ]; then
        rm -rf $WORKDIR/lib/$ARCH
        mkdir -p $WORKDIR/lib/$ARCH
-       # build json-c
-       cd $WORKDIR/lib/json-c
-       rm -rf build
-       mkdir build
-       cd build
-       cmake ../
-       make -j$NPROC json-c-static
-       cp libjson-c.a ../../$ARCH/libjson-c.a
        # build openssl
        cd $WORKDIR/lib/openssl
        ./Configure $PLATFORM

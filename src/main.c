@@ -8,12 +8,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
-#include "ijson_utils.h"
 #include "itest.h"
 #include "version.h"
 #include "imx8_tests_list.h"
-
-int parse_test(int argc, char **argv);
 
 /* Itest ctx*/
 itest_ctx_t itest_ctx;
@@ -40,7 +37,6 @@ static void print_help(void) {
 	ITEST_LOG("OPTIONS:\n");
 	ITEST_LOG("  -h : Print this help\n");
 	ITEST_LOG("  -v : Print test suite version\n");
-	ITEST_LOG("  -j < json file > : Run json test vector from wycheproof tv\n");
 	ITEST_LOG("  -l : List all tests\n");
 	ITEST_LOG("  -c : < dut config > MX8ULP_A2 - MX93_A1\n");
 	ITEST_LOG("  -t < test_name > : Run test test_name\n");
@@ -105,9 +101,6 @@ int main(int argc, char *argv[]){
         {
         case 't':
             itest_ctx.test_name = optarg;
-            break;
-        case 'j':
-            run_wycheproof_json(optarg);
             break;
         case 'v':
             print_version();

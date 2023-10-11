@@ -74,11 +74,6 @@ include_directories(${Itest_SOURCE_DIR}/lib/openssl/include)
 include_directories(${ELE_LIB_PATH}/include)
 include_directories(${ELE_LIB_PATH}/include/hsm)
 include_directories(${ELE_LIB_PATH}/include/hsm/internal)
-include_directories(${ELE_LIB_PATH}/src/plat/ele/include)
-include_directories(${ELE_LIB_PATH}/src/common/sab_msg/include)
-include_directories(${ELE_LIB_PATH}/src/common/include)
-include_directories(${Itest_SOURCE_DIR}/lib/json-c)
-include_directories(${Itest_SOURCE_DIR}/lib/json-c/build)
 
 file(GLOB SOURCES src/*/*.c src/*.c)
 add_compile_options(-Wall -Wextra -pedantic -fopenmp)
@@ -95,7 +90,6 @@ target_link_libraries(
   Itest
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libcrypto.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libssl.a
-  ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libjson-c.a
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so.1
   ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libele_hsm.so.1.0
