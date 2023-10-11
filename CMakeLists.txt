@@ -91,11 +91,11 @@ find_package(ZLIB)
 find_package(OpenMP)
 
 # add the executable
-add_executable(Itest ${SOURCES})
+add_executable(itest ${SOURCES})
 
 #  -static
 target_link_libraries(
-  Itest
+  itest
   ${LIB_PATH}/libcrypto.a
   ${LIB_PATH}/libssl.a
   ${LIB_PATH}/libele_hsm.so
@@ -108,8 +108,8 @@ target_link_libraries(
   ${CMAKE_DL_LIBS}
 )
 
-target_include_directories(Itest PUBLIC
+target_include_directories(itest PUBLIC
                            "${PROJECT_BINARY_DIR}"
                            )
 
-install(TARGETS Itest DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS itest DESTINATION ${CMAKE_INSTALL_BINDIR})

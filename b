@@ -154,5 +154,5 @@ if [ $ARCH_BUILD -eq 1 ]; then
    cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DOPENSSL_PATH=$OPENSSL_PATH -DSYSTEM_PROCESSOR=$ARCH
    make clean
    make -j$NPROC
-   cp Itest ../itest
+   cp itest ../itest
 fi
