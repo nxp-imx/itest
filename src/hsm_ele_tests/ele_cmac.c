@@ -58,7 +58,6 @@ int ele_cmac(void)
 	open_svc_key_management_args_t key_mgmt_args;
 	open_svc_mac_args_t mac_srv_args;
 	op_generate_key_args_t key_gen_args = {0};
-	op_mac_one_go_args_t mac_one_go;
 
 	hsm_err_t err;
 	hsm_hdl_t hsm_session_hdl, key_store_hdl, key_mgmt_hdl, mac_hdl;
