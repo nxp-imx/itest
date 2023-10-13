@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2023 NXP
+ */
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>

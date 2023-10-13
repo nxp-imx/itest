@@ -1,0 +1,7 @@
+Package:			itest.git
+Version:			0.1
+Outgoing License:		BSD-3-Clause
+License File:			LICENSE
+Type of Content:		source
+Description and comments:    	NXP i.MX tool for running crypto performance benchmarking tests
+Origin:				NXP (BSD-3-Clause)

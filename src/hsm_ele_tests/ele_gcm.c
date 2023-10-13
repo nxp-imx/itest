@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2023 NXP
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
@@ -53,7 +58,6 @@ int ele_gcm(void)
 	open_svc_key_management_args_t key_mgmt_args;
 	open_svc_cipher_args_t open_cipher_args;
 	op_generate_key_args_t key_gen_args = {0};
-	op_auth_enc_args_t auth_enc_args = {0};
 
 	hsm_err_t err;
 	hsm_hdl_t hsm_session_hdl;

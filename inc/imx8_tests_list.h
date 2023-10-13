@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright 2023 NXP
+ */
+
 #ifndef IMX8_TESTS_LIST_H
 #define IMX8_TESTS_LIST_H
 
@@ -8,7 +13,7 @@ int ele_rng_srv_001(void);
 int ele_rng_perf(void);
 int ele_cbc(void);
 int ele_ecb(void);
-int ele_sign_verify(void);
+int ecdsa_nist_sign_verify(void);
 int ele_cmac(void);
 int ele_hmac(void);
 int ecdsa_brainpool_sign_verify(void);
@@ -28,7 +33,7 @@ testsuite imx8_ts[] = {
 {ele_rng_perf, "ele_rng_perf", MX8ULP_A2 | MX93_A1},
 {ele_cbc, "ele_cbc", MX8ULP_A2 | MX93_A1},
 {ele_ecb, "ele_ecb", MX8ULP_A2 | MX93_A1},
-{ele_sign_verify, "ele_sign_verify", MX8ULP_A2 | MX93_A1},
+{ecdsa_nist_sign_verify, "ecdsa_nist_sign_verify", MX8ULP_A2 | MX93_A1},
 {ele_cmac, "ele_cmac", MX8ULP_A2 | MX93_A1},
 {ele_hmac,	 "ele_hmac", MX8ULP_A2 | MX93_A1},
 {ecdsa_brainpool_sign_verify, "ecdsa_brainpool_sign_verify", MX8ULP_A2 | MX93_A1},

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2023 NXP
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
@@ -6,7 +11,6 @@
 
 int ele_rng_srv_001(void)
 {
-	hsm_err_t err;
 	uint8_t rng_out_buff[4096] = {0};
 	open_session_args_t args = {0};
 	op_get_random_args_t rng_get_random_args = {0};

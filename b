@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Copyright 2023 NXP
+#
+
 #!/bin/bash +x
 
 NPROC=$(nproc)
@@ -10,6 +15,7 @@ SETUP_OPTION="submodule"
 TOOLCHAIN_PATH=/opt
 RESET_ENV=0
 ELE_LIB_PATH=$WORKDIR/lib/secure_enclave
+OPENSSL_PATH=$WORKDIR/lib/openssl
 ARCH=arm64
 PLATFORM=linux-aarch64
 
@@ -71,8 +77,8 @@ build script:
 -h: print this help
 -H <ARCH>: Set target Arch (default=arm64 or x86_64)
 -S <path>: path to ele_libs
--f: force rebuild static lib ele_lib, json-c, openssl
--s <OPTION>: option(all/submodule) init git submodule (lib ele_lib, json-c, openssl)
+-f: force rebuild static lib ele_lib, openssl
+-s <OPTION>: option(all/submodule) init git submodule (lib ele_lib, openssl)
 -r: reset env (clean repo and submodule)
 -T <Toolchain path>: toolchain path (where will be installed the toolchain)
    "
@@ -87,7 +93,7 @@ fi
 
 if [ $SETUP_ENV -eq 1 ]; then
    if [ $SETUP_OPTION == "submodule" ]; then
-      git submodule update --init --recursive
+      git submodule update --init --remote --recursive
       exit 0
    elif [ $SETUP_OPTION == "toolchain" ]; then
       wget --no-check-certificate https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
@@ -119,7 +125,7 @@ if [ $RESET_ENV -eq 1 ]; then
    git submodule foreach --recursive git clean -xfd
    git reset --hard
    git submodule foreach --recursive git reset --hard
-   git submodule update --init --recursive
+   git submodule update --init --remote --recursive
    exit 0
 fi
 
@@ -132,14 +138,6 @@ if [ $ARCH_BUILD -eq 1 ]; then
    if [ $FORCE_BUILD_JSON -eq 1 ]; then
        rm -rf $WORKDIR/lib/$ARCH
        mkdir -p $WORKDIR/lib/$ARCH
-       # build json-c
-       cd $WORKDIR/lib/json-c
-       rm -rf build
-       mkdir build
-       cd build
-       cmake ../
-       make -j$NPROC json-c-static
-       cp libjson-c.a ../../$ARCH/libjson-c.a
        # build openssl
        cd $WORKDIR/lib/openssl
        ./Configure $PLATFORM
@@ -153,8 +151,8 @@ if [ $ARCH_BUILD -eq 1 ]; then
        cd $WORKDIR/build
     fi
 
-   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DSYSTEM_PROCESSOR=$ARCH
+   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DOPENSSL_PATH=$OPENSSL_PATH -DSYSTEM_PROCESSOR=$ARCH
    make clean
    make -j$NPROC
-   cp Itest ../itest
+   cp itest ../itest
 fi

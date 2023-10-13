@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2023 NXP
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
@@ -10,7 +15,6 @@
 
 int ele_rng_perf(void)
 {
-	hsm_err_t err;
 	uint32_t buff_size[] = {16, 64, 256, 1024, 8192, 16384};
 	uint8_t rng_out_buff[MAX_BUFF_SZ] = {0};
 	open_session_args_t args = {0};
