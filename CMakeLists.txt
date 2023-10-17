@@ -84,7 +84,7 @@ include_directories(${ELE_LIB_PATH}/include/hsm)
 include_directories(${ELE_LIB_PATH}/include/hsm/internal)
 
 file(GLOB SOURCES src/*/*.c src/*.c)
-add_compile_options(-Wall -Wextra -pedantic -fopenmp)
+add_compile_options(-Wall -Wextra -fopenmp)
 add_definitions(-DPSA_COMPLIANT)
 
 find_package(ZLIB)
