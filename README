@@ -1,13 +1,13 @@
 itest
 =====================
 
-This is a small tools to test seco/v2x api bridge on the seco_libs layer
+This is a small tools to test EdgeLock Enclave api bridge on the ele_libs layer
 
 Supported Arch: x86_64, arm64
 
 Supported OS: Linux
 
-dependency: zlib, openssl, seco_lib, json-c
+dependency: zlib, openssl, ele_lib
 
 cmake_minimum_required 3.10
 
@@ -38,16 +38,16 @@ Build script Help
 build script:
 + -h: print this help
 + -H <ARCH>: select the arch (arm64 or x86_64)
-+ -S <path>: path to seco_libs
-+ -f: force rebuild static lib json-c, openssl, seco_lib
-+ -s: init git submodule (lib json-c, openssl, seco_lib)
++ -S <path>: path to ele_libs
++ -f: force rebuild static lib openssl, ele_lib
++ -s: init git submodule (lib openssl, ele_lib)
 + -T <Toolchain path>: toolchain path (where will be installed the toolchain)
 
 How to use itest
 ------------
 
 Select a platform:
-+ ex: run`./itest -c <dut config> (DXL_A1 - QXP_C0 - QXP_B0)`
++ ex: run`./itest -c <dut config> (MX8ULP_A2 - MX93_A1)`
 
 List all tests of a platform:
 + ex: run `./itest -l -c <dut config>`
