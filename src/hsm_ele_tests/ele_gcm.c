@@ -121,8 +121,7 @@ int ele_gcm(void)
 	key_gen_args.out_size = 0;
 	key_gen_args.key_group = 1;
 	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
-	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT |
-				 HSM_KEY_USAGE_DECRYPT;
+	key_gen_args.key_usage = HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_GCM;
 	key_gen_args.key_lifecycle = 0;
 	key_gen_args.key_type = HSM_KEY_TYPE_AES;
