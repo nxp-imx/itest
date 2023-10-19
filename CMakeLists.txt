@@ -53,24 +53,11 @@ execute_process(COMMAND
   OUTPUT_VARIABLE GIT_SHA1
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND
-  git describe --match=NeVeRmAtCh --always --abbrev=8 --dirty
-  WORKING_DIRECTORY "${ELE_LIB_PATH}"
-  OUTPUT_VARIABLE GIT_SHA1_ELE_LIB
-  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 # the date of the commit
 execute_process(COMMAND
   git log -1 --format=%ad --date=local
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   OUTPUT_VARIABLE GIT_DATE
-  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-# the date of the commit
-execute_process(COMMAND
-  git log -1 --format=%ad --date=local
-  WORKING_DIRECTORY "${ELE_LIB_PATH}"
-  OUTPUT_VARIABLE GIT_DATE_ELE_LIB
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 configure_file(${Itest_SOURCE_DIR}/inc/version.h.in ${Itest_SOURCE_DIR}/inc/version.h )
