@@ -135,7 +135,9 @@ int ele_cmac(void)
 			  payload_size[i]);
 		cmac_test(mac_hdl, key_id_aes_128, test_msg, payload_size[i],
 			  mac, HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION);
+	}
 
+	for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
 		ITEST_LOG("CMAC aes 256 generation on %d byte blocks: ",
 			  payload_size[i]);
 		cmac_test(mac_hdl, key_id_aes_256, test_msg, payload_size[i],

@@ -139,7 +139,9 @@ int ele_hmac(void)
 		hmac_test(mac_hdl, key_hmac_sha256, test_msg, payload_size[i],
 			  mac, 32, PERMITTED_ALGO_HMAC_SHA256,
 			  HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION);
+	}
 
+	for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
 		ITEST_LOG("HMAC_SHA384 generation on %d byte blocks: ",
 			  payload_size[i]);
 		hmac_test(mac_hdl, key_hmac_sha384, test_msg, payload_size[i],
