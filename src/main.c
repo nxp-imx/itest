@@ -19,8 +19,8 @@ static int total_run = 0, fails = 0;
 
 static inline void print_version()
 {
-	ITEST_LOG("itest %d.%d commit: %s %s\nsecure_enclave commit: %s %s\n",
-Itest_VERSION_MAJOR, Itest_VERSION_MINOR, GIT_SHA1, GIT_DATE, GIT_SHA1_ELE_LIB, GIT_DATE_ELE_LIB);
+	ITEST_LOG("itest %d.%d commit: %s %s\n",
+Itest_VERSION_MAJOR, Itest_VERSION_MINOR, GIT_SHA1, GIT_DATE);
 }
 
 static inline void print_stats()
