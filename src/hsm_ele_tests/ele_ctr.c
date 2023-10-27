@@ -104,53 +104,75 @@ int ele_ctr(void)
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-128-CTR encryption on %d byte blocks: ",
 			  block_size[i]);
-		cipher_test(cipher_hdl, key_id_aes_128, msg, buff_encr,
-			    block_size[i], iv, 16, HSM_CIPHER_ONE_GO_ALGO_CTR,
-			    HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+		err = cipher_test(cipher_hdl, key_id_aes_128, msg, buff_encr,
+				  block_size[i], iv, 16,
+				  HSM_CIPHER_ONE_GO_ALGO_CTR,
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-128-CTR decryption on %d byte blocks: ",
 			  block_size[i]);
-		cipher_test(cipher_hdl, key_id_aes_128, buff_encr, buff_decr,
-			    block_size[i], iv, 16, HSM_CIPHER_ONE_GO_ALGO_CTR,
-			    HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+		err = cipher_test(cipher_hdl, key_id_aes_128, buff_encr,
+				  buff_decr, block_size[i], iv, 16,
+				  HSM_CIPHER_ONE_GO_ALGO_CTR,
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-192-CTR encryption on %d byte blocks: ",
 			  block_size[i]);
-		cipher_test(cipher_hdl, key_id_aes_192, msg, buff_encr,
-			    block_size[i], iv, 16, HSM_CIPHER_ONE_GO_ALGO_CTR,
-			    HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+		err = cipher_test(cipher_hdl, key_id_aes_192, msg, buff_encr,
+				  block_size[i], iv, 16,
+				  HSM_CIPHER_ONE_GO_ALGO_CTR,
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-192-CTR decryption on %d byte blocks: ",
 			  block_size[i]);
-		cipher_test(cipher_hdl, key_id_aes_192, buff_encr, buff_decr,
-			    block_size[i], iv, 16, HSM_CIPHER_ONE_GO_ALGO_CTR,
-			    HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+		err = cipher_test(cipher_hdl, key_id_aes_192, buff_encr,
+				  buff_decr, block_size[i], iv, 16,
+				  HSM_CIPHER_ONE_GO_ALGO_CTR,
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-256-CTR encryption on %d byte blocks: ",
 			  block_size[i]);
-		cipher_test(cipher_hdl, key_id_aes_256, msg, buff_encr,
-			    block_size[i], iv, 16, HSM_CIPHER_ONE_GO_ALGO_CTR,
-			    HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+		err = cipher_test(cipher_hdl, key_id_aes_256, msg, buff_encr,
+				  block_size[i], iv, 16,
+				  HSM_CIPHER_ONE_GO_ALGO_CTR,
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-256-CTR decryption on %d byte blocks: ",
 			  block_size[i]);
-		cipher_test(cipher_hdl, key_id_aes_256, buff_encr, buff_decr,
-			    block_size[i], iv, 16, HSM_CIPHER_ONE_GO_ALGO_CTR,
-			    HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+		err = cipher_test(cipher_hdl, key_id_aes_256, buff_encr,
+				  buff_decr, block_size[i], iv, 16,
+				  HSM_CIPHER_ONE_GO_ALGO_CTR,
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
 	}
 
+out:
 	ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
 		     HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+
+	if (err)
+		ASSERT_FALSE(err);
 
 	return TRUE_TEST;
 }

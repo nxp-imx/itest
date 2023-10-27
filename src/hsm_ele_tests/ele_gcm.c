@@ -15,14 +15,16 @@
 #define AUTH_TAG_SIZE 16
 #define IV_SIZE 12
 
-void auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier, uint8_t *input,
-	      uint32_t input_size, uint8_t *output, uint32_t output_size,
-	      uint8_t *iv, uint16_t iv_size, uint8_t *aad, uint16_t aad_size,
-	      hsm_op_auth_enc_algo_t algo, hsm_op_auth_enc_flags_t flags)
+hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
+		    uint8_t *input, uint32_t input_size, uint8_t *output,
+		    uint32_t output_size, uint8_t *iv, uint16_t iv_size,
+		    uint8_t *aad, uint16_t aad_size,
+		    hsm_op_auth_enc_algo_t algo, hsm_op_auth_enc_flags_t flags)
 {
 	op_auth_enc_args_t auth_enc_args = {0};
 	uint32_t j, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf;
+	hsm_err_t err;
 
 	auth_enc_args.key_identifier = key_identifier;
 	auth_enc_args.iv_size = iv_size;
@@ -41,14 +43,17 @@ void auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier, uint8_t *input,
 	for (j = 0; j < iter; j++) {
 		/* Start the timer */
 		start_timer(&t_perf);
-		ASSERT_EQUAL(hsm_auth_enc(cipher_hdl, &auth_enc_args),
-			     HSM_NO_ERROR);
+		err = hsm_auth_enc(cipher_hdl, &auth_enc_args);
+
+		if (err)
+			return err;
 		/* Stop the timer */
 		stop_timer(&t_perf);
 	}
 	/* Finalize time to get stats */
 	finalize_timer(&t_perf, iter);
 	ITEST_CHECK_KPI_OPS(t_perf.op_sec, 100);
+	return err;
 }
 
 int ele_gcm(void)
@@ -147,174 +152,229 @@ int ele_gcm(void)
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-128-GCM encryption on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_128, plaintext,
-			  block_size[i], ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE,
-			  iv, sizeof(iv), aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_ENCRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_128, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE,
+				iv, sizeof(iv), aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_ENCRYPT);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-128-GCM decryption on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_128, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg,
-			  block_size[i], iv, sizeof(iv), aad, sizeof(aad),
-			  ALGO_GCM, HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_128, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i], iv, sizeof(iv), aad, sizeof(aad),
+				ALGO_GCM, HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-128-GCM encryption(ele iv 8bytes) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_128, plaintext, block_size[i],
-			  ciphertext, block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
-			  fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
-			  ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			  HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+		err = auth_test(cipher_hdl, key_id_aes_128, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
+				fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
+				ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
+				HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-128-GCM decryption(ele iv 8bytes) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_128, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg, block_size[i],
-			  ciphertext + block_size[i] + AUTH_TAG_SIZE, IV_SIZE,
-			  aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_128, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i],
+				ciphertext + block_size[i] + AUTH_TAG_SIZE,
+				IV_SIZE, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-128-GCM encryption(ele iv) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_128, plaintext, block_size[i],
-			  ciphertext, block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
-			  NULL, 0, aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			  HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+		err = auth_test(cipher_hdl, key_id_aes_128, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
+				NULL, 0, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_ENCRYPT |
+				HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-128-GCM decryption(ele iv) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_128, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg, block_size[i],
-			  ciphertext + block_size[i] + AUTH_TAG_SIZE, IV_SIZE,
-			  aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_128, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i],
+				ciphertext + block_size[i] + AUTH_TAG_SIZE,
+				IV_SIZE, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-192-GCM encryption on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_192, plaintext, block_size[i],
-			  ciphertext, block_size[i] + AUTH_TAG_SIZE, iv,
-			  sizeof(iv), aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_ENCRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_192, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, iv, sizeof(iv),
+				aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_ENCRYPT);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-192-GCM decryption on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_192, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg,
-			  block_size[i], iv, sizeof(iv), aad, sizeof(aad),
-			  ALGO_GCM, HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_192, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i], iv, sizeof(iv), aad, sizeof(aad),
+				ALGO_GCM, HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-192-GCM encryption(ele iv 8bytes) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_192, plaintext, block_size[i],
-			  ciphertext, block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
-			  fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
-			  ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			  HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+		err = auth_test(cipher_hdl, key_id_aes_192, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
+				fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
+				ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
+				HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-192-GCM decryption(ele iv 8bytes) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_192, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg, block_size[i],
-			  ciphertext + block_size[i] + AUTH_TAG_SIZE, IV_SIZE,
-			  aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_192, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i],
+				ciphertext + block_size[i] + AUTH_TAG_SIZE,
+				IV_SIZE, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-192-GCM encryption(ele iv) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_192, plaintext, block_size[i],
-			  ciphertext, block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
-			  NULL, 0, aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			  HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+		err = auth_test(cipher_hdl, key_id_aes_192, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
+				NULL, 0, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_ENCRYPT |
+				HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-192-GCM decryption(ele iv) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_192, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg, block_size[i],
-			  ciphertext + block_size[i] + AUTH_TAG_SIZE, IV_SIZE,
-			  aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_192, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i],
+				ciphertext + block_size[i] + AUTH_TAG_SIZE,
+				IV_SIZE, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-256-GCM encryption on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_256, plaintext, block_size[i],
-			  ciphertext, block_size[i] + AUTH_TAG_SIZE, iv,
-			  sizeof(iv), aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_ENCRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_256, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, iv,
+				sizeof(iv), aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_ENCRYPT);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-256-GCM decryption on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_256, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg, block_size[i],
-			  iv, sizeof(iv), aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_256, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i], iv, sizeof(iv), aad,
+				sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-256-GCM encryption(ele iv 8bytes) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_256, plaintext, block_size[i],
-			  ciphertext, block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
-			  fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
-			  ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			  HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+		err = auth_test(cipher_hdl, key_id_aes_256, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
+				fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
+				ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
+				HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-256-GCM decryption(ele iv 8bytes) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_256, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg, block_size[i],
-			  ciphertext + block_size[i] + AUTH_TAG_SIZE, IV_SIZE,
-			  aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_256, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i],
+				ciphertext + block_size[i] + AUTH_TAG_SIZE,
+				IV_SIZE, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		ITEST_LOG("AES-256-GCM encryption(ele iv) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_256, plaintext, block_size[i],
-			  ciphertext, block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
-			  NULL, 0, aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			  HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+		err = auth_test(cipher_hdl, key_id_aes_256, plaintext,
+				block_size[i], ciphertext,
+				block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
+				NULL, 0, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_ENCRYPT |
+				HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+		if (err)
+			goto out;
 
 		ITEST_LOG("AES-256-GCM decryption(ele iv) on %d byte blocks: ",
 			  block_size[i]);
-		auth_test(cipher_hdl, key_id_aes_256, ciphertext,
-			  block_size[i] + AUTH_TAG_SIZE, test_msg, block_size[i],
-			  ciphertext + block_size[i] + AUTH_TAG_SIZE, IV_SIZE,
-			  aad, sizeof(aad), ALGO_GCM,
-			  HSM_AUTH_ENC_FLAGS_DECRYPT);
+		err = auth_test(cipher_hdl, key_id_aes_256, ciphertext,
+				block_size[i] + AUTH_TAG_SIZE, test_msg,
+				block_size[i],
+				ciphertext + block_size[i] + AUTH_TAG_SIZE,
+				IV_SIZE, aad, sizeof(aad), ALGO_GCM,
+				HSM_AUTH_ENC_FLAGS_DECRYPT);
+		if (err)
+			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
+out:
 	ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
 		     HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+
+	if (err)
+		ASSERT_FALSE(err);
 
 	return TRUE_TEST;
 }

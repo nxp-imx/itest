@@ -21,7 +21,7 @@ int ele_rng_perf(void)
 	op_get_random_args_t rng_get_random_args = {0};
 	uint32_t i, j, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf;
-
+	hsm_err_t err;
 	hsm_hdl_t hsm_session_hdl;
 
 	// ELE OPEN SESSION
@@ -39,9 +39,10 @@ int ele_rng_perf(void)
 		for (j = 0; j < iter; j++) {
 			/* Start the timer */
 			start_timer(&t_perf);
-			ASSERT_EQUAL(hsm_get_random(hsm_session_hdl,
-						    &rng_get_random_args),
-				     HSM_NO_ERROR);
+			err = hsm_get_random(hsm_session_hdl,
+					     &rng_get_random_args);
+			if (err)
+				goto out;
 			/* Stop the timer */
 			stop_timer(&t_perf);
 		}
@@ -50,8 +51,12 @@ int ele_rng_perf(void)
 		ITEST_CHECK_KPI_OPS(t_perf.op_sec, 50);
 	}
 
+out:
 	// ELE CLOSE SESSION
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+
+	if (err)
+		ASSERT_FALSE(err);
 
 	return TRUE_TEST;
 }
