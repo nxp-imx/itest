@@ -11,14 +11,15 @@
 #define AUTH_TAG_SIZE 16
 #define IV_SIZE 12
 
-void auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
-		      uint8_t *input, uint32_t input_size, uint8_t *output,
-		      uint32_t output_size, uint8_t *iv, uint16_t iv_size,
-		      uint8_t *aad, uint16_t aad_size,
-		      hsm_op_auth_enc_algo_t algo,
-		      hsm_op_auth_enc_flags_t flags)
+hsm_err_t auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
+			   uint8_t *input, uint32_t input_size,
+			   uint8_t *output, uint32_t output_size, uint8_t *iv,
+			   uint16_t iv_size, uint8_t *aad, uint16_t aad_size,
+			   hsm_op_auth_enc_algo_t algo,
+			   hsm_op_auth_enc_flags_t flags)
 {
 	op_auth_enc_args_t auth_enc_args = {0};
+	hsm_err_t err;
 
 	auth_enc_args.key_identifier = key_identifier;
 	auth_enc_args.iv_size = iv_size;
@@ -32,8 +33,9 @@ void auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 	auth_enc_args.output_size = output_size;
 	auth_enc_args.output = output;
 
-	ASSERT_EQUAL(hsm_auth_enc(cipher_hdl, &auth_enc_args),
-		     HSM_NO_ERROR);
+	err = hsm_auth_enc(cipher_hdl, &auth_enc_args);
+
+	return err;
 }
 
 int ele_randomness_gcm(void)
@@ -119,22 +121,26 @@ int ele_randomness_gcm(void)
 
 	// AUTH ENC KEY AES128 -> ENCRYPT
 	ITEST_LOG("AES-128-GCM encryption(ele iv) on 128 byte blocks\n");
-	auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
-			 sizeof(plaintext), ciphertext, sizeof(ciphertext),
-			 NULL, 0, aad, sizeof(aad), ALGO_GCM,
-			 HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			 HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+	err = auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
+			       sizeof(plaintext), ciphertext,
+			       sizeof(ciphertext), NULL, 0, aad, sizeof(aad),
+			       ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			       HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+	if (err)
+		goto out;
 
 	// EXTRACT GENERATED IV
 	memcpy(iv1, &ciphertext[sizeof(ciphertext)-sizeof(iv1)], sizeof(iv1));
 
 	// AUTH ENC KEY AES128 -> ENCRYPT (exact same input)
 	ITEST_LOG("AES-128-GCM encryption(ele iv) on 128 byte blocks\n");
-	auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
-			 sizeof(plaintext), ciphertext, sizeof(ciphertext),
-			 NULL, 0, aad, sizeof(aad), ALGO_GCM,
-			 HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			 HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+	err = auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
+			       sizeof(plaintext), ciphertext,
+			       sizeof(ciphertext), NULL, 0, aad, sizeof(aad),
+			       ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			       HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV);
+	if (err)
+		goto out;
 
 	// EXTRACT GENERATED IV
 	memcpy(iv2, &ciphertext[sizeof(ciphertext)-sizeof(iv1)], sizeof(iv1));
@@ -151,11 +157,14 @@ int ele_randomness_gcm(void)
 
 	// AUTH ENC KEY AES128 -> ENCRYPT
 	ITEST_LOG("AES-128-GCM encryption(ele iv 8bytes) on 128 byte blocks\n");
-	auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
-			 sizeof(plaintext), ciphertext, sizeof(ciphertext),
-			 fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
-			 ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			 HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+	err = auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
+			       sizeof(plaintext), ciphertext,
+			       sizeof(ciphertext), fixed_iv, sizeof(fixed_iv),
+			       aad, sizeof(aad), ALGO_GCM,
+			       HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			       HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+	if (err)
+		goto out;
 
 	// EXTRACT GENERATED IV
 	memcpy(iv1, &ciphertext[sizeof(ciphertext)-sizeof(iv1)], sizeof(iv1));
@@ -166,11 +175,14 @@ int ele_randomness_gcm(void)
 
 	// AUTH ENC KEY AES128 -> ENCRYPT (exact same input)
 	ITEST_LOG("AES-128-GCM encryption(ele iv 8bytes) on 128 byte blocks\n");
-	auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
-			 sizeof(plaintext), ciphertext, sizeof(ciphertext),
-			 fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
-			 ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			 HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+	err = auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
+			       sizeof(plaintext), ciphertext,
+			       sizeof(ciphertext), fixed_iv, sizeof(fixed_iv),
+			       aad, sizeof(aad), ALGO_GCM,
+			       HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			       HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+	if (err)
+		goto out;
 
 	// EXTRACT GENERATED IV
 	memcpy(iv2, &ciphertext[sizeof(ciphertext)-sizeof(iv2)], sizeof(iv2));
@@ -198,11 +210,16 @@ int ele_randomness_gcm(void)
 
 	// VERIFY INCREMENTED COUNTER ON NEW SERVICE
 	ITEST_LOG("AES-128-GCM encryption(ele iv 8bytes) on 128 byte blocks\n");
-	auth_random_test(cipher_hdl2, key_id_aes_128, plaintext,
-			 sizeof(plaintext), ciphertext, sizeof(ciphertext),
-			 fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
-			 ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			 HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+	err = auth_random_test(cipher_hdl2, key_id_aes_128, plaintext,
+			       sizeof(plaintext), ciphertext,
+			       sizeof(ciphertext), fixed_iv, sizeof(fixed_iv),
+			       aad, sizeof(aad), ALGO_GCM,
+			       HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			       HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+	if (err) {
+		ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl2), HSM_NO_ERROR);
+		goto out;
+	}
 
 	// EXTRACT GENERATED IV
 	memcpy(iv1, &ciphertext[sizeof(ciphertext)-sizeof(iv1)], sizeof(iv1));
@@ -216,11 +233,14 @@ int ele_randomness_gcm(void)
 
 	// VERIFY KEEPS INCREMENTING ON ORIGINAL CIPHER SERVICE
 	ITEST_LOG("AES-128-GCM encryption(ele iv 8bytes) on 128 byte blocks\n");
-	auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
-			 sizeof(plaintext), ciphertext, sizeof(ciphertext),
-			 fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
-			 ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
-			 HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+	err = auth_random_test(cipher_hdl1, key_id_aes_128, plaintext,
+			       sizeof(plaintext), ciphertext,
+			       sizeof(ciphertext), fixed_iv, sizeof(fixed_iv),
+			       aad, sizeof(aad), ALGO_GCM,
+			       HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			       HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
+	if (err)
+		goto out;
 
 	// EXTRACT GENERATED IV
 	memcpy(iv2, &ciphertext[sizeof(ciphertext)-sizeof(iv2)], sizeof(iv2));
@@ -232,12 +252,16 @@ int ele_randomness_gcm(void)
 	// VERIFY COUNTER WAS INCREMENTED
 	ASSERT_EQUAL(counter_val2, counter_val1 + 1);
 
-	ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl1), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl2), HSM_NO_ERROR);
+out:
+	ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl1), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
 		     HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+
+	if (err)
+		ASSERT_FALSE(err);
 
 	return TRUE_TEST;
 }

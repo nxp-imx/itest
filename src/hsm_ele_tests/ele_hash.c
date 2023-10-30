@@ -56,6 +56,7 @@ int ele_hash(void)
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
 	uint32_t size_input;
 	uint32_t i, j, k, iter = NUM_OPERATIONS;
+	hsm_err_t err;
 
 	open_session_args.session_priority = 0;
 	open_session_args.operating_mode = 0;
@@ -84,9 +85,10 @@ int ele_hash(void)
 			for (j = 0; j < iter; j++) {
 				 /* Start the timer */
 				start_timer(&t_perf);
-				ASSERT_EQUAL(hsm_hash_one_go(hsm_session_hdl,
-							     &hash_args),
-					     HSM_NO_ERROR);
+				err = hsm_hash_one_go(hsm_session_hdl,
+						      &hash_args);
+				if (err)
+					goto out;
 				/* Stop the timer */
 				stop_timer(&t_perf);
 
@@ -107,7 +109,11 @@ int ele_hash(void)
 		}
 	}
 
+out:
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+
+	if (err)
+		ASSERT_FALSE(err);
 
 	return TRUE_TEST;
 }

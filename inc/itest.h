@@ -147,10 +147,17 @@ typedef struct{
 } itest_ctx_t;
 
 /*===========CIPHER============*/
-void cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier, uint8_t *input,
+hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier, uint8_t *input,
 		 uint8_t *output, uint32_t block_size, uint8_t *iv,
 		 uint16_t iv_size, hsm_op_cipher_one_go_algo_t algo,
 		 hsm_op_cipher_one_go_flags_t flags);
+/*===========AUTH TEST============*/
+hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
+		    uint8_t *input, uint32_t input_size, uint8_t *output,
+		    uint32_t output_size, uint8_t *iv, uint16_t iv_size,
+		    uint8_t *aad, uint16_t aad_size,
+		    hsm_op_auth_enc_algo_t algo,
+		    hsm_op_auth_enc_flags_t flags);
 /*===========TEST CTX============*/
 size_t save_test_ctx(void *ctx, size_t count, char *file);
 size_t load_test_ctx(void *ctx, size_t count, char *file);

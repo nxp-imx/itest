@@ -15,14 +15,15 @@
 #define MAX_PAYLOAD_SIZE 16384
 #define NUM_PAYLOAD_SIZE 6
 
-void cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
-	      uint8_t *payload, uint32_t payload_size,
-	      uint8_t *mac, hsm_op_mac_one_go_flags_t flags)
+hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
+		    uint8_t *payload, uint32_t payload_size,
+		    uint8_t *mac, hsm_op_mac_one_go_flags_t flags)
 {
 	op_mac_one_go_args_t mac_one_go;
 	hsm_mac_verification_status_t mac_status;
 	timer_perf_t t_perf;
 	uint32_t i, iter = NUM_OPERATIONS;
+	hsm_err_t err;
 
 	mac_one_go.key_identifier = key_identifier;
 	mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
@@ -37,8 +38,9 @@ void cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 	for (i = 0U; i < iter; i++) {
 		/* Start the timer */
 		start_timer(&t_perf);
-		ASSERT_EQUAL(hsm_mac_one_go(mac_hdl, &mac_one_go, &mac_status),
-			     HSM_NO_ERROR);
+		err = hsm_mac_one_go(mac_hdl, &mac_one_go, &mac_status);
+		if (err)
+			return err;
 		/* Stop the timer */
 		stop_timer(&t_perf);
 		if (flags == HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION)
@@ -49,6 +51,7 @@ void cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 	/* Finalize time to get stats */
 	finalize_timer(&t_perf, iter);
 	ITEST_CHECK_KPI_OPS(t_perf.op_sec, 200);
+	return err;
 }
 
 int ele_cmac(void)
@@ -128,32 +131,48 @@ int ele_cmac(void)
 	for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
 		ITEST_LOG("CMAC aes 128 generation on %d byte blocks: ",
 			  payload_size[i]);
-		cmac_test(mac_hdl, key_id_aes_128, test_msg, payload_size[i],
-			  mac, HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION);
+		err = cmac_test(mac_hdl, key_id_aes_128, test_msg,
+				payload_size[i], mac,
+				HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION);
+		if (err)
+			goto out;
 
 		ITEST_LOG("CMAC aes 128 verification on %d byte blocks: ",
 			  payload_size[i]);
-		cmac_test(mac_hdl, key_id_aes_128, test_msg, payload_size[i],
-			  mac, HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION);
+		err = cmac_test(mac_hdl, key_id_aes_128, test_msg,
+				payload_size[i], mac,
+				HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION);
+		if (err)
+			goto out;
 	}
 
 	for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
 		ITEST_LOG("CMAC aes 256 generation on %d byte blocks: ",
 			  payload_size[i]);
-		cmac_test(mac_hdl, key_id_aes_256, test_msg, payload_size[i],
-			  mac, HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION);
+		err = cmac_test(mac_hdl, key_id_aes_256, test_msg,
+				payload_size[i], mac,
+				HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION);
+		if (err)
+			goto out;
 
 		ITEST_LOG("CMAC aes 256 verification on %d byte blocks: ",
 			  payload_size[i]);
-		cmac_test(mac_hdl, key_id_aes_256, test_msg, payload_size[i],
-			  mac, HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION);
+		err = cmac_test(mac_hdl, key_id_aes_256, test_msg,
+				payload_size[i], mac,
+				HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION);
+		if (err)
+			goto out;
 	}
 
+out:
 	ASSERT_EQUAL(hsm_close_mac_service(mac_hdl), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
 		     HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+
+	if (err)
+		ASSERT_FALSE(err);
 
 	return TRUE_TEST;
 }

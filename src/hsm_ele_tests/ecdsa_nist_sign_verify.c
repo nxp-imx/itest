@@ -146,9 +146,10 @@ int ecdsa_nist_sign_verify(void)
 			for (i = 0U; i < iter; i++) {
 				/* Start the timer */
 				start_timer(&t_perf);
-				ASSERT_EQUAL(hsm_generate_signature(sig_gen_hdl,
-								    &sig_gen_args),
-					     HSM_NO_ERROR);
+				err = hsm_generate_signature(sig_gen_hdl,
+							     &sig_gen_args);
+				if (err)
+					goto out;
 				/* Stop the timer */
 				stop_timer(&t_perf);
 			}
@@ -182,10 +183,11 @@ int ecdsa_nist_sign_verify(void)
 			for (i = 0U; i < iter; i++) {
 				/* Start the timer */
 				start_timer(&t_perf);
-				ASSERT_EQUAL(hsm_verify_signature(sig_ver_hdl,
-								  &sig_ver_args,
-								  &verify_status),
-					     HSM_NO_ERROR);
+				err = hsm_verify_signature(sig_ver_hdl,
+							   &sig_ver_args,
+							   &verify_status);
+				if (err)
+					goto out;
 
 				ASSERT_EQUAL(verify_status,
 					     HSM_VERIFICATION_STATUS_SUCCESS);
@@ -198,6 +200,8 @@ int ecdsa_nist_sign_verify(void)
 			ITEST_CHECK_KPI_OPS(t_perf.op_sec, 10);
 		}
 	}
+
+out:
 	ASSERT_EQUAL(hsm_close_signature_generation_service(sig_gen_hdl),
 		     HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_signature_verification_service(sig_ver_hdl),
@@ -206,6 +210,9 @@ int ecdsa_nist_sign_verify(void)
 		     HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+
+	if (err)
+		ASSERT_FALSE(err);
 
 	return TRUE_TEST;
 }
