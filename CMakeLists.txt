@@ -74,7 +74,6 @@ file(GLOB SOURCES src/*/*.c src/*.c)
 add_compile_options(-Wall -Wextra -fopenmp)
 add_definitions(-DPSA_COMPLIANT)
 
-find_package(ZLIB)
 find_package(OpenMP)
 
 # add the executable
@@ -88,7 +87,6 @@ target_link_libraries(
   ${LIB_PATH}/libele_hsm.so
   ${LIB_PATH}/libele_hsm.so.1
   ${LIB_PATH}/libele_hsm.so.1.0
-  z
   gomp.a
   pthread
   dl

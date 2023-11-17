@@ -109,11 +109,6 @@ export INCLUDEDIR=$TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-
 " > setup_linaro_aarch64.sh
       mv setup_linaro_aarch64.sh $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh
       chmod +x $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh
-      echo "Install zlib..."
-      cp lib/zlib1.2.11_aarch64/zlib.h $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc/usr/include/zlib.h
-      cp lib/zlib1.2.11_aarch64/zconf.h $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc/usr/include/zconf.h
-      cp lib/zlib1.2.11_aarch64/libz.so $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/lib64/libz.so
-      cp lib/zlib1.2.11_aarch64/libz.so.1.2.11 $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/lib64/libz.so.1.2.11
       echo "to use the toolchain: source $TOOLCHAIN_PATH/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/setup_linaro_aarch64.sh"
       rm gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
       exit 0
