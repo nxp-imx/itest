@@ -7,7 +7,7 @@ Supported Arch: x86_64, arm64
 
 Supported OS: Linux
 
-dependency: zlib, openssl, ele_lib
+dependency: openssl, ele_lib
 
 cmake_minimum_required 3.10
 
