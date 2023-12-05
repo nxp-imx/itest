@@ -15,7 +15,7 @@ SETUP_OPTION="submodule"
 TOOLCHAIN_PATH=/opt
 RESET_ENV=0
 ELE_LIB_PATH=$WORKDIR/lib/secure_enclave
-OPENSSL_PATH=$WORKDIR/lib/openssl
+OPENSSL_PATH=$WORKDIR/../openssl
 ARCH=arm64
 PLATFORM=linux-aarch64
 
@@ -133,15 +133,12 @@ if [ $ARCH_BUILD -eq 1 ]; then
    if [ $FORCE_BUILD_JSON -eq 1 ]; then
        rm -rf $WORKDIR/lib/$ARCH
        mkdir -p $WORKDIR/lib/$ARCH
-       # build openssl
-       cd $WORKDIR/lib/openssl
-       ./Configure $PLATFORM
-       make clean && make -j$NPROC CC="$CC" AR="$AR"
-       cp *.a $WORKDIR/lib/$ARCH
+	# copy openssl libraries
+	cp $OPENSSL_PATH/*.a $WORKDIR/lib/$ARCH
 	# build secure_enclave
 	cd $WORKDIR
 	cd $ELE_LIB_PATH
-	rm -rf export;make PLAT=ele clean; make clean; make PLAT=ele; make PLAT=ele all install_tests -j$NPROC
+	rm -rf export;make PLAT=ele clean; make clean; make PLAT=ele OPENSSL_PATH=$OPENSSL_PATH; make PLAT=ele OPENSSL_PATH=$OPENSSL_PATH all install_tests -j$NPROC
 	cp *.so* $WORKDIR/lib/$ARCH
        cd $WORKDIR/build
     fi
