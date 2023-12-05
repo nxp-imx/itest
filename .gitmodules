@@ -1,7 +1,3 @@
-[submodule "lib/seco_lib"]
-	path = lib/seco_lib
-	url = ssh://git@bitbucket.sw.nxp.com/mcusec/seco_libs.git
-	branch = master
 [submodule "lib/secure_enclave"]
 	path = lib/secure_enclave
 	url = ssh://git@bitbucket.sw.nxp.com/lfac/secure_enclave.git
