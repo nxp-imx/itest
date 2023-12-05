@@ -1,13 +1,3 @@
-[submodule "lib/json-c"]
-	path = lib/json-c
-	url = https://github.com/json-c/json-c.git
-[submodule "lib/seco_lib"]
-	path = lib/seco_lib
-	url = ssh://git@bitbucket.sw.nxp.com/mcusec/seco_libs.git
-	branch = master
-[submodule "lib/openssl"]
-	path = lib/openssl
-	url = git://git.openssl.org/openssl.git
 [submodule "lib/secure_enclave"]
 	path = lib/secure_enclave
 	url = ssh://git@bitbucket.sw.nxp.com/lfac/secure_enclave.git
