@@ -1,4 +1,0 @@
-[submodule "lib/secure_enclave"]
-	path = lib/secure_enclave
-	url = ssh://git@bitbucket.sw.nxp.com/lfac/secure_enclave.git
-	branch = integration
