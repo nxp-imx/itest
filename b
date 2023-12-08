@@ -136,12 +136,12 @@ if [ $ARCH_BUILD -eq 1 ]; then
 	# copy openssl libraries
 	cp $OPENSSL_PATH/*.a $WORKDIR/lib/$ARCH
 	# copy secure_enclave libraries
-	cp $ELE_LIB_PATH/*.so* $WORKDIR/lib/$ARCH
+	cp $ELE_LIB_PATH/export/usr/lib/*.so* $WORKDIR/lib/$ARCH
        cd $WORKDIR/build
     fi
 
-   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DOPENSSL_PATH=$OPENSSL_PATH -DSYSTEM_PROCESSOR=$ARCH
+   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DOPENSSL_PATH=$OPENSSL_PATH -DSYSTEM_PROCESSOR=$ARCH -DV2X=1
    make clean
    make -j$NPROC
-   cp itest ../itest
+   cp itest itest_v2x ../
 fi
