@@ -12,7 +12,9 @@
 #include <time.h>
 #include <signal.h>
 #include "hsm_api.h"
+#ifndef PSA_COMPLIANT
 #include "she/she_api.h"
+#endif
 
 /*===========Test API============*/
 #define MX8ULP_A2 0x1
