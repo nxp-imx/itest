@@ -38,7 +38,7 @@ static void print_help(void) {
 	ITEST_LOG("  -h : Print this help\n");
 	ITEST_LOG("  -v : Print test suite version\n");
 	ITEST_LOG("  -l : List all tests\n");
-	ITEST_LOG("  -c : < dut config > MX8ULP_A2 - MX93_A1\n");
+	ITEST_LOG("  -c : < dut config > MX8ULP_A2 - MX93_A1 - MX95\n");
 	ITEST_LOG("  -t < test_name > : Run test test_name\n");
 }
 
@@ -77,10 +77,12 @@ int init_conf(char *target) {
 		itest_ctx.target = MX8ULP_A2;
 	} else if (!strcmp(target, "MX93_A1")) {
 		itest_ctx.target = MX93_A1;
+	} else if (!strcmp(target, "MX95")) {
+		itest_ctx.target = MX95;
 	} else if (!strcmp(target, "DBG")) {
 		itest_ctx.target = DBG;
 	} else {
-		ITEST_LOG("unknown target (MX8ULP_A2 / MX93_A1 / DBG)\n");
+		ITEST_LOG("unknown target (MX8ULP_A2 / MX93_A1 / MX95 / DBG)\n");
 		return 0;
 	}
 	return 1;

@@ -13,12 +13,14 @@
 #include <signal.h>
 #include "hsm_api.h"
 #ifndef PSA_COMPLIANT
-#include "she/she_api.h"
+#include "she_api.h"
+#include "internal/she_key.h"
 #endif
 
 /*===========Test API============*/
 #define MX8ULP_A2 0x1
 #define MX93_A1 0x2
+#define MX95 0x3
 #define DBG    0x10
 #define FIPS   0x80
 

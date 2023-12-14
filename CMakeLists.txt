@@ -25,6 +25,10 @@ if (NOT DEFINED LIB_PATH)
   set(LIB_PATH ${CMAKE_SOURCE_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR})
 endif()
 
+if (DEFINED V2X)
+  set(ignoreMe "${V2X}")
+endif()
+
 if (DEFINED TOOLCHAIN_PATH)
   # Specify the cross compiler
   set(CMAKE_C_COMPILER   ${TOOLCHAIN_PATH}-gcc)
@@ -69,15 +73,22 @@ include_directories(${OPENSSL_PATH}/include)
 include_directories(${ELE_LIB_PATH}/include)
 include_directories(${ELE_LIB_PATH}/include/hsm)
 include_directories(${ELE_LIB_PATH}/include/hsm/internal)
+if (DEFINED V2X)
+include_directories(${ELE_LIB_PATH}/include/she)
+endif()
 
-file(GLOB SOURCES src/*/*.c src/*.c)
+file(GLOB SOURCES src/hsm_ele_tests/*.c src/crypto_utils/*.c src/*.c)
+if (DEFINED V2X)
+file(GLOB SOURCES_v2x src/v2x_tests/*.c src/*.c)
+endif()
+
 add_compile_options(-Wall -Wextra -fopenmp)
-add_definitions(-DPSA_COMPLIANT)
 
 find_package(OpenMP)
 
 # add the executable
 add_executable(itest ${SOURCES})
+target_compile_definitions(itest PRIVATE -DPSA_COMPLIANT)
 
 #  -static
 target_link_libraries(
@@ -98,3 +109,27 @@ target_include_directories(itest PUBLIC
                            )
 
 install(TARGETS itest DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+if (DEFINED V2X)
+ add_executable(itest_v2x ${SOURCES_v2x})
+ target_compile_definitions(itest_v2x PRIVATE -DMT_SAB_FAST_MAC -DMT_SAB_UTILS -DMT_SAB_KEY_STORE -DMT_SAB_KEY_UPDATE)
+
+ target_link_libraries(
+  itest_v2x
+  ${LIB_PATH}/libcrypto.a
+  ${LIB_PATH}/libssl.a
+  ${LIB_PATH}/libseco_she.so
+  ${LIB_PATH}/libseco_she.so.1
+  ${LIB_PATH}/libseco_she.so.1.0
+  gomp.a
+  pthread
+  dl
+  ${CMAKE_DL_LIBS}
+ )
+
+ target_include_directories(itest_v2x PUBLIC
+                           "${PROJECT_BINARY_DIR}"
+                           )
+
+ install(TARGETS itest_v2x DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
