@@ -143,7 +143,7 @@ int v2x_fast_mac(void)
 		err = she_generate_mac(utils_args.utils_handle,
 				       &generate_mac_args);
 		if (err)
-                        goto out;
+			goto out;
 		/* Stop the timer */
 		stop_timer(&t_perf);
 	}
@@ -162,17 +162,17 @@ int v2x_fast_mac(void)
 	verify_mac_args.message_length = sizeof(message);
 	verify_mac_args.mac_length_encoding = MAC_BYTES_LENGTH;
 
- 	for (i = 0U; i < iter; i++) {
- 		/* Start the timer */
+	for (i = 0U; i < iter; i++) {
+		/* Start the timer */
 		start_timer(&t_perf);
 		err = she_verify_mac(utils_args.utils_handle,
 				     &verify_mac_args);
- 		if (err)
+		if (err)
 			goto out;
- 		/* Stop the timer */
+		/* Stop the timer */
 		stop_timer(&t_perf);
 	}
- 	/* Finalize time to get stats */
+	/* Finalize time to get stats */
 	finalize_timer(&t_perf, iter);
 	ITEST_CHECK_KPI_OPS(t_perf.op_sec, 10);
 
@@ -187,5 +187,5 @@ out:
 	if (err)
 		ASSERT_FALSE(err);
 
-	return TRUE_TEST;	
+	return TRUE_TEST;
 }
