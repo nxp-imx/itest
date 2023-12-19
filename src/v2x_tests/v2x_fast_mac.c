@@ -92,7 +92,7 @@ int v2x_fast_mac(void)
 	open_svc_key_store_args_t key_store_args = {0};
 	op_open_utils_args_t utils_args = {'\0'};
 	she_hdl_t she_session_hdl, key_store_hdl;
-	she_err_t err;
+	she_err_t err, key_store_load = 0;
 	op_generate_mac_t generate_mac_args = {0};
 	op_verify_mac_t verify_mac_args = {0};
 	uint8_t mac[SHE_MAC_SIZE] = {0}, message[SHE_MAC_SIZE];
@@ -116,9 +116,21 @@ int v2x_fast_mac(void)
 	key_store_args.min_mac_length = 0x0;
 
 	// SHE OPEN KEY STORE
-	ASSERT_EQUAL(she_open_key_store_service(she_session_hdl,
-						&key_store_args),
-		     SHE_NO_ERROR);
+	err = she_open_key_store_service(she_session_hdl,
+					 &key_store_args);
+
+	if (err != SHE_NO_ERROR) {
+		if (err == SHE_ID_CONFLICT) {
+			key_store_args.flags = KEY_STORE_OPEN_FLAGS_SHE;
+			err = she_open_key_store_service(she_session_hdl,
+							 &key_store_args);
+			ASSERT_EQUAL(err, SHE_NO_ERROR);
+			key_store_load = 1;
+		} else {
+			she_close_session(she_session_hdl);
+			ASSERT_FALSE(err);
+		}
+	}
 
 	key_store_hdl = key_store_args.key_store_hdl;
 
@@ -126,7 +138,8 @@ int v2x_fast_mac(void)
 	ASSERT_EQUAL(she_open_utils(key_store_hdl, &utils_args), SHE_NO_ERROR);
 
 	// SHE KEY UPDATE
-	key_update_test(utils_args.utils_handle);
+	if (!key_store_load)
+		key_update_test(utils_args.utils_handle);
 
 	// MAC GENERATION
 
