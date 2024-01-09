@@ -46,11 +46,8 @@ build script:
 How to use itest
 ------------
 
-Select a platform:
-+ ex: run`./itest -c <dut config> (MX8ULP_A2 - MX93_A1)`
-
 List all tests of a platform:
-+ ex: run `./itest -l -c <dut config>`
++ ex: run `./itest -l`
 
 Run a test:
-+ ex: run `./itest -t <test name> -c <dut config>`
++ ex: run `./itest -t <test name>`

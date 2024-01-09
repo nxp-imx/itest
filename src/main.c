@@ -17,6 +17,8 @@ itest_ctx_t itest_ctx;
 /* Used to store total test run and test failures */
 static int total_run = 0, fails = 0;
 
+uint16_t soc;
+
 static inline void print_version()
 {
 	ITEST_LOG("itest %d.%d commit: %s %s\n",
@@ -38,17 +40,16 @@ static void print_help(void) {
 	ITEST_LOG("  -h : Print this help\n");
 	ITEST_LOG("  -v : Print test suite version\n");
 	ITEST_LOG("  -l : List all tests\n");
-	ITEST_LOG("  -c : < dut config > MX8ULP_A2 - MX93_A1 - MX95\n");
 	ITEST_LOG("  -t < test_name > : Run test test_name\n");
 }
 
 void print_test_suite(testsuite *ts){
-    int i;
-        
-    for ( i = 0; ts[i].tc_ptr != NULL; i++){
-        if (ts[i].target & itest_ctx.target)
-            ITEST_LOG("%s\n", ts[i].name);
-    }
+	int i;
+
+	for (i = 0; ts[i].tc_ptr != NULL; i++) {
+		if ((ts[i].target & itest_ctx.target) == itest_ctx.target)
+			ITEST_LOG("%s\n", ts[i].name);
+	}
 }
 
 static void catch_failure(int signo) {
@@ -65,72 +66,67 @@ static void catch_failure_continue(int signo) {
 }
 
 static void itest_init(void) {
+	open_session_args_t open_session_args = {0};
+#ifdef PSA_COMPLIANT
+	hsm_hdl_t hsm_session_hdl;
+
+	open_session_args.session_priority = 0;
+	open_session_args.operating_mode = 0;
+	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
+		     HSM_NO_ERROR);
+
+	soc = se_get_soc_id();
+	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+#else
+	she_hdl_t she_session_hdl;
+
+	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
+		     SHE_NO_ERROR);
+	soc = se_get_soc_id();
+	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
+#endif
 	itest_ctx.test_name = NULL;
 	itest_ctx.nb_assert_fails = 0;
 	itest_ctx.ts = imx8_ts;
-	itest_ctx.target = MX8ULP_A2; // MX8ULP as default
-}
-
-int init_conf(char *target) {
-
-	if (!strcmp(target, "MX8ULP_A2")) {
-		itest_ctx.target = MX8ULP_A2;
-	} else if (!strcmp(target, "MX93_A1")) {
-		itest_ctx.target = MX93_A1;
-	} else if (!strcmp(target, "MX95")) {
-		itest_ctx.target = MX95;
-	} else if (!strcmp(target, "DBG")) {
-		itest_ctx.target = DBG;
-	} else {
-		ITEST_LOG("unknown target (MX8ULP_A2 / MX93_A1 / MX95 / DBG)\n");
-		return 0;
-	}
-	return 1;
+	itest_ctx.target = soc;
 }
 
 int main(int argc, char *argv[]){
         
-    int i = 0;
-    int status = 0;
-    int c;
-    int print_ts = 0;
+	int i = 0;
+	int status = 0;
+	int c;
+	int print_ts = 0;
 
-    itest_init();
-    opterr = 0;
+	itest_init();
+	opterr = 0;
 
-    while ((c = getopt (argc, argv, "hlvd:m:r:k:b:g:t:c:j:")) != -1) {
-        switch (c)
-        {
-        case 't':
-            itest_ctx.test_name = optarg;
-            break;
-        case 'v':
-            print_version();
-            return 0;
-        case 'l':
-            print_ts = 1;
-            break;
-        case 'c':
-            if (!init_conf(optarg))
-                return 0;
-            break;
-        case 'h':
-            print_help();
-            return 0;
-        case '?':
-            if ((optopt == 't') || (optopt == 'g') || (optopt == 'c') || (optopt == 'm')){
-                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-                print_help();
-                return 0;
-            }
-            else{
-                fprintf (stderr, "Unknown option character -%c.\n", optopt);
-                print_help();
-                return 0;
-            }
-        default:
-            abort();
-        }
+	while ((c = getopt(argc, argv, "hlvd:m:r:k:b:g:t:j:")) != -1) {
+		switch (c) {
+		case 't':
+			itest_ctx.test_name = optarg;
+			break;
+		case 'v':
+			print_version();
+			return 0;
+		case 'l':
+			print_ts = 1;
+			break;
+		case 'h':
+			print_help();
+			return 0;
+		case '?':
+			if ((optopt == 't') || (optopt == 'g') || (optopt == 'm')) {
+				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+				print_help();
+				return 0;
+			}
+			fprintf(stderr, "Unknown option character -%c.\n", optopt);
+			print_help();
+			return 0;
+		default:
+			abort();
+		}
     }
 
     if (print_ts == 1) {
