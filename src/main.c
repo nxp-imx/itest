@@ -80,6 +80,7 @@ static void itest_init(void) {
 #else
 	she_hdl_t she_session_hdl;
 
+	open_session_args.mu_type = MU_CHANNEL_PLAT_SHE;
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
 	soc = se_get_soc_id();

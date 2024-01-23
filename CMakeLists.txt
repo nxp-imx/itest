@@ -112,7 +112,6 @@ install(TARGETS itest DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if (DEFINED V2X)
  add_executable(itest_v2x ${SOURCES_v2x})
- target_compile_definitions(itest_v2x PRIVATE -DMT_SAB_FAST_MAC -DMT_SAB_UTILS -DMT_SAB_KEY_STORE -DMT_SAB_KEY_UPDATE)
 
  target_link_libraries(
   itest_v2x
