@@ -112,15 +112,14 @@ install(TARGETS itest DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if (DEFINED V2X)
  add_executable(itest_v2x ${SOURCES_v2x})
- target_compile_definitions(itest_v2x PRIVATE -DMT_SAB_FAST_MAC -DMT_SAB_UTILS -DMT_SAB_KEY_STORE -DMT_SAB_KEY_UPDATE)
 
  target_link_libraries(
   itest_v2x
   ${LIB_PATH}/libcrypto.a
   ${LIB_PATH}/libssl.a
-  ${LIB_PATH}/libseco_she.so
-  ${LIB_PATH}/libseco_she.so.1
-  ${LIB_PATH}/libseco_she.so.1.0
+  ${LIB_PATH}/lib_she.so
+  ${LIB_PATH}/lib_she.so.0
+  ${LIB_PATH}/lib_she.so.0.1
   gomp.a
   pthread
   dl

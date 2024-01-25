@@ -18,6 +18,8 @@
 #include "internal/she_key.h"
 #endif
 
+#define MU_CHANNEL_PLAT_SHE       (0x01u)
+
 /*===========Test API============*/
 #define DBG    0x10
 #define FIPS   0x80

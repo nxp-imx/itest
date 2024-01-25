@@ -104,6 +104,7 @@ int v2x_fast_mac(void)
 	// Randomizing input message
 	ASSERT_EQUAL(randomize(message, sizeof(message)), sizeof(message));
 
+	open_session_args.mu_type = MU_CHANNEL_PLAT_SHE;
 	// SHE OPEN SESSION
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
@@ -112,7 +113,8 @@ int v2x_fast_mac(void)
 	key_store_args.authentication_nonce = 0xbec00001;
 	key_store_args.max_updates_number = 300;
 	key_store_args.flags = KEY_STORE_OPEN_FLAGS_CREATE |
-			       KEY_STORE_OPEN_FLAGS_SHE;
+			       KEY_STORE_OPEN_FLAGS_SHE |
+			       KEY_STORE_OPEN_FLAGS_STRICT_OPERATION;
 	key_store_args.min_mac_length = 0x0;
 
 	// SHE OPEN KEY STORE
@@ -120,7 +122,7 @@ int v2x_fast_mac(void)
 					 &key_store_args);
 
 	if (err != SHE_NO_ERROR) {
-		if (err == SHE_ID_CONFLICT) {
+		if (err == SHE_KEY_STORE_CONFLICT || err == SHE_ID_CONFLICT) {
 			key_store_args.flags = KEY_STORE_OPEN_FLAGS_SHE;
 			err = she_open_key_store_service(she_session_hdl,
 							 &key_store_args);
