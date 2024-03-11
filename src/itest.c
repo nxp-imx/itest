@@ -111,7 +111,7 @@ void start_timer(timer_perf_t *timer) {
 }
 
 void stop_timer(timer_perf_t *timer) {
-    uint64_t latency_us;
+    double latency_us;
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts2);
     /* Compute the latency of a single operation */
@@ -126,13 +126,26 @@ void stop_timer(timer_perf_t *timer) {
 }
 
 void finalize_timer(timer_perf_t *timer, uint32_t nb_iter) {
-    timer->op_sec = (uint32_t)((uint64_t)1000000*(uint64_t)nb_iter/timer->time_us);
-    timer->t_per_op = (uint32_t)(timer->time_us/nb_iter);
+    timer->op_sec = 1000000*nb_iter/timer->time_us;
+    timer->t_per_op = timer->time_us/nb_iter;
     timer->nb_iter = nb_iter;
 }
 
-uint64_t timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
-    return (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000u + (ts2->tv_nsec - ts1->tv_nsec)/1000;
+double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
+	double diff_microsec;
+	struct timespec res;
+
+	res.tv_sec = ts2->tv_sec - ts1->tv_sec;
+	res.tv_nsec = ts2->tv_nsec - ts1->tv_nsec;
+
+	if (res.tv_nsec < 0) {
+		res.tv_sec--;
+		res.tv_nsec += 1000000000;
+	}
+
+	diff_microsec = res.tv_sec * 1000000 + ((double)res.tv_nsec * 0.001);
+
+	return diff_microsec;
 }
 
 void print_perf(timer_perf_t *timer) {
