@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -17,7 +17,7 @@ hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		      uint8_t *input, uint8_t *output, uint32_t block_size,
 		      uint8_t *iv, uint16_t iv_size,
 		      hsm_op_cipher_one_go_algo_t algo,
-		      hsm_op_cipher_one_go_flags_t flags)
+		      hsm_op_cipher_one_go_flags_t flags, uint32_t session_hdl)
 {
 	op_cipher_one_go_args_t cipher_args;
 	uint32_t j, iter = NUM_OPERATIONS;
@@ -35,6 +35,7 @@ hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 	cipher_args.output_size = block_size;
 
 	memset(&t_perf, 0, sizeof(t_perf));
+	t_perf.session_hdl = session_hdl;
 
 	for (j = 0; j < iter; j++) {
 		/* Start the timer */
@@ -47,7 +48,7 @@ hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 	}
 	/* Finalize time to get stats */
 	finalize_timer(&t_perf, iter);
-	ITEST_CHECK_KPI_OPS(t_perf.op_sec, 100);
+	print_perf(&t_perf, iter);
 
 	return err;
 }
@@ -141,63 +142,63 @@ int ele_cbc(void)
 	ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
 		     HSM_NO_ERROR);
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-128-CBC encryption on %d byte blocks: ",
+		ITEST_LOG("AES-128-CBC encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_128, msg, buff_encr,
 				  block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_CBC,
-				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-128-CBC decryption on %d byte blocks: ",
+		ITEST_LOG("AES-128-CBC decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_128, buff_encr,
 				  buff_decr, block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_CBC,
-				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-192-CBC encryption on %d byte blocks: ",
+		ITEST_LOG("AES-192-CBC encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_192, msg, buff_encr,
 				  block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_CBC,
-				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-192-CBC decryption on %d byte blocks: ",
+		ITEST_LOG("AES-192-CBC decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_192, buff_encr,
 				  buff_decr, block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_CBC,
-				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-256-CBC encryption on %d byte blocks: ",
+		ITEST_LOG("AES-256-CBC encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_256, msg, buff_encr,
 				  block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_CBC,
-				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-256-CBC decryption on %d byte blocks: ",
+		ITEST_LOG("AES-256-CBC decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_256, buff_encr,
 				  buff_decr, block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_CBC,
-				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);

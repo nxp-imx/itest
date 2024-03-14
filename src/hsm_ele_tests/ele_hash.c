@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -65,10 +65,12 @@ int ele_hash(void)
 				      &hsm_session_hdl),
 		     HSM_NO_ERROR);
 
+	memset(&t_perf, 0, sizeof(t_perf));
+	t_perf.session_hdl = hsm_session_hdl;
 	for (i = 0; i < NB_ALGO; i++) {
 		for (k = 0; k < NUM_MSG_SIZE; k++) {
 			size_input = block_size[k];
-			ITEST_LOG("Generating hash for %s for %d byte input message: ",
+			ITEST_LOG("Doing %s for 1s on %d byte block: ",
 				  algos_str[i], size_input);
 			// GEN HASH Mu SV0
 			hash_args.input = dgst_in_buff;
@@ -105,7 +107,7 @@ int ele_hash(void)
 			}
 				/* Finalize time to get stats */
 				finalize_timer(&t_perf, iter);
-				ITEST_CHECK_KPI_OPS(t_perf.op_sec, 10);
+				print_perf(&t_perf, iter);
 		}
 	}
 

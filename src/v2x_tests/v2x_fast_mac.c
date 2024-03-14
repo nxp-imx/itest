@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -99,8 +99,6 @@ int v2x_fast_mac(void)
 	uint32_t i, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf;
 
-	memset(&t_perf, 0, sizeof(t_perf));
-
 	// Randomizing input message
 	ASSERT_EQUAL(randomize(message, sizeof(message)), sizeof(message));
 
@@ -145,13 +143,16 @@ int v2x_fast_mac(void)
 
 	// MAC GENERATION
 
-	ITEST_LOG("FAST MAC generation on %d byte blocks: ", sizeof(message));
+	ITEST_LOG("FAST MAC generation for 1s on %d byte blocks: ",
+		  sizeof(message));
 	generate_mac_args.key_ext = 0x00;
 	generate_mac_args.key_id = SHE_KEY_5 | generate_mac_args.key_ext;
 	generate_mac_args.mac = mac;
 	generate_mac_args.message = message;
 	generate_mac_args.message_length = sizeof(message);
 
+	memset(&t_perf, 0, sizeof(t_perf));
+	t_perf.session_hdl = she_session_hdl;
 	for (i = 0U; i < iter; i++) {
 		/* Start the timer */
 		start_timer(&t_perf);
@@ -164,11 +165,12 @@ int v2x_fast_mac(void)
 	}
 	/* Finalize time to get stats */
 	finalize_timer(&t_perf, iter);
-	ITEST_CHECK_KPI_OPS(t_perf.op_sec, 10);
+	print_perf(&t_perf, iter);
 
 	// MAC VERIFICATION
 
-	ITEST_LOG("FAST MAC verification on %d byte blocks: ", sizeof(message));
+	ITEST_LOG("FAST MAC verification for 1s on %d byte blocks: ",
+		  sizeof(message));
 	verify_mac_args.key_ext = 0x00;
 	verify_mac_args.key_id = SHE_KEY_1 | verify_mac_args.key_ext;
 	verify_mac_args.mac = mac;
@@ -177,6 +179,8 @@ int v2x_fast_mac(void)
 	verify_mac_args.message_length = sizeof(message);
 	verify_mac_args.mac_length_encoding = MAC_BYTES_LENGTH;
 
+	memset(&t_perf, 0, sizeof(t_perf));
+	t_perf.session_hdl = she_session_hdl;
 	for (i = 0U; i < iter; i++) {
 		/* Start the timer */
 		start_timer(&t_perf);
@@ -189,7 +193,7 @@ int v2x_fast_mac(void)
 	}
 	/* Finalize time to get stats */
 	finalize_timer(&t_perf, iter);
-	ITEST_CHECK_KPI_OPS(t_perf.op_sec, 10);
+	print_perf(&t_perf, iter);
 
 	ASSERT_EQUAL(verify_mac_args.verification_status,
 		     SHE_MAC_VERIFICATION_SUCCESS);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <fcntl.h>
@@ -106,32 +106,51 @@ void init_timer(timer_perf_t *timer) {
     timer->nb_iter = 0U;
 }
 
-void start_timer(timer_perf_t *timer) {
+void start_timer(timer_perf_t *timer)
+{
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts1);
 }
 
-void stop_timer(timer_perf_t *timer) {
-    double latency_us;
+void stop_timer(timer_perf_t *timer)
+{
+	double latency_us;
 
-    (void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts2);
-    /* Compute the latency of a single operation */
-    latency_us = timespec_elapse_usec(&timer->ts1, &timer->ts2);
-    /* Add the latency to the total */
-    timer->time_us += latency_us;
-    /* Update min/max latency if lower/greater */
-    if (latency_us < timer->min_time_us)
-        timer->min_time_us = latency_us;
-    if (latency_us > timer->max_time_us)
-        timer->max_time_us = latency_us;
+	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts2);
+
+	struct time_frame perf_time;
+	uint32_t err;
+
+	err = get_perf_timer(timer->session_hdl, &perf_time);
+
+	if (err) {
+		ITEST_LOG("Get Performance timer failed\n");
+		return;
+	}
+
+	timer->fw_t += timespec_elapse_usec(&perf_time.t_start, &perf_time.t_end);
+	timer->lib_request_t += timespec_elapse_usec(&timer->ts1, &perf_time.t_start);
+	timer->lib_response_t += timespec_elapse_usec(&perf_time.t_end, &timer->ts2);
+
+	/* Compute the latency of a single operation */
+	latency_us = timespec_elapse_usec(&timer->ts1, &timer->ts2);
+	/* Add the latency to the total */
+	timer->time_us += latency_us;
+	/* Update min/max latency if lower/greater */
+	if (latency_us < timer->min_time_us)
+		timer->min_time_us = latency_us;
+	if (latency_us > timer->max_time_us)
+		timer->max_time_us = latency_us;
 }
 
-void finalize_timer(timer_perf_t *timer, uint32_t nb_iter) {
-    timer->op_sec = 1000000*nb_iter/timer->time_us;
-    timer->t_per_op = timer->time_us/nb_iter;
-    timer->nb_iter = nb_iter;
+void finalize_timer(timer_perf_t *timer, uint32_t nb_iter)
+{
+	timer->op_sec = 1000000*nb_iter/timer->time_us;
+	timer->t_per_op = timer->time_us/nb_iter;
+	timer->nb_iter = nb_iter;
 }
 
-double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
+double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2)
+{
 	double diff_microsec;
 	struct timespec res;
 
@@ -148,11 +167,22 @@ double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2) {
 	return diff_microsec;
 }
 
-void print_perf(timer_perf_t *timer) {
-    ITEST_LOG("=== Perf ===\n");
-    ITEST_LOG("Op/s = %u, Max latency = %lu us\n",
-        timer->op_sec, timer->max_time_us);
-    ITEST_LOG("Average time single op = %u us, Min latency = %lu us, Total time = %lu us, Num of op = %d\n",
-        timer->t_per_op, timer->min_time_us, timer->time_us, timer->nb_iter);
-    ITEST_LOG("============\n");
+void print_perf(timer_perf_t *timer, uint32_t nb_iter)
+{
+	double lib_request_t_per_op = timer->lib_request_t/nb_iter;
+	double lib_response_t_per_op = timer->lib_response_t/nb_iter;
+	double fw_t_per_op = timer->fw_t/nb_iter;
+
+	ITEST_LOG("%d ops (%.2lfus/op)\n", timer->op_sec,
+					   timer->t_per_op);
+	ITEST_LOG("%20s %12s %23s\n", "SE LIB -> Kernel",
+#ifdef PSA_COMPLIANT
+				      "ELE FW",
+#else
+				      "V2X FW",
+#endif
+				      "Kernel -> SE LIB");
+	ITEST_LOG("%14.2lfus", lib_request_t_per_op);
+	ITEST_LOG("%16.2lfus", fw_t_per_op);
+	ITEST_LOG("%17.2lfus\n\n", lib_response_t_per_op);
 }

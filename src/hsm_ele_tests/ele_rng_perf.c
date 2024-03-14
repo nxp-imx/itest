@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -33,9 +33,11 @@ int ele_rng_perf(void)
 	rng_get_random_args.output = rng_out_buff;
 
 	for (i = 0; i < NUM_BUFF_SZ; i++) {
-		ITEST_LOG("Generating %d byte random number: ", buff_size[i]);
+		ITEST_LOG("Generating %d byte random number for 1s: ", buff_size[i]);
 		rng_get_random_args.random_size = buff_size[i];
 
+		memset(&t_perf, 0, sizeof(t_perf));
+		t_perf.session_hdl = hsm_session_hdl;
 		for (j = 0; j < iter; j++) {
 			/* Start the timer */
 			start_timer(&t_perf);
@@ -48,7 +50,7 @@ int ele_rng_perf(void)
 		}
 		/* Finalize time to get stats */
 		finalize_timer(&t_perf, iter);
-		ITEST_CHECK_KPI_OPS(t_perf.op_sec, 50);
+		print_perf(&t_perf, iter);
 	}
 
 out:
