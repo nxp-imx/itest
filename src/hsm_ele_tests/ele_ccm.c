@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -106,69 +106,72 @@ int ele_ccm(void)
 		     HSM_NO_ERROR);
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-128-CCM encryption on %d byte blocks: ",
+		ITEST_LOG("AES-128-CCM encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = auth_test(cipher_hdl, key_id_aes_128, plaintext,
 				block_size[i], ciphertext,
 				block_size[i] + AUTH_TAG_SIZE, iv,
 				sizeof(iv), aad, sizeof(aad),
-				HSM_AEAD_ALGO_CCM, HSM_AUTH_ENC_FLAGS_ENCRYPT);
+				HSM_AEAD_ALGO_CCM, HSM_AUTH_ENC_FLAGS_ENCRYPT,
+				hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-128-CCM decryption on %d byte blocks: ",
+		ITEST_LOG("AES-128-CCM decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = auth_test(cipher_hdl, key_id_aes_128, ciphertext,
 				block_size[i] + AUTH_TAG_SIZE, test_msg,
 				block_size[i], iv, sizeof(iv), aad,
 				sizeof(aad), HSM_AEAD_ALGO_CCM,
-				HSM_AUTH_ENC_FLAGS_DECRYPT);
+				HSM_AUTH_ENC_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-192-CCM encryption on %d byte blocks: ",
+		ITEST_LOG("AES-192-CCM encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = auth_test(cipher_hdl, key_id_aes_192, plaintext,
 				block_size[i], ciphertext,
 				block_size[i] + AUTH_TAG_SIZE, iv,
 				sizeof(iv), aad, sizeof(aad),
-				HSM_AEAD_ALGO_CCM, HSM_AUTH_ENC_FLAGS_ENCRYPT);
+				HSM_AEAD_ALGO_CCM, HSM_AUTH_ENC_FLAGS_ENCRYPT,
+				hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-192-CCM decryption on %d byte blocks: ",
+		ITEST_LOG("AES-192-CCM decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = auth_test(cipher_hdl, key_id_aes_192, ciphertext,
 				block_size[i] + AUTH_TAG_SIZE, test_msg,
 				block_size[i], iv, sizeof(iv), aad,
 				sizeof(aad), HSM_AEAD_ALGO_CCM,
-				HSM_AUTH_ENC_FLAGS_DECRYPT);
+				HSM_AUTH_ENC_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-256-CCM encryption on %d byte blocks: ",
+		ITEST_LOG("AES-256-CCM encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = auth_test(cipher_hdl, key_id_aes_256, plaintext,
 				block_size[i], ciphertext,
 				block_size[i] + AUTH_TAG_SIZE, iv,
 				sizeof(iv), aad, sizeof(aad),
-				HSM_AEAD_ALGO_CCM, HSM_AUTH_ENC_FLAGS_ENCRYPT);
+				HSM_AEAD_ALGO_CCM, HSM_AUTH_ENC_FLAGS_ENCRYPT,
+				hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-256-CCM decryption on %d byte blocks: ",
+		ITEST_LOG("AES-256-CCM decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = auth_test(cipher_hdl, key_id_aes_256, ciphertext,
 				block_size[i] + AUTH_TAG_SIZE, test_msg,
 				block_size[i], iv, sizeof(iv), aad,
 				sizeof(aad), HSM_AEAD_ALGO_CCM,
-				HSM_AUTH_ENC_FLAGS_DECRYPT);
+				HSM_AUTH_ENC_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);

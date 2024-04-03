@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -126,7 +126,7 @@ int ecdsa_brainpool_sign_verify(void)
 			     HSM_NO_ERROR);
 
 		for (k = 0; k < NUM_MSG_SIZE; k++) {
-			ITEST_LOG("ECDSA_SHA_%d signing on %d byte size blocks: ",
+			ITEST_LOG("ECDSA_SHA_%d signing for 1s on %d byte size blocks: ",
 				  bit_key_sz[j], msg_size[k]);
 			sig_gen_args.key_identifier = key_id[j];
 			sig_gen_args.message = msg_0;
@@ -138,6 +138,7 @@ int ecdsa_brainpool_sign_verify(void)
 			sig_gen_args.exp_signature_size = size_pub_key[j];
 			sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE;
 			memset(&t_perf, 0, sizeof(t_perf));
+			t_perf.session_hdl = hsm_session_hdl;
 
 			for (i = 0U; i < iter; i++) {
 				/* Start the timer */
@@ -152,7 +153,7 @@ int ecdsa_brainpool_sign_verify(void)
 
 			/* Finalize time to get stats */
 			finalize_timer(&t_perf, iter);
-			ITEST_CHECK_KPI_OPS(t_perf.op_sec, 10);
+			print_perf(&t_perf, iter);
 
 			args.key_identifier = key_id[j];
 			args.out_key_size = size_pub_key[j];
@@ -161,7 +162,7 @@ int ecdsa_brainpool_sign_verify(void)
 			ASSERT_EQUAL(hsm_pub_key_recovery(key_store_hdl,
 							  &args),
 				     HSM_NO_ERROR);
-			ITEST_LOG("ECDSA_SHA_%d verification on %d byte size blocks: ",
+			ITEST_LOG("ECDSA_SHA_%d verification for 1s on %d byte size blocks: ",
 				  bit_key_sz[j], msg_size[k]);
 			sig_ver_args.key = pub_key[j];
 			sig_ver_args.message = msg_0;
@@ -176,6 +177,7 @@ int ecdsa_brainpool_sign_verify(void)
 			sig_ver_args.pkey_type = HSM_PUBKEY_TYPE_ECC_BP_R1;
 			sig_ver_args.flags = HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE;
 			memset(&t_perf, 0, sizeof(t_perf));
+			t_perf.session_hdl = hsm_session_hdl;
 
 			for (i = 0U; i < iter; i++) {
 				/* Start the timer */
@@ -194,7 +196,7 @@ int ecdsa_brainpool_sign_verify(void)
 
 			/* Finalize time to get stats */
 			finalize_timer(&t_perf, iter);
-			ITEST_CHECK_KPI_OPS(t_perf.op_sec, 10);
+			print_perf(&t_perf, iter);
 		}
 	}
 

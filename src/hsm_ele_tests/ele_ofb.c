@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -102,63 +102,63 @@ int ele_ofb(void)
 	ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
 		     HSM_NO_ERROR);
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-128-OFB encryption on %d byte blocks: ",
+		ITEST_LOG("AES-128-OFB encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_128, msg, buff_encr,
 				  block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_OFB,
-				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-128-OFB decryption on %d byte blocks: ",
+		ITEST_LOG("AES-128-OFB decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_128, buff_encr,
 				  buff_decr, block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_OFB,
-				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-192-OFB encryption on %d byte blocks: ",
+		ITEST_LOG("AES-192-OFB encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_192, msg, buff_encr,
 				  block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_OFB,
-				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-192-OFB decryption on %d byte blocks: ",
+		ITEST_LOG("AES-192-OFB decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_192, buff_encr,
 				  buff_decr, block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_OFB,
-				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);
 	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
-		ITEST_LOG("AES-256-OFB encryption on %d byte blocks: ",
+		ITEST_LOG("AES-256-OFB encryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_256, msg, buff_encr,
 				  block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_OFB,
-				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("AES-256-OFB decryption on %d byte blocks: ",
+		ITEST_LOG("AES-256-OFB decryption for 1s on %d byte blocks: ",
 			  block_size[i]);
 		err = cipher_test(cipher_hdl, key_id_aes_256, buff_encr,
 				  buff_decr, block_size[i], iv, 16,
 				  HSM_CIPHER_ONE_GO_ALGO_OFB,
-				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT);
+				  HSM_CIPHER_ONE_GO_FLAGS_DECRYPT, hsm_session_hdl);
 		if (err)
 			goto out;
 		ASSERT_EQUAL(memcmp(msg, buff_decr, block_size[i]), 0);

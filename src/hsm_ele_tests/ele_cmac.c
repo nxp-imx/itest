@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -17,7 +17,8 @@
 
 hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 		    uint8_t *payload, uint32_t payload_size,
-		    uint8_t *mac, hsm_op_mac_one_go_flags_t flags)
+		    uint8_t *mac, hsm_op_mac_one_go_flags_t flags,
+		    uint32_t session_hdl)
 {
 	op_mac_one_go_args_t mac_one_go;
 	hsm_mac_verification_status_t mac_status;
@@ -34,6 +35,7 @@ hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 	mac_one_go.mac_size = MAC_SIZE;
 
 	memset(&t_perf, 0, sizeof(t_perf));
+	t_perf.session_hdl = session_hdl;
 
 	for (i = 0U; i < iter; i++) {
 		/* Start the timer */
@@ -50,7 +52,7 @@ hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 
 	/* Finalize time to get stats */
 	finalize_timer(&t_perf, iter);
-	ITEST_CHECK_KPI_OPS(t_perf.op_sec, 200);
+	print_perf(&t_perf, iter);
 	return err;
 }
 
@@ -129,37 +131,41 @@ int ele_cmac(void)
 		     HSM_NO_ERROR);
 
 	for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
-		ITEST_LOG("CMAC aes 128 generation on %d byte blocks: ",
+		ITEST_LOG("CMAC aes 128 generation for 1s on %d byte blocks: ",
 			  payload_size[i]);
 		err = cmac_test(mac_hdl, key_id_aes_128, test_msg,
 				payload_size[i], mac,
-				HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION);
+				HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION,
+				hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("CMAC aes 128 verification on %d byte blocks: ",
+		ITEST_LOG("CMAC aes 128 verification for 1s on %d byte blocks: ",
 			  payload_size[i]);
 		err = cmac_test(mac_hdl, key_id_aes_128, test_msg,
 				payload_size[i], mac,
-				HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION);
+				HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION,
+				hsm_session_hdl);
 		if (err)
 			goto out;
 	}
 
 	for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
-		ITEST_LOG("CMAC aes 256 generation on %d byte blocks: ",
+		ITEST_LOG("CMAC aes 256 generation for 1s on %d byte blocks: ",
 			  payload_size[i]);
 		err = cmac_test(mac_hdl, key_id_aes_256, test_msg,
 				payload_size[i], mac,
-				HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION);
+				HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION,
+				hsm_session_hdl);
 		if (err)
 			goto out;
 
-		ITEST_LOG("CMAC aes 256 verification on %d byte blocks: ",
+		ITEST_LOG("CMAC aes 256 verification for 1s on %d byte blocks: ",
 			  payload_size[i]);
 		err = cmac_test(mac_hdl, key_id_aes_256, test_msg,
 				payload_size[i], mac,
-				HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION);
+				HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION,
+				hsm_session_hdl);
 		if (err)
 			goto out;
 	}

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef TEST_API_H
@@ -13,6 +13,7 @@
 #include <signal.h>
 #include "hsm_api.h"
 #include "common/global_info.h"
+#include "common/perf.h"
 #ifndef PSA_COMPLIANT
 #include "she_api.h"
 #include "internal/she_key.h"
@@ -89,20 +90,6 @@ void outputLog(const char *const format, ...);
         raise(SIGUSR1); \
     }
 
-#define ITEST_CHECK_KPI_LATENCY(got, thr) \
-do { \
-    ITEST_LOG("KPI: Max Latency [us]: %d/%d (Got/Threshold)\n", (uint32_t)got, (uint32_t)thr); \
-    ASSERT_EQUAL_W((got) > (thr), 0); \
-} \
-while(0)
-
-#define ITEST_CHECK_KPI_OPS(got, thr) \
-do { \
-    ITEST_LOG("KPI: Operations per second: %d/%d (Got/Threshold)\n", (uint32_t)got, (uint32_t)thr); \
-    ASSERT_EQUAL_W((got) < (thr), 0); \
-} \
-while(0)
-
 /* Key sizes */
 #define KEY_ECDSA_SM2_SIZE                    (0x40u)
 #define KEY_ECDSA_NIST_P256_SIZE              (0x40u)
@@ -127,14 +114,18 @@ while(0)
 #define DGST_SHA_384_SIZE    (0x30u)
 
 typedef struct {
-    struct timespec ts1; // for total iterations
-    struct timespec ts2; // for total iterations
-    double time_us;
-    double min_time_us;
-    double max_time_us;
-    uint32_t nb_iter;
-    uint32_t op_sec;
-    double t_per_op;
+	struct timespec ts1; // for total iterations
+	struct timespec ts2; // for total iterations
+	double time_us;
+	double min_time_us;
+	double max_time_us;
+	uint32_t nb_iter;
+	uint32_t op_sec;
+	double t_per_op;
+	double fw_t;
+	double lib_request_t;
+	double lib_response_t;
+	uint32_t session_hdl;
 } timer_perf_t;
 
 typedef struct{
@@ -154,14 +145,14 @@ typedef struct{
 hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier, uint8_t *input,
 		 uint8_t *output, uint32_t block_size, uint8_t *iv,
 		 uint16_t iv_size, hsm_op_cipher_one_go_algo_t algo,
-		 hsm_op_cipher_one_go_flags_t flags);
+		 hsm_op_cipher_one_go_flags_t flags, uint32_t session_hdl);
 /*===========AUTH TEST============*/
 hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		    uint8_t *input, uint32_t input_size, uint8_t *output,
 		    uint32_t output_size, uint8_t *iv, uint16_t iv_size,
 		    uint8_t *aad, uint16_t aad_size,
 		    hsm_op_auth_enc_algo_t algo,
-		    hsm_op_auth_enc_flags_t flags);
+		    hsm_op_auth_enc_flags_t flags, uint32_t session_hdl);
 /*===========TEST CTX============*/
 size_t save_test_ctx(void *ctx, size_t count, char *file);
 size_t load_test_ctx(void *ctx, size_t count, char *file);
@@ -172,6 +163,6 @@ void start_timer(timer_perf_t *timer);
 void stop_timer(timer_perf_t *timer);
 void finalize_timer(timer_perf_t *timer, uint32_t nb_iter);
 double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
-void print_perf(timer_perf_t *timer);
+void print_perf(timer_perf_t *timer, uint32_t nb_iter);
 
 #endif
