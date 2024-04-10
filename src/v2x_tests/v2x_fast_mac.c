@@ -50,8 +50,7 @@ void key_update_test(she_hdl_t utils_handle)
 	uint8_t m4[2 * SHE_KEY_SIZE_IN_BYTES] = {0};
 	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
 
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_KEY_1 | key_update_args.key_ext;
+	key_update_args.key_id = SHE_KEY_1;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2_1;
 	key_update_args.m3 = m3_1;
@@ -69,8 +68,7 @@ void key_update_test(she_hdl_t utils_handle)
 	m1[15] = 0x88;
 	memset(&key_update_args, 0, sizeof(key_update_args));
 
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_KEY_5 | key_update_args.key_ext;
+	key_update_args.key_id = SHE_KEY_5;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2_5;
 	key_update_args.m3 = m3_5;
@@ -146,7 +144,7 @@ int v2x_fast_mac(void)
 	ITEST_LOG("FAST MAC generation for 1s on %d byte blocks: ",
 		  sizeof(message));
 	generate_mac_args.key_ext = 0x00;
-	generate_mac_args.key_id = SHE_KEY_5 | generate_mac_args.key_ext;
+	generate_mac_args.key_id = SHE_KEY_5;
 	generate_mac_args.mac = mac;
 	generate_mac_args.message = message;
 	generate_mac_args.message_length = sizeof(message);
@@ -172,7 +170,7 @@ int v2x_fast_mac(void)
 	ITEST_LOG("FAST MAC verification for 1s on %d byte blocks: ",
 		  sizeof(message));
 	verify_mac_args.key_ext = 0x00;
-	verify_mac_args.key_id = SHE_KEY_1 | verify_mac_args.key_ext;
+	verify_mac_args.key_id = SHE_KEY_1;
 	verify_mac_args.mac = mac;
 	verify_mac_args.mac_length = SHE_MAC_SIZE;
 	verify_mac_args.message = message;
