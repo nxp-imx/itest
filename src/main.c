@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -22,18 +22,17 @@ uint16_t soc;
 static inline void print_version()
 {
 	ITEST_LOG("itest %d.%d commit: %s %s\n",
-Itest_VERSION_MAJOR, Itest_VERSION_MINOR, GIT_SHA1, GIT_DATE);
+		  Itest_VERSION_MAJOR, Itest_VERSION_MINOR, GIT_SHA1, GIT_DATE);
 }
 
 static inline void print_stats()
 {
-    ITEST_LOG("+------------------------------------------------------\n");
-    ITEST_LOG("Tests Run  : %d\n", total_run);
-    ITEST_LOG("Tests Fail : %d\n", fails);
-    ITEST_LOG("itest done!\n");
+	ITEST_LOG("+------------------------------------------------------\n");
+	ITEST_LOG("Tests Run  : %d\n", total_run);
+	ITEST_LOG("Tests Fail : %d\n", fails);
+	ITEST_LOG("itest done!\n");
 }
 static void print_help(void) {
-
 	ITEST_LOG("\nitest Help Menu:\n\n");
 	ITEST_LOG("$ ./itest [OPTION] <argument>\n\n");
 	ITEST_LOG("OPTIONS:\n");
@@ -53,16 +52,16 @@ void print_test_suite(testsuite *ts){
 }
 
 static void catch_failure(int signo) {
-    fails++;
-    ITEST_LOG("FAIL: tests interrupted by signal %d\n", signo);
-    print_stats();
-    sleep(2);
-    exit(signo);
+	fails++;
+	ITEST_LOG("FAIL: tests interrupted by signal %d\n", signo);
+	print_stats();
+	sleep(2);
+	exit(signo);
 }
 
 static void catch_failure_continue(int signo) {
-    (void)(signo);
-    itest_ctx.nb_assert_fails++;
+	(void)(signo);
+	itest_ctx.nb_assert_fails++;
 }
 
 static void itest_init(void) {
@@ -95,83 +94,121 @@ static void itest_init(void) {
 int main(int argc, char *argv[]){
         
 	int i = 0;
-	int status = 0;
+	int status = 0, valid_usage = 0, valid_test = 0;
 	int c;
 	int print_ts = 0;
 
 	itest_init();
 	opterr = 0;
 
-	while ((c = getopt(argc, argv, "hlvd:m:r:k:b:g:t:j:")) != -1) {
+	if (argc < 2 || argc > 3 || strlen(argv[1]) != 2) {
+		print_help();
+		return 1;
+	}
+
+	while ((c = getopt(argc, argv, ":hlvt:")) != -1) {
+		valid_usage = 1;
 		switch (c) {
 		case 't':
 			itest_ctx.test_name = optarg;
 			break;
 		case 'v':
+			if (argc > 2) {
+				print_help();
+				return 1;
+			}
 			print_version();
 			return 0;
 		case 'l':
+			if (argc > 2) {
+				print_help();
+				return 1;
+			}
 			print_ts = 1;
 			break;
 		case 'h':
 			print_help();
+			if (argc > 2)
+				return 1;
 			return 0;
-		case '?':
-			if ((optopt == 't') || (optopt == 'g') || (optopt == 'm')) {
-				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-				print_help();
-				return 0;
-			}
-			fprintf(stderr, "Unknown option character -%c.\n", optopt);
+		case ':':
+			fprintf(stderr, "Option -%c requires an argument.\n",
+				optopt);
 			print_help();
-			return 0;
+			return 1;
+		case '?':
+			fprintf(stderr, "Unknown option character.\n");
+			print_help();
+			return 1;
 		default:
 			abort();
 		}
-    }
+	}
 
-    if (print_ts == 1) {
-        print_test_suite(itest_ctx.ts);
-        return 0;
-    }
+	if (valid_usage == 0) {
+		print_help();
+		return 1;
+	}
 
-    /* Print itest version at the beginning of the test */
-    print_version();
-    if (itest_ctx.test_name == NULL){
-        ITEST_LOG("No tests provided! Please, insert a test:\n");
-        print_test_suite(itest_ctx.ts);
-        return 0;
-    }
-    if ((signal(SIGINT, catch_failure) == SIG_ERR)
-        || (signal(SIGUSR1, catch_failure_continue) == SIG_ERR)) {
-        fputs("An error occurred while setting a signal handler.\n", stderr);
-        return 0;
-    }
-    for ( i = 0; itest_ctx.ts[i].tc_ptr != NULL; i++){
-        if (!strcmp(itest_ctx.ts[i].name, itest_ctx.test_name)){
-            if (!(itest_ctx.ts[i].target & itest_ctx.target)) {
-                ITEST_LOG("#######################################################\n");
-                ITEST_LOG("# BAD TARGET FOR TEST: %s\n", itest_ctx.ts[i].name);
-                ITEST_LOG("#######################################################\n");
-                fails++;
-                break;
-            }
-            ITEST_LOG("#######################################################\n");
-            ITEST_LOG("# Running test: %s\n", itest_ctx.ts[i].name);
-            ITEST_LOG("#######################################################\n");
-            total_run++;
-            status = itest_ctx.ts[i].tc_ptr();
-            ITEST_LOG("#######################################################\n");
-            if (!status || (itest_ctx.nb_assert_fails > 0)){
-                ITEST_LOG("%s: FAIL ===> %d fails\n",
-                    itest_ctx.test_name, itest_ctx.nb_assert_fails);
-                fails++;
-            }
-            else
-                ITEST_LOG("%s: PASS\n", itest_ctx.test_name);
-        }
-    }
-    print_stats();
+	if (print_ts == 1) {
+		print_test_suite(itest_ctx.ts);
+		return 0;
+	}
 
-    return fails;
+	/* Print itest version at the beginning of the test */
+	print_version();
+	if (itest_ctx.test_name == NULL) {
+		ITEST_LOG("No tests provided! Please, insert a test:\n");
+		print_test_suite(itest_ctx.ts);
+		return 1;
+	}
+	if ((signal(SIGINT, catch_failure) == SIG_ERR)
+	|| (signal(SIGUSR1, catch_failure_continue) == SIG_ERR)) {
+		fputs("An error occurred while setting a signal handler.\n",
+		      stderr);
+		return 1;
+	}
+	for (i = 0; itest_ctx.ts[i].tc_ptr != NULL; i++) {
+		if (!strcmp(itest_ctx.ts[i].name, itest_ctx.test_name)) {
+			if (!(itest_ctx.ts[i].target & itest_ctx.target)) {
+				ITEST_LOG("###############################");
+				ITEST_LOG("########################\n");
+				ITEST_LOG("# BAD TARGET FOR TEST: %s\n",
+					  itest_ctx.ts[i].name);
+				ITEST_LOG("###############################");
+				ITEST_LOG("########################\n");
+				fails++;
+				break;
+			}
+			valid_test = 1;
+			ITEST_LOG("#######################################");
+			ITEST_LOG("################\n");
+			ITEST_LOG("# Running test: %s\n", itest_ctx.ts[i].name);
+			ITEST_LOG("########################################");
+			ITEST_LOG("###############\n");
+			total_run++;
+			status = itest_ctx.ts[i].tc_ptr();
+			ITEST_LOG("#######################################");
+			ITEST_LOG("################\n");
+			if (!status || (itest_ctx.nb_assert_fails > 0)) {
+				ITEST_LOG("%s: FAIL ===> %d fails\n",
+					  itest_ctx.test_name,
+					  itest_ctx.nb_assert_fails);
+				fails++;
+			} else
+				ITEST_LOG("%s: PASS\n", itest_ctx.test_name);
+		}
+	}
+
+	if (!valid_test) {
+		ITEST_LOG("\nProvided test not present in test suite, ",
+			  itest_ctx.test_name);
+		ITEST_LOG("please add from the following:\n");
+		print_test_suite(itest_ctx.ts);
+		return 1;
+	}
+
+	print_stats();
+
+	return fails;
 }
