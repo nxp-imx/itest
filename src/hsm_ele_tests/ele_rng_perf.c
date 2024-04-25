@@ -25,8 +25,7 @@ int ele_rng_perf(void)
 	hsm_hdl_t hsm_session_hdl;
 
 	// ELE OPEN SESSION
-	args.session_priority = 0;
-	args.operating_mode = 0;
+	args.mu_type = HSM1;
 	ASSERT_EQUAL(hsm_open_session(&args, &hsm_session_hdl), HSM_NO_ERROR);
 
 	// GET RANDOM Mu SV/SG

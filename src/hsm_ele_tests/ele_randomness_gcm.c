@@ -67,8 +67,7 @@ int ele_randomness_gcm(void)
 	memset(iv1, 0, sizeof(iv1));
 	memset(iv2, 0, sizeof(iv2));
 
-	open_session_args.session_priority = 0;
-	open_session_args.operating_mode = 0;
+	open_session_args.mu_type = HSM1;
 	ASSERT_EQUAL(hsm_open_session(&open_session_args,
 				      &hsm_session_hdl),
 		     HSM_NO_ERROR);
