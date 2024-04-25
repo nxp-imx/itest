@@ -67,8 +67,7 @@ int ecdsa_nist_sign_verify(void)
 	uint32_t msg_size[] = {16, 64, 256, 1024, 8192, 16384};
 	op_pub_key_recovery_args_t args = {0};
 
-	open_session_args.session_priority = 0;
-	open_session_args.operating_mode = 0;
+	open_session_args.mu_type = HSM1;
 	ASSERT_EQUAL(hsm_open_session(&open_session_args,
 				      &hsm_session_hdl),
 		     HSM_NO_ERROR);

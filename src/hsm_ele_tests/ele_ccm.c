@@ -41,8 +41,7 @@ int ele_ccm(void)
 	ASSERT_EQUAL(randomize(plaintext, MAX_MSG_SIZE), MAX_MSG_SIZE);
 	ASSERT_EQUAL(randomize(aad, sizeof(aad)), sizeof(aad));
 
-	open_session_args.session_priority = 0;
-	open_session_args.operating_mode = 0;
+	open_session_args.mu_type = HSM1;
 	ASSERT_EQUAL(hsm_open_session(&open_session_args,
 				      &hsm_session_hdl),
 		     HSM_NO_ERROR);

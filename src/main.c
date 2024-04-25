@@ -69,8 +69,7 @@ static void itest_init(void) {
 #ifdef PSA_COMPLIANT
 	hsm_hdl_t hsm_session_hdl;
 
-	open_session_args.session_priority = 0;
-	open_session_args.operating_mode = 0;
+	open_session_args.mu_type = HSM1;
 	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
 		     HSM_NO_ERROR);
 
@@ -79,7 +78,7 @@ static void itest_init(void) {
 #else
 	she_hdl_t she_session_hdl;
 
-	open_session_args.mu_type = MU_CHANNEL_PLAT_SHE;
+	open_session_args.mu_type = V2X_SHE;
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
 	soc = se_get_soc_id();
