@@ -63,8 +63,6 @@ int ele_hash(void)
 				      &hsm_session_hdl),
 		     HSM_NO_ERROR);
 
-	memset(&t_perf, 0, sizeof(t_perf));
-	t_perf.session_hdl = hsm_session_hdl;
 	for (i = 0; i < NB_ALGO; i++) {
 		for (k = 0; k < NUM_MSG_SIZE; k++) {
 			size_input = block_size[k];
@@ -82,6 +80,8 @@ int ele_hash(void)
 			ASSERT_EQUAL(randomize(dgst_in_buff, size_input),
 				     size_input);
 
+			memset(&t_perf, 0, sizeof(t_perf));
+			t_perf.session_hdl = hsm_session_hdl;
 			for (j = 0; j < iter; j++) {
 				 /* Start the timer */
 				start_timer(&t_perf);
