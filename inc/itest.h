@@ -153,6 +153,10 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		    uint8_t *aad, uint16_t aad_size,
 		    hsm_op_auth_enc_algo_t algo,
 		    hsm_op_auth_enc_flags_t flags, uint32_t session_hdl);
+#ifndef PSA_COMPLIANT
+/*===========V2X_SHE KEY UPDATE============*/
+void key_update_test(she_hdl_t utils_handle);
+#endif
 /*===========TEST CTX============*/
 size_t save_test_ctx(void *ctx, size_t count, char *file);
 size_t load_test_ctx(void *ctx, size_t count, char *file);

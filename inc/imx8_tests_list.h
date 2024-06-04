@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef IMX8_TESTS_LIST_H
@@ -27,6 +27,7 @@ int ele_ofb(void);
 int ele_hash(void);
 #else
 int v2x_fast_mac(void);
+int v2x_fast_mac_mubuff_v2(void);
 #endif
 
 testsuite imx8_ts[] = {
@@ -51,6 +52,7 @@ testsuite imx8_ts[] = {
 {ele_hash, "ele_hash", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 #else
 {v2x_fast_mac, "v2x_fast_mac", SOC_IMX95},
+{v2x_fast_mac_mubuff_v2, "v2x_fast_mac_mubuff_v2", SOC_IMX95},
 #endif
 {NULL, NULL, SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 };
