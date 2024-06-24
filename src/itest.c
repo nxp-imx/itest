@@ -14,8 +14,6 @@
 #include "itest.h"
 #include <stdarg.h>
 
-static char ITEST_CTX_PATH[] = "/etc/itest/";
-
 /* Log function */
 void outputLog(const char *const format, ...)
 {
@@ -25,62 +23,6 @@ void outputLog(const char *const format, ...)
 	vprintf(format, ap);
 	va_end(ap);
 	fflush(stdout);
-}
-
-size_t save_test_ctx(void *ctx, size_t count, char *file)
-{
-    int fd;
-    int32_t wout = 0;
-    char file_and_path[64];
-    int nb;
-    struct stat st = {0};
-
-    if (stat(ITEST_CTX_PATH, &st) == -1) {
-        mkdir(ITEST_CTX_PATH, 0777);
-    }
-    nb = snprintf(file_and_path, 64, "%s%s", ITEST_CTX_PATH, file);
-    if (nb <= 0) {
-        ITEST_LOG("Fail to compose file path\n");
-        return 0;
-    }
-    ITEST_LOG("Saving context to file %s\n", file_and_path);
-    fd = open(file_and_path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
-    if (fd >= 0) {
-        /* Write the data. */
-        wout = (int32_t)write(fd, ctx, count);
-        ITEST_LOG("%d bytes written\n", wout);
-        system("sync");
-        close(fd);
-    } else
-        ITEST_LOG("Failed to save test ctx\n");
-
-    return wout;
-}
-
-size_t load_test_ctx(void *ctx, size_t count, char *file)
-{
-    int fd;
-    int32_t rout = 0;
-    char file_and_path[64];
-    int nb;
-
-    nb = snprintf(file_and_path, 64, "%s%s", ITEST_CTX_PATH, file);
-    if (nb <= 0) {
-        ITEST_LOG("Fail to compose file path\n");
-        return 0;
-    }
-    ITEST_LOG("Loading context from file %s\n", file_and_path);
-    /* Open the file as read only. */
-    fd = open(file_and_path, O_RDONLY);
-    if (fd >= 0) {
-        /* Read the data. */
-        rout = (int32_t)read(fd, ctx, count);
-        ITEST_LOG("%d bytes read\n", rout);
-        (void)close(fd);
-    } else
-        ITEST_LOG("Failed to load test ctx\n");
-
-    return rout;
 }
 
 size_t randomize(void *out, size_t count){

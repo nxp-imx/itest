@@ -90,29 +90,6 @@ void outputLog(const char *const format, ...);
         raise(SIGUSR1); \
     }
 
-/* Key sizes */
-#define KEY_ECDSA_SM2_SIZE                    (0x40u)
-#define KEY_ECDSA_NIST_P256_SIZE              (0x40u)
-#define KEY_ECDSA_NIST_P384_SIZE              (0x60u)
-#define KEY_ECDSA_BRAINPOOL_R1_256_SIZE       (0x40u)
-#define KEY_ECDSA_BRAINPOOL_R1_384_SIZE       (0x60u)
-#define KEY_ECDSA_BRAINPOOL_T1_256_SIZE       (0x40u)
-#define KEY_ECDSA_BRAINPOOL_T1_384_SIZE       (0x60u)
-/* Signature sizes */
-#define SIGNATURE_ECDSA_SM2_SIZE              (0x40u)
-#define SIGNATURE_ECDSA_NIST_P256_SIZE        (0x40u)
-#define SIGNATURE_ECDSA_NIST_P384_SIZE        (0x60u)
-#define SIGNATURE_ECDSA_BRAINPOOL_R1_256_SIZE (0x40u)
-#define SIGNATURE_ECDSA_BRAINPOOL_R1_384_SIZE (0x60u)
-#define SIGNATURE_ECDSA_BRAINPOOL_T1_256_SIZE (0x40u)
-#define SIGNATURE_ECDSA_BRAINPOOL_T1_384_SIZE (0x60u)
-/* Digest sizes */
-#define DGST_SM3_SIZE        (0x20u)
-#define DGST_NIST_P256_SIZE  (0x20u)
-#define DGST_NIST_P384_SIZE  (0x30u)
-#define DGST_SHA_256_SIZE    (0x20u)
-#define DGST_SHA_384_SIZE    (0x30u)
-
 typedef struct {
 	struct timespec ts1; // for total iterations
 	struct timespec ts2; // for total iterations
@@ -157,9 +134,6 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 /*===========V2X_SHE KEY UPDATE============*/
 void key_update_test(she_hdl_t utils_handle);
 #endif
-/*===========TEST CTX============*/
-size_t save_test_ctx(void *ctx, size_t count, char *file);
-size_t load_test_ctx(void *ctx, size_t count, char *file);
 size_t randomize(void *out, size_t count);
 /*==============PERF=============*/
 void init_timer(timer_perf_t *timer);
