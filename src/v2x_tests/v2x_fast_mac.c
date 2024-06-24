@@ -141,7 +141,7 @@ int v2x_fast_mac(void)
 
 	// MAC GENERATION
 
-	ITEST_LOG("FAST MAC generation for 1s on %d byte blocks: ",
+	ITEST_LOG("FAST MAC generation for 1s on %lu byte blocks: ",
 		  sizeof(message));
 	generate_mac_args.key_ext = 0x00;
 	generate_mac_args.key_id = SHE_KEY_5;
@@ -167,7 +167,7 @@ int v2x_fast_mac(void)
 
 	// MAC VERIFICATION
 
-	ITEST_LOG("FAST MAC verification for 1s on %d byte blocks: ",
+	ITEST_LOG("FAST MAC verification for 1s on %lu byte blocks: ",
 		  sizeof(message));
 	verify_mac_args.key_ext = 0x00;
 	verify_mac_args.key_id = SHE_KEY_1;
