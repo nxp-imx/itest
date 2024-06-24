@@ -200,8 +200,7 @@ int main(int argc, char *argv[]){
 	}
 
 	if (!valid_test) {
-		ITEST_LOG("\nProvided test not present in test suite, ",
-			  itest_ctx.test_name);
+		ITEST_LOG("\nProvided test not present in test suite, ");
 		ITEST_LOG("please add from the following:\n");
 		print_test_suite(itest_ctx.ts);
 		return 1;
