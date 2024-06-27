@@ -78,7 +78,7 @@ static void itest_init(void) {
 #else
 	she_hdl_t she_session_hdl;
 
-	open_session_args.mu_type = SHE1;
+	open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
 	soc = se_get_soc_id();
