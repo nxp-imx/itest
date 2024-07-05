@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2023 NXP
+# Copyright 2023-2024 NXP
 #
 
 cmake_minimum_required(VERSION 3.10)
@@ -80,6 +80,7 @@ endif()
 file(GLOB SOURCES src/hsm_ele_tests/*.c src/crypto_utils/*.c src/*.c)
 if (DEFINED V2X)
 file(GLOB SOURCES_v2x src/v2x_tests/*.c src/*.c)
+file(GLOB SOURCES_v2x_hsm src/v2x_hsm_tests/*.c src/*.c)
 endif()
 
 add_compile_options(-Wall -Wextra -fopenmp)
@@ -112,6 +113,7 @@ install(TARGETS itest DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if (DEFINED V2X)
  add_executable(itest_v2x ${SOURCES_v2x})
+ target_compile_definitions(itest_v2x PRIVATE -DV2X_SHE_MU)
 
  target_link_libraries(
   itest_v2x
@@ -131,4 +133,26 @@ if (DEFINED V2X)
                            )
 
  install(TARGETS itest_v2x DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+ add_executable(itest_v2x_hsm ${SOURCES_v2x_hsm})
+
+ target_link_libraries(
+  itest_v2x_hsm
+  ${LIB_PATH}/libcrypto.a
+  ${LIB_PATH}/libssl.a
+  ${LIB_PATH}/lib_hsm.so
+  ${LIB_PATH}/lib_hsm.so.0
+  ${LIB_PATH}/lib_hsm.so.0.1
+  gomp.a
+  pthread
+  dl
+  ${CMAKE_DL_LIBS}
+ )
+
+ target_include_directories(itest_v2x_hsm PUBLIC
+                           "${PROJECT_BINARY_DIR}"
+                           )
+
+ install(TARGETS itest_v2x_hsm DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 endif()

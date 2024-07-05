@@ -25,14 +25,17 @@ int ele_cfb(void);
 int ele_ctr(void);
 int ele_ofb(void);
 int ele_hash(void);
-#else
+#elif defined(V2X_SHE_MU)
 int v2x_fast_mac(void);
 int v2x_fast_mac_mubuff_v2(void);
+#else
+/* V2X HSM tests */
+int v2x_ecdsa_verify(void);
 #endif
 
 testsuite imx8_ts[] = {
 /*==============================================================================================*/
-/*============================================== ELE ===========================================*/
+/*============================================== SE ===========================================*/
 /*==============================================================================================*/
 #ifdef PSA_COMPLIANT
 {ele_rng_srv_001, "ele_rng_srv_001", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
@@ -50,9 +53,12 @@ testsuite imx8_ts[] = {
 {ele_ctr, "ele_ctr", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 {ele_ofb, "ele_ofb", SOC_IMX93 | SOC_IMX95},
 {ele_hash, "ele_hash", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
-#else
+#elif defined(V2X_SHE_MU)
 {v2x_fast_mac, "v2x_fast_mac", SOC_IMX95},
 {v2x_fast_mac_mubuff_v2, "v2x_fast_mac_mubuff_v2", SOC_IMX95},
+#else
+/* V2X HSM tests */
+{v2x_ecdsa_verify, "v2x_ecdsa_verify", SOC_IMX95},
 #endif
 {NULL, NULL, SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 };
