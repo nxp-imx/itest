@@ -66,23 +66,28 @@ static void catch_failure_continue(int signo) {
 
 static void itest_init(void) {
 	open_session_args_t open_session_args = {0};
-#ifdef PSA_COMPLIANT
+#ifdef V2X_SHE_MU
+	she_hdl_t she_session_hdl;
+
+	open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
+	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
+		     SHE_NO_ERROR);
+	soc = se_get_soc_id();
+	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
+#else
 	hsm_hdl_t hsm_session_hdl;
 
+#ifdef PSA_COMPLIANT
 	open_session_args.mu_type = HSM1;
+#else
+	/* Open session for SV0 channel on V2X HSM */
+	open_session_args.mu_type = V2X_SV0;
+#endif
 	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
 		     HSM_NO_ERROR);
 
 	soc = se_get_soc_id();
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
-#else
-	she_hdl_t she_session_hdl;
-
-	open_session_args.mu_type = SHE1;
-	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
-		     SHE_NO_ERROR);
-	soc = se_get_soc_id();
-	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
 #endif
 	itest_ctx.test_name = NULL;
 	itest_ctx.nb_assert_fails = 0;

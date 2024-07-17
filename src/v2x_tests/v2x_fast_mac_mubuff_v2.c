@@ -30,7 +30,7 @@ int v2x_fast_mac_mubuff_v2(void)
 	// Randomizing input message
 	ASSERT_EQUAL(randomize(message, MAX_MSG_SIZE), MAX_MSG_SIZE);
 
-	open_session_args.mu_type = SHE1;
+	open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
 	// SHE OPEN SESSION
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
@@ -55,7 +55,8 @@ int v2x_fast_mac_mubuff_v2(void)
 			ASSERT_EQUAL(err, SHE_NO_ERROR);
 			key_store_load = 1;
 		} else {
-			she_close_session(she_session_hdl);
+			ASSERT_EQUAL(she_close_session(she_session_hdl),
+				     SHE_NO_ERROR);
 			ASSERT_FALSE(err);
 		}
 	}

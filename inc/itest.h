@@ -14,7 +14,7 @@
 #include "hsm_api.h"
 #include "common/global_info.h"
 #include "common/perf.h"
-#ifndef PSA_COMPLIANT
+#ifdef V2X_SHE_MU
 #include "she_api.h"
 #include "internal/she_key.h"
 #endif
@@ -130,7 +130,7 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		    uint8_t *aad, uint16_t aad_size,
 		    hsm_op_auth_enc_algo_t algo,
 		    hsm_op_auth_enc_flags_t flags, uint32_t session_hdl);
-#ifndef PSA_COMPLIANT
+#ifdef V2X_SHE_MU
 /*===========V2X_SHE KEY UPDATE============*/
 void key_update_test(she_hdl_t utils_handle);
 #endif
