@@ -80,7 +80,7 @@ endif()
 file(GLOB SOURCES src/hsm_ele_tests/*.c src/crypto_utils/*.c src/*.c)
 if (DEFINED V2X)
 file(GLOB SOURCES_v2x src/v2x_tests/*.c src/*.c)
-file(GLOB SOURCES_v2x_hsm src/v2x_hsm_tests/*.c src/*.c)
+file(GLOB SOURCES_v2x_hsm src/v2x_hsm_tests/*.c src/crypto_utils/*.c src/*.c)
 endif()
 
 add_compile_options(-Wall -Wextra -fopenmp)

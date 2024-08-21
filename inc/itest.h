@@ -134,6 +134,11 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 /*===========V2X_SHE KEY UPDATE============*/
 void key_update_test(she_hdl_t utils_handle);
 #endif
+/*===========ASN1 DER to RAW ENCODING======*/
+void parse_der_to_raw(uint8_t *sign, int len_component_der,
+		      int len_component_raw, int raw_component_start_index,
+		      int len_component_index);
+void decode_signature(int pub_key_len, uint8_t *sign);
 size_t randomize(void *out, size_t count);
 /*==============PERF=============*/
 void init_timer(timer_perf_t *timer);
