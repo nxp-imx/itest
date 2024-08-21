@@ -32,6 +32,7 @@ int v2x_fast_mac_mubuff_v2(void);
 /* V2X HSM tests */
 int v2x_ecdsa_verify(void);
 int v2x_hash(void);
+int v2x_ecdsa_verify_brainpool(void);
 #endif
 
 testsuite imx8_ts[] = {
@@ -61,6 +62,7 @@ testsuite imx8_ts[] = {
 /* V2X HSM tests */
 {v2x_ecdsa_verify, "v2x_ecdsa_verify", SOC_IMX95},
 {v2x_hash, "v2x_hash", SOC_IMX95},
+{v2x_ecdsa_verify_brainpool, "v2x_ecdsa_verify_brainpool", SOC_IMX95},
 #endif
 {NULL, NULL, SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 };
