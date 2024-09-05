@@ -56,13 +56,13 @@ testsuite imx8_ts[] = {
 {ele_ofb, "ele_ofb", SOC_IMX93 | SOC_IMX95},
 {ele_hash, "ele_hash", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 #elif defined(V2X_SHE_MU)
-{v2x_fast_mac, "v2x_fast_mac", SOC_IMX95},
+{v2x_fast_mac, "v2x_fast_mac", SOC_IMX95 | SOC_IMX8DXL},
 {v2x_fast_mac_mubuff_v2, "v2x_fast_mac_mubuff_v2", SOC_IMX95},
 #else
 /* V2X HSM tests */
-{v2x_ecdsa_verify, "v2x_ecdsa_verify", SOC_IMX95},
-{v2x_hash, "v2x_hash", SOC_IMX95},
-{v2x_ecdsa_verify_brainpool, "v2x_ecdsa_verify_brainpool", SOC_IMX95},
+{v2x_ecdsa_verify, "v2x_ecdsa_verify", SOC_IMX95 | SOC_IMX8DXL},
+{v2x_hash, "v2x_hash", SOC_IMX95 | SOC_IMX8DXL},
+{v2x_ecdsa_verify_brainpool, "v2x_ecdsa_verify_brainpool", SOC_IMX95 | SOC_IMX8DXL},
 #endif
 {NULL, NULL, SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 };
