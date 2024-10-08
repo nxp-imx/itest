@@ -29,6 +29,10 @@ if (DEFINED V2X)
   set(ignoreMe "${V2X}")
 endif()
 
+if (DEFINED ELE)
+  set(ignoreMe "${ELE}")
+endif()
+
 if (DEFINED TOOLCHAIN_PATH)
   # Specify the cross compiler
   set(CMAKE_C_COMPILER   ${TOOLCHAIN_PATH}-gcc)
@@ -77,17 +81,13 @@ if (DEFINED V2X)
 include_directories(${ELE_LIB_PATH}/include/she)
 endif()
 
-file(GLOB SOURCES src/hsm_ele_tests/*.c src/crypto_utils/*.c src/*.c)
-if (DEFINED V2X)
-file(GLOB SOURCES_v2x src/v2x_tests/*.c src/*.c)
-file(GLOB SOURCES_v2x_hsm src/v2x_hsm_tests/*.c src/crypto_utils/*.c src/*.c)
-endif()
-
 add_compile_options(-Wall -Wextra -fopenmp)
 
 find_package(OpenMP)
 
-# add the executable
+if(DEFINED ELE)
+#ELE_HSM_TEST#
+file(GLOB SOURCES src/hsm_ele_tests/*.c src/crypto_utils/*.c src/*.c)
 add_executable(itest ${SOURCES})
 target_compile_definitions(itest PRIVATE -DPSA_COMPLIANT)
 
@@ -110,8 +110,11 @@ target_include_directories(itest PUBLIC
                            )
 
 install(TARGETS itest DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
 if (DEFINED V2X)
+ #V2X_SHE_TEST#
+ file(GLOB SOURCES_v2x src/v2x_tests/*.c src/*.c)
  add_executable(itest_v2x ${SOURCES_v2x})
  target_compile_definitions(itest_v2x PRIVATE -DV2X_SHE_MU)
 
@@ -134,6 +137,8 @@ if (DEFINED V2X)
 
  install(TARGETS itest_v2x DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+ #V2X HSM TEST#
+ file(GLOB SOURCES_v2x_hsm src/v2x_hsm_tests/*.c src/crypto_utils/*.c src/*.c)
  add_executable(itest_v2x_hsm ${SOURCES_v2x_hsm})
 
  target_link_libraries(
