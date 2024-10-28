@@ -17,8 +17,8 @@ int ele_ofb(void)
 {
 	open_session_args_t open_session_args = {0};
 	open_svc_key_store_args_t key_store_args = {0};
-	open_svc_key_management_args_t key_mgmt_args;
-	open_svc_cipher_args_t open_cipher_args;
+	open_svc_key_management_args_t key_mgmt_args = {0};
+	open_svc_cipher_args_t open_cipher_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 
 	hsm_err_t err;
