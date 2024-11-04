@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -61,22 +61,22 @@ static const EVP_MD * (*EVP_hash[NB_ALGO])(void) = {
 int v2x_ecdsa_verify_brainpool(void)
 {
 	EVP_PKEY *pkey = NULL;
-	EVP_MD_CTX *mdctx;
-	size_t sign_len;
-	uint8_t msg[MAX_MSG_SIZE];
+	EVP_MD_CTX *mdctx = 0;
+	size_t sign_len = 0;
+	uint8_t msg[MAX_MSG_SIZE] = {0};
 	uint32_t msg_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint8_t sign[MAX_DER_SIGN];
-	unsigned char out_pubkey[MAX_PUB_KEY_SIZE + 1];
+	uint8_t sign[MAX_DER_SIGN] = {0};
+	unsigned char out_pubkey[MAX_PUB_KEY_SIZE + 1] = {0};
 	size_t out_pubkey_len = 0;
-	uint32_t i, j, k, iter = NUM_OPERATIONS;
-	timer_perf_t t_perf;
+	uint32_t i = 0, j = 0, k = 0, iter = NUM_OPERATIONS;
+	timer_perf_t t_perf = {0};
 
-	hsm_hdl_t sv0_session_hdl, sig_ver_hdl = 0;
-	hsm_err_t err;
+	hsm_hdl_t sv0_session_hdl = 0, sig_ver_hdl = 0;
+	hsm_err_t err = 0;
 	open_session_args_t open_session_args = {0};
 	open_svc_sign_ver_args_t open_sig_ver_args = {0};
 	op_verify_sign_args_t sig_ver_args = {0};
-	hsm_verification_status_t verify_status;
+	hsm_verification_status_t verify_status = 0;
 
 	/* Open session for V2X HSM MU */
 	open_session_args.mu_type = V2X_SV0;

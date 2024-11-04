@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -58,7 +58,7 @@ void parse_der_to_raw(uint8_t *sign, int len_component_der,
 		      int len_component_index)
 {
 	int leading_zero = 0, add_leading_zero = 0;
-	int der_component_start_index;
+	int der_component_start_index = 0;
 
 	/* Check if leading zero is removed in der component */
 	if (len_component_der < len_component_raw) {
@@ -94,8 +94,8 @@ void decode_signature(int pub_key_len, uint8_t *sign)
 		return;
 	}
 
-	int long_form = 0, len_r_encoded, len_s_encoded;
-	int len_r_index, len_s_index;
+	int long_form = 0, len_r_encoded = 0, len_s_encoded = 0;
+	int len_r_index = 0, len_s_index = 0;
 	int len_component_raw = pub_key_len/2;
 	int raw_r_start_index = 0, raw_s_start_index = len_component_raw;
 
@@ -128,22 +128,22 @@ void decode_signature(int pub_key_len, uint8_t *sign)
 int v2x_ecdsa_verify(void)
 {
 	EVP_PKEY *pkey = NULL;
-	EVP_MD_CTX *mdctx;
-	size_t sign_len;
-	uint8_t msg[MAX_MSG_SIZE];
+	EVP_MD_CTX *mdctx = 0;
+	size_t sign_len = 0;
+	uint8_t msg[MAX_MSG_SIZE] = {0};
 	uint32_t msg_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint8_t sign[MAX_DER_SIGN];
-	unsigned char out_pubkey[MAX_PUB_KEY_SIZE + 1];
+	uint8_t sign[MAX_DER_SIGN] = {0};
+	unsigned char out_pubkey[MAX_PUB_KEY_SIZE + 1] = {0};
 	size_t out_pubkey_len = 0;
-	uint32_t i, j, k, iter = NUM_OPERATIONS;
-	timer_perf_t t_perf;
+	uint32_t i = 0, j = 0, k = 0, iter = NUM_OPERATIONS;
+	timer_perf_t t_perf = {0};
 
-	hsm_hdl_t sv0_session_hdl, sig_ver_hdl = 0;
-	hsm_err_t err;
+	hsm_hdl_t sv0_session_hdl = 0, sig_ver_hdl = 0;
+	hsm_err_t err = 0;
 	open_session_args_t open_session_args = {0};
 	open_svc_sign_ver_args_t open_sig_ver_args = {0};
 	op_verify_sign_args_t sig_ver_args = {0};
-	hsm_verification_status_t verify_status;
+	hsm_verification_status_t verify_status = 0;
 
 	/* Open session for V2X HSM MU */
 	open_session_args.mu_type = V2X_SV0;

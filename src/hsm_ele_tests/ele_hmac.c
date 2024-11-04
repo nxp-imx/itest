@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -21,10 +21,10 @@ hsm_err_t hmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl)
 {
 	op_mac_one_go_args_t mac_one_go = {0};
-	hsm_mac_verification_status_t mac_status;
-	timer_perf_t t_perf;
-	uint32_t i, iter = NUM_OPERATIONS;
-	hsm_err_t err;
+	hsm_mac_verification_status_t mac_status = 0;
+	timer_perf_t t_perf = {0};
+	uint32_t i = 0, iter = NUM_OPERATIONS;
+	hsm_err_t err = 0;
 
 	mac_one_go.key_identifier = key_identifier;
 	mac_one_go.algorithm = algorithm;
@@ -64,11 +64,12 @@ int ele_hmac(void)
 	open_svc_mac_args_t mac_srv_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 
-	hsm_err_t err;
-	hsm_hdl_t hsm_session_hdl, key_store_hdl, key_mgmt_hdl, mac_hdl;
-	uint8_t mac[128] = {0}, test_msg[MAX_PAYLOAD_SIZE];
+	hsm_err_t err = 0;
+	hsm_hdl_t hsm_session_hdl = 0, key_store_hdl = 0, key_mgmt_hdl = 0;
+	hsm_hdl_t mac_hdl = 0;
+	uint8_t mac[128] = {0}, test_msg[MAX_PAYLOAD_SIZE] = {0};
 	uint32_t payload_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint32_t i;
+	uint32_t i = 0;
 	uint32_t key_hmac_sha256 = 0, key_hmac_sha384 = 0;
 
 	ASSERT_EQUAL(randomize(test_msg, sizeof(test_msg)), sizeof(test_msg));

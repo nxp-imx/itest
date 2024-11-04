@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <fcntl.h>
@@ -55,12 +55,12 @@ void start_timer(timer_perf_t *timer)
 
 void stop_timer(timer_perf_t *timer)
 {
-	double latency_us;
+	double latency_us = 0;
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts2);
 
-	struct time_frame perf_time;
-	uint32_t err;
+	struct time_frame perf_time = {0};
+	uint32_t err = 0;
 
 	err = get_perf_timer(timer->session_hdl, &perf_time);
 
@@ -93,8 +93,8 @@ void finalize_timer(timer_perf_t *timer, uint32_t nb_iter)
 
 double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2)
 {
-	double diff_microsec;
-	struct timespec res;
+	double diff_microsec = 0;
+	struct timespec res = {0};
 
 	res.tv_sec = ts2->tv_sec - ts1->tv_sec;
 	res.tv_nsec = ts2->tv_nsec - ts1->tv_nsec;

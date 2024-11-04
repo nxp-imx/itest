@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023,2025 NXP
  */
 
 #include <stdio.h>
@@ -10,31 +10,31 @@
 
 int icrypto_hash_one_go(unsigned char *in, unsigned char *out, char *dgst_type, int size)
 {
-    EVP_MD_CTX *mdctx;
-    const EVP_MD *md;
-    unsigned int md_len = 0;
+	EVP_MD_CTX *mdctx = 0;
+	const EVP_MD *md = 0;
+	unsigned int md_len = 0;
 
-    OpenSSL_add_all_digests();
+	OpenSSL_add_all_digests();
 
-    if(!dgst_type) {
-            ITEST_LOG("Usage: mdtest digestname\n");
-            return 0;
-    }
+	if (!dgst_type) {
+		ITEST_LOG("Usage: mdtest digestname\n");
+		return 0;
+	}
 
-    md = EVP_get_digestbyname(dgst_type);
+	md = EVP_get_digestbyname(dgst_type);
 
-    if(!md) {
-            ITEST_LOG("Unknown message digest %s\n", dgst_type);
-            return 0;
-    }
+	if (!md) {
+		ITEST_LOG("Unknown message digest %s\n", dgst_type);
+		return 0;
+	}
 
-    mdctx = EVP_MD_CTX_create();
-    EVP_DigestInit_ex(mdctx, md, NULL);
-    EVP_DigestUpdate(mdctx, in, size);
-    EVP_DigestFinal_ex(mdctx, out, &md_len);
-    EVP_MD_CTX_destroy(mdctx);
+	mdctx = EVP_MD_CTX_create();
+	EVP_DigestInit_ex(mdctx, md, NULL);
+	EVP_DigestUpdate(mdctx, in, size);
+	EVP_DigestFinal_ex(mdctx, out, &md_len);
+	EVP_MD_CTX_destroy(mdctx);
 
-    /* Call this once before exit. */
-    EVP_cleanup();
-    return md_len;
+	/* Call this once before exit. */
+	EVP_cleanup();
+	return md_len;
 }

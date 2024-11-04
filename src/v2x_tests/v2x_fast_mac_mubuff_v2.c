@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -17,15 +17,15 @@ int v2x_fast_mac_mubuff_v2(void)
 {
 	open_session_args_t open_session_args = {0};
 	open_svc_key_store_args_t key_store_args = {0};
-	op_open_utils_args_t utils_args = {'\0'};
-	she_hdl_t she_session_hdl, key_store_hdl;
-	she_err_t err, key_store_load = 0;
+	op_open_utils_args_t utils_args = {0};
+	she_hdl_t she_session_hdl = 0, key_store_hdl = 0;
+	she_err_t err = 0, key_store_load = 0;
 	op_generate_mac_t generate_mac_args = {0};
 	op_verify_mac_t verify_mac_args = {0};
-	uint8_t mac[SHE_MAC_SIZE] = {0}, message[MAX_MSG_SIZE];
+	uint8_t mac[SHE_MAC_SIZE] = {0}, message[MAX_MSG_SIZE] = {0};
 	uint32_t msg_size[] = {16, 64, 240};
-	uint32_t i, j, iter = NUM_OPERATIONS;
-	timer_perf_t t_perf;
+	uint32_t i = 0, j = 0, iter = NUM_OPERATIONS;
+	timer_perf_t t_perf = {0};
 
 	// Randomizing input message
 	ASSERT_EQUAL(randomize(message, MAX_MSG_SIZE), MAX_MSG_SIZE);

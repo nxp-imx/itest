@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -19,10 +19,10 @@ int ele_rng_perf(void)
 	uint8_t rng_out_buff[MAX_BUFF_SZ] = {0};
 	open_session_args_t args = {0};
 	op_get_random_args_t rng_get_random_args = {0};
-	uint32_t i, j, iter = NUM_OPERATIONS;
-	timer_perf_t t_perf;
-	hsm_err_t err;
-	hsm_hdl_t hsm_session_hdl;
+	uint32_t i = 0, j = 0, iter = NUM_OPERATIONS;
+	timer_perf_t t_perf = {0};
+	hsm_err_t err = 0;
+	hsm_hdl_t hsm_session_hdl = 0;
 
 	// ELE OPEN SESSION
 	args.mu_type = HSM1;

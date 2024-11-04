@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -13,7 +13,7 @@
 #include "imx8_tests_list.h"
 
 /* Itest ctx*/
-itest_ctx_t itest_ctx;
+itest_ctx_t itest_ctx = {0};
 /* Used to store total test run and test failures */
 static int total_run = 0, fails = 0;
 
@@ -67,7 +67,7 @@ static void catch_failure_continue(int signo) {
 static void itest_init(void) {
 	open_session_args_t open_session_args = {0};
 #ifdef V2X_SHE_MU
-	she_hdl_t she_session_hdl;
+	she_hdl_t she_session_hdl = 0;
 
 	open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
@@ -75,7 +75,7 @@ static void itest_init(void) {
 	soc = se_get_soc_id();
 	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
 #else
-	hsm_hdl_t hsm_session_hdl;
+	hsm_hdl_t hsm_session_hdl = 0;
 
 #ifdef PSA_COMPLIANT
 	open_session_args.mu_type = HSM1;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]){
         
 	int i = 0;
 	int status = 0, valid_usage = 0, valid_test = 0;
-	int c;
+	int c = 0;
 	int print_ts = 0;
 
 	itest_init();
