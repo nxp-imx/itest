@@ -20,7 +20,7 @@ hsm_err_t hmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 		    hsm_op_mac_one_go_algo_t algorithm,
 		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl)
 {
-	op_mac_one_go_args_t mac_one_go;
+	op_mac_one_go_args_t mac_one_go = {0};
 	hsm_mac_verification_status_t mac_status;
 	timer_perf_t t_perf;
 	uint32_t i, iter = NUM_OPERATIONS;
@@ -60,8 +60,8 @@ int ele_hmac(void)
 {
 	open_session_args_t open_session_args = {0};
 	open_svc_key_store_args_t key_store_args = {0};
-	open_svc_key_management_args_t key_mgmt_args;
-	open_svc_mac_args_t mac_srv_args;
+	open_svc_key_management_args_t key_mgmt_args = {0};
+	open_svc_mac_args_t mac_srv_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 
 	hsm_err_t err;

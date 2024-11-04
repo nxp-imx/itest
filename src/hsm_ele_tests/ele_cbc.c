@@ -19,7 +19,7 @@ hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		      hsm_op_cipher_one_go_algo_t algo,
 		      hsm_op_cipher_one_go_flags_t flags, uint32_t session_hdl)
 {
-	op_cipher_one_go_args_t cipher_args;
+	op_cipher_one_go_args_t cipher_args = {0};
 	uint32_t j, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf;
 	hsm_err_t err;
@@ -57,8 +57,8 @@ int ele_cbc(void)
 {
 	open_session_args_t open_session_args = {0};
 	open_svc_key_store_args_t key_store_args = {0};
-	open_svc_key_management_args_t key_mgmt_args;
-	open_svc_cipher_args_t open_cipher_args;
+	open_svc_key_management_args_t key_mgmt_args = {0};
+	open_svc_cipher_args_t open_cipher_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 
 	hsm_err_t err;
