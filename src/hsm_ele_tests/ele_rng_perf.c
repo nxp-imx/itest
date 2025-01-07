@@ -22,7 +22,6 @@ int ele_rng_perf(void)
 	uint32_t i = 0, j = 0, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf = {0};
 	hsm_err_t err = 0;
-	hsm_hdl_t hsm_session_hdl = 0;
 
 	// ELE OPEN SESSION
 	args.mu_type = HSM1;

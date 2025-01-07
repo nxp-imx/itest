@@ -40,7 +40,7 @@ static uint16_t dgst_size[NB_ALGO] = {
 int v2x_hash(void)
 {
 	open_session_args_t open_session_args = {0};
-	hsm_hdl_t hsm_session_hdl = 0, hash_serv = 0;
+	hsm_hdl_t hash_serv = 0;
 	timer_perf_t t_perf = {0};
 	open_svc_hash_args_t hash_srv_args = {0};
 	op_hash_one_go_args_t hash_args = {0};

@@ -33,6 +33,12 @@ void outputLog(const char *const format, ...);
 
 uint16_t soc;
 
+#ifdef V2X_SHE_MU
+she_hdl_t she_session_hdl, key_store_hdl;
+#else
+hsm_hdl_t hsm_session_hdl, key_store_hdl;
+#endif
+
 #define ITEST_LOG(...)  outputLog(__VA_ARGS__)
 
 /*======================ASSERT FAILURE ABORT======================*/

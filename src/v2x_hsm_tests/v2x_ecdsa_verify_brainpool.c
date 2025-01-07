@@ -71,7 +71,7 @@ int v2x_ecdsa_verify_brainpool(void)
 	uint32_t i = 0, j = 0, k = 0, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf = {0};
 
-	hsm_hdl_t sv0_session_hdl = 0, sig_ver_hdl = 0;
+	hsm_hdl_t sig_ver_hdl = 0;
 	hsm_err_t err = 0;
 	open_session_args_t open_session_args = {0};
 	open_svc_sign_ver_args_t open_sig_ver_args = {0};
@@ -80,10 +80,10 @@ int v2x_ecdsa_verify_brainpool(void)
 
 	/* Open session for V2X HSM MU */
 	open_session_args.mu_type = V2X_SV0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &sv0_session_hdl),
+	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
 		     HSM_NO_ERROR);
 
-	ASSERT_EQUAL(hsm_open_signature_verification_service(sv0_session_hdl,
+	ASSERT_EQUAL(hsm_open_signature_verification_service(hsm_session_hdl,
 				&open_sig_ver_args,
 				&sig_ver_hdl),
 		     HSM_NO_ERROR);
@@ -138,7 +138,7 @@ int v2x_ecdsa_verify_brainpool(void)
 			sig_ver_args.flags = HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE;
 
 			memset(&t_perf, 0, sizeof(t_perf));
-			t_perf.session_hdl = sv0_session_hdl;
+			t_perf.session_hdl = hsm_session_hdl;
 
 			for (j = 0; j < iter; j++) {
 				/* Start the timer */
@@ -165,7 +165,7 @@ int v2x_ecdsa_verify_brainpool(void)
 out:
 	ASSERT_EQUAL(hsm_close_signature_verification_service(sig_ver_hdl),
 		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(sv0_session_hdl), HSM_NO_ERROR);
+	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
 
 	if (err)
 		ASSERT_FALSE(err);

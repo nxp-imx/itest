@@ -55,7 +55,6 @@ int v2x_cmac(void)
 	open_svc_key_store_args_t key_store_args = {0};
 	op_open_utils_args_t utils_args = {0};
 	open_svc_mac_args_t mac_args = {0};
-	she_hdl_t she_session_hdl = 0, key_store_hdl = 0;
 	she_err_t err = 0, key_store_load = 0;
 	uint8_t mac[SHE_MAC_SIZE] = {0};
 	uint8_t message[MAX_PAYLOAD_SIZE] = {0};

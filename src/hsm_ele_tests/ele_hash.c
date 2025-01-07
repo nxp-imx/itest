@@ -47,7 +47,6 @@ static uint16_t dgst_size[NB_ALGO] = {
 int ele_hash(void)
 {
 	open_session_args_t open_session_args = {0};
-	hsm_hdl_t hsm_session_hdl = 0;
 	timer_perf_t t_perf = {0};
 	op_hash_one_go_args_t hash_args = {0};
 	uint8_t dgst_in_buff[MAX_MSG_SIZE] = {0};

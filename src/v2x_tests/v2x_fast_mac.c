@@ -89,7 +89,6 @@ int v2x_fast_mac(void)
 	open_session_args_t open_session_args = {0};
 	open_svc_key_store_args_t key_store_args = {0};
 	op_open_utils_args_t utils_args = {0};
-	she_hdl_t she_session_hdl = 0, key_store_hdl = 0;
 	she_err_t err = 0, key_store_load = 0;
 	op_generate_mac_t generate_mac_args = {0};
 	op_verify_mac_t verify_mac_args = {0};

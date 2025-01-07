@@ -52,8 +52,18 @@ void print_test_suite(testsuite *ts){
 static void catch_failure(int signo) {
 	fails++;
 	ITEST_LOG("FAIL: tests interrupted by signal %d\n", signo);
+#ifdef V2X_SHE_MU
+	if (key_store_hdl)
+		ASSERT_EQUAL(she_close_key_store_service(key_store_hdl),
+			     SHE_NO_ERROR);
+	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
+#else
+	if (key_store_hdl)
+		ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl),
+			     HSM_NO_ERROR);
+	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+#endif
 	print_stats();
-	sleep(2);
 	exit(signo);
 }
 

@@ -47,8 +47,7 @@ int ele_randomness_gcm(void)
 	op_generate_key_args_t key_gen_args = {0};
 
 	hsm_err_t err = 0;
-	hsm_hdl_t hsm_session_hdl = 0;
-	hsm_hdl_t key_store_hdl = 0, key_mgmt_hdl = 0;
+	hsm_hdl_t key_mgmt_hdl = 0;
 	hsm_hdl_t cipher_hdl1 = 0, cipher_hdl2 = 0;
 	uint32_t key_id_aes_128 = 0;
 	uint8_t iv1[IV_SIZE] = {0}, iv2[IV_SIZE] = {0};

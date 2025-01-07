@@ -15,7 +15,6 @@ int ele_rng_srv_001(void)
 	open_session_args_t args = {0};
 	op_get_random_args_t rng_get_random_args = {0};
 	hsm_err_t err = 0;
-	hsm_hdl_t hsm_session_hdl = 0;
 
 	// ELE OPEN SESSION
 	args.mu_type = HSM1;

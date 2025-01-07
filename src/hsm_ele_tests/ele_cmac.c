@@ -65,7 +65,7 @@ int ele_cmac(void)
 	op_generate_key_args_t key_gen_args = {0};
 
 	hsm_err_t err = 0;
-	hsm_hdl_t hsm_session_hdl = 0, key_store_hdl = 0, key_mgmt_hdl = 0;
+	hsm_hdl_t key_mgmt_hdl = 0;
 	hsm_hdl_t mac_hdl = 0;
 	uint8_t mac[128] = {0}, test_msg[MAX_PAYLOAD_SIZE] = {0};
 	uint32_t payload_size[] = {16, 64, 256, 1024, 8192, 16384};

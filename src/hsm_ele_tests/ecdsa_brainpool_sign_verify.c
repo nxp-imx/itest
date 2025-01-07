@@ -51,8 +51,7 @@ int ecdsa_brainpool_sign_verify(void)
 	open_svc_sign_ver_args_t open_sig_ver_args = {0};
 
 	hsm_err_t err = 0;
-	hsm_hdl_t hsm_session_hdl = 0;
-	hsm_hdl_t key_store_hdl = 0, key_mgmt_hdl = 0;
+	hsm_hdl_t key_mgmt_hdl = 0;
 	hsm_hdl_t sig_gen_hdl = 0, sig_ver_hdl = 0;
 	uint8_t pub_key[NB_ALGO][MAX_PUB_KEY_SIZE] = {0};
 	uint8_t sign_out_0[MAX_PUB_KEY_SIZE] = {0};
