@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -19,7 +19,7 @@ hsm_err_t auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 			   hsm_op_auth_enc_flags_t flags)
 {
 	op_auth_enc_args_t auth_enc_args = {0};
-	hsm_err_t err;
+	hsm_err_t err = 0;
 
 	auth_enc_args.key_identifier = key_identifier;
 	auth_enc_args.iv_size = iv_size;
@@ -42,22 +42,22 @@ int ele_randomness_gcm(void)
 {
 	open_session_args_t open_session_args = {0};
 	open_svc_key_store_args_t key_store_args = {0};
-	open_svc_key_management_args_t key_mgmt_args;
-	open_svc_cipher_args_t open_cipher_args;
+	open_svc_key_management_args_t key_mgmt_args = {0};
+	open_svc_cipher_args_t open_cipher_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 
-	hsm_err_t err;
-	hsm_hdl_t hsm_session_hdl;
-	hsm_hdl_t key_store_hdl, key_mgmt_hdl, cipher_hdl1, cipher_hdl2;
+	hsm_err_t err = 0;
+	hsm_hdl_t key_mgmt_hdl = 0;
+	hsm_hdl_t cipher_hdl1 = 0, cipher_hdl2 = 0;
 	uint32_t key_id_aes_128 = 0;
-	uint8_t iv1[IV_SIZE], iv2[IV_SIZE];
-	uint8_t fixed_iv[4];
-	uint8_t plaintext[MSG_SIZE];
+	uint8_t iv1[IV_SIZE] = {0}, iv2[IV_SIZE] = {0};
+	uint8_t fixed_iv[4] = {0};
+	uint8_t plaintext[MSG_SIZE] = {0};
 	uint8_t ciphertext[MSG_SIZE + AUTH_TAG_SIZE + IV_SIZE] = {0};
-	uint8_t aad[16];
-	uint32_t num_matching_bytes;
-	uint64_t counter_val1, counter_val2;
-	uint32_t idx;
+	uint8_t aad[16] = {0};
+	uint32_t num_matching_bytes = 0;
+	uint64_t counter_val1 = 0, counter_val2 = 0;
+	uint32_t idx = 0;
 
 	// INPUT BUFF AS RANDOM
 	ASSERT_EQUAL(randomize(fixed_iv, sizeof(fixed_iv)), sizeof(fixed_iv));

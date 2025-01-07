@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -23,9 +23,9 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		    uint32_t session_hdl)
 {
 	op_auth_enc_args_t auth_enc_args = {0};
-	uint32_t j, iter = NUM_OPERATIONS;
-	timer_perf_t t_perf;
-	hsm_err_t err;
+	uint32_t j = 0, iter = NUM_OPERATIONS;
+	timer_perf_t t_perf = {0};
+	hsm_err_t err = 0;
 
 	auth_enc_args.key_identifier = key_identifier;
 	auth_enc_args.iv_size = iv_size;
@@ -67,20 +67,19 @@ int ele_gcm(void)
 	open_svc_cipher_args_t open_cipher_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 
-	hsm_err_t err;
-	hsm_hdl_t hsm_session_hdl;
-	hsm_hdl_t key_store_hdl, key_mgmt_hdl, cipher_hdl;
+	hsm_err_t err = 0;
+	hsm_hdl_t key_mgmt_hdl = 0, cipher_hdl = 0;
 	uint32_t key_id_aes_128 = 0;
 	uint32_t key_id_aes_192 = 0;
 	uint32_t key_id_aes_256 = 0;
-	uint8_t iv[IV_SIZE];
-	uint8_t fixed_iv[4];
-	uint8_t plaintext[MAX_MSG_SIZE];
+	uint8_t iv[IV_SIZE] = {0};
+	uint8_t fixed_iv[4] = {0};
+	uint8_t plaintext[MAX_MSG_SIZE] = {0};
 	uint8_t ciphertext[MAX_MSG_SIZE + AUTH_TAG_SIZE + IV_SIZE] = {0};
 	uint8_t test_msg[MAX_MSG_SIZE] = {0};
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint32_t i;
-	uint8_t aad[16];
+	uint32_t i = 0;
+	uint8_t aad[16] = {0};
 
 	// INPUT BUFF AS RANDOM
 	ASSERT_EQUAL(randomize(iv, sizeof(iv)), sizeof(iv));

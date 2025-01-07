@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -40,17 +40,17 @@ static uint16_t dgst_size[NB_ALGO] = {
 int v2x_hash(void)
 {
 	open_session_args_t open_session_args = {0};
-	hsm_hdl_t hsm_session_hdl, hash_serv;
-	timer_perf_t t_perf;
-	open_svc_hash_args_t hash_srv_args;
-	op_hash_one_go_args_t hash_args;
-	uint8_t dgst_in_buff[MAX_MSG_SIZE];
-	uint8_t dgst_out_buff[MAX_DGST_SIZE];
-	uint8_t dgst_expected[MAX_DGST_SIZE];
+	hsm_hdl_t hash_serv = 0;
+	timer_perf_t t_perf = {0};
+	open_svc_hash_args_t hash_srv_args = {0};
+	op_hash_one_go_args_t hash_args = {0};
+	uint8_t dgst_in_buff[MAX_MSG_SIZE] = {0};
+	uint8_t dgst_out_buff[MAX_DGST_SIZE] = {0};
+	uint8_t dgst_expected[MAX_DGST_SIZE] = {0};
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint32_t size_input;
-	uint32_t i, j, k, iter = NUM_OPERATIONS;
-	hsm_err_t err;
+	uint32_t size_input = 0;
+	uint32_t i = 0, j = 0, k = 0, iter = NUM_OPERATIONS;
+	hsm_err_t err = 0;
 
 	open_session_args.mu_type = V2X_SV0;
 	ASSERT_EQUAL(hsm_open_session(&open_session_args,

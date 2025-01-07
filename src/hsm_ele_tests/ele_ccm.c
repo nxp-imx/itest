@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -22,19 +22,18 @@ int ele_ccm(void)
 	open_svc_cipher_args_t open_cipher_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 
-	hsm_err_t err;
-	hsm_hdl_t hsm_session_hdl;
-	hsm_hdl_t key_store_hdl, key_mgmt_hdl, cipher_hdl;
+	hsm_err_t err = 0;
+	hsm_hdl_t key_mgmt_hdl = 0, cipher_hdl = 0;
 	uint32_t key_id_aes_128 = 0;
 	uint32_t key_id_aes_192 = 0;
 	uint32_t key_id_aes_256 = 0;
-	uint8_t iv[12];
-	uint8_t plaintext[MAX_MSG_SIZE];
+	uint8_t iv[12] = {0};
+	uint8_t plaintext[MAX_MSG_SIZE] = {0};
 	uint8_t ciphertext[MAX_MSG_SIZE + AUTH_TAG_SIZE] = {0};
 	uint8_t test_msg[MAX_MSG_SIZE] = {0};
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint32_t i;
-	uint8_t aad[16];
+	uint32_t i = 0;
+	uint8_t aad[16] = {0};
 
 	// INPUT BUFF AS RANDOM
 	ASSERT_EQUAL(randomize(iv, sizeof(iv)), sizeof(iv));

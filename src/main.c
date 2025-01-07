@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -13,11 +13,9 @@
 #include "imx8_tests_list.h"
 
 /* Itest ctx*/
-itest_ctx_t itest_ctx;
+itest_ctx_t itest_ctx = {0};
 /* Used to store total test run and test failures */
 static int total_run = 0, fails = 0;
-
-uint16_t soc;
 
 static inline void print_version()
 {
@@ -54,8 +52,18 @@ void print_test_suite(testsuite *ts){
 static void catch_failure(int signo) {
 	fails++;
 	ITEST_LOG("FAIL: tests interrupted by signal %d\n", signo);
+#ifdef V2X_SHE_MU
+	if (key_store_hdl)
+		ASSERT_EQUAL(she_close_key_store_service(key_store_hdl),
+			     SHE_NO_ERROR);
+	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
+#else
+	if (key_store_hdl)
+		ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl),
+			     HSM_NO_ERROR);
+	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+#endif
 	print_stats();
-	sleep(2);
 	exit(signo);
 }
 
@@ -67,7 +75,7 @@ static void catch_failure_continue(int signo) {
 static void itest_init(void) {
 	open_session_args_t open_session_args = {0};
 #ifdef V2X_SHE_MU
-	she_hdl_t she_session_hdl;
+	she_hdl_t she_session_hdl = 0;
 
 	open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
@@ -75,7 +83,7 @@ static void itest_init(void) {
 	soc = se_get_soc_id();
 	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
 #else
-	hsm_hdl_t hsm_session_hdl;
+	hsm_hdl_t hsm_session_hdl = 0;
 
 #ifdef PSA_COMPLIANT
 	open_session_args.mu_type = HSM1;
@@ -99,7 +107,7 @@ int main(int argc, char *argv[]){
         
 	int i = 0;
 	int status = 0, valid_usage = 0, valid_test = 0;
-	int c;
+	int c = 0;
 	int print_ts = 0;
 
 	itest_init();

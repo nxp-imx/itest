@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -47,23 +47,23 @@ int ecdsa_nist_sign_verify(void)
 {
 	open_session_args_t open_session_args = {0};
 	open_svc_key_store_args_t key_store_args = {0};
-	open_svc_key_management_args_t key_mgmt_args;
+	open_svc_key_management_args_t key_mgmt_args = {0};
 	op_generate_sign_args_t sig_gen_args = {0};
 	op_verify_sign_args_t sig_ver_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 	open_svc_sign_gen_args_t open_sig_gen_args = {0};
 	open_svc_sign_ver_args_t open_sig_ver_args = {0};
 
-	hsm_err_t err;
-	hsm_hdl_t hsm_session_hdl;
-	hsm_hdl_t key_store_hdl, key_mgmt_hdl, sig_gen_hdl = 0, sig_ver_hdl = 0;
+	hsm_err_t err = 0;
+	hsm_hdl_t key_mgmt_hdl = 0;
+	hsm_hdl_t sig_gen_hdl = 0, sig_ver_hdl = 0;
 	uint8_t pub_key[NB_ALGO][MAX_PUB_KEY_SIZE] = {0};
-	uint8_t sign_out_0[MAX_PUB_KEY_SIZE];
+	uint8_t sign_out_0[MAX_PUB_KEY_SIZE] = {0};
 	uint32_t key_id[NB_ALGO] = {0};
-	hsm_verification_status_t verify_status;
-	timer_perf_t t_perf;
-	uint32_t i, j, k, iter = NUM_OPERATIONS, num_algo = NB_ALGO;
-	uint8_t msg_0[MAX_MSG_SIZE];
+	hsm_verification_status_t verify_status = 0;
+	timer_perf_t t_perf = {0};
+	uint32_t i = 0, j = 0, k = 0, iter = NUM_OPERATIONS, num_algo = NB_ALGO;
+	uint8_t msg_0[MAX_MSG_SIZE] = {0};
 	uint32_t msg_size[] = {16, 64, 256, 1024, 8192, 16384};
 	op_pub_key_recovery_args_t args = {0};
 

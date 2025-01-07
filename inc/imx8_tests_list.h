@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #ifndef IMX8_TESTS_LIST_H
@@ -28,11 +28,13 @@ int ele_hash(void);
 #elif defined(V2X_SHE_MU)
 int v2x_fast_mac(void);
 int v2x_fast_mac_mubuff_v2(void);
+int v2x_cmac(void);
 #else
 /* V2X HSM tests */
 int v2x_ecdsa_verify(void);
 int v2x_hash(void);
 int v2x_ecdsa_verify_brainpool(void);
+int v2x_hash_SM3(void);
 #endif
 
 testsuite imx8_ts[] = {
@@ -58,11 +60,13 @@ testsuite imx8_ts[] = {
 #elif defined(V2X_SHE_MU)
 {v2x_fast_mac, "v2x_fast_mac", SOC_IMX95 | SOC_IMX8DXL},
 {v2x_fast_mac_mubuff_v2, "v2x_fast_mac_mubuff_v2", SOC_IMX95},
+{v2x_cmac, "v2x_cmac", SOC_IMX95 | SOC_IMX8DXL},
 #else
 /* V2X HSM tests */
 {v2x_ecdsa_verify, "v2x_ecdsa_verify", SOC_IMX95 | SOC_IMX8DXL},
 {v2x_hash, "v2x_hash", SOC_IMX95 | SOC_IMX8DXL},
 {v2x_ecdsa_verify_brainpool, "v2x_ecdsa_verify_brainpool", SOC_IMX95 | SOC_IMX8DXL},
+{v2x_hash_SM3, "v2x_hash_SM3", SOC_IMX95 | SOC_IMX8DXL},
 #endif
 {NULL, NULL, SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 };
