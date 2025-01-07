@@ -28,6 +28,7 @@ int ele_hash(void);
 #elif defined(V2X_SHE_MU)
 int v2x_fast_mac(void);
 int v2x_fast_mac_mubuff_v2(void);
+int v2x_cmac(void);
 #else
 /* V2X HSM tests */
 int v2x_ecdsa_verify(void);
@@ -59,6 +60,7 @@ testsuite imx8_ts[] = {
 #elif defined(V2X_SHE_MU)
 {v2x_fast_mac, "v2x_fast_mac", SOC_IMX95 | SOC_IMX8DXL},
 {v2x_fast_mac_mubuff_v2, "v2x_fast_mac_mubuff_v2", SOC_IMX95},
+{v2x_cmac, "v2x_cmac", SOC_IMX95 | SOC_IMX8DXL},
 #else
 /* V2X HSM tests */
 {v2x_ecdsa_verify, "v2x_ecdsa_verify", SOC_IMX95 | SOC_IMX8DXL},

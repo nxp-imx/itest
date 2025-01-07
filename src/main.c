@@ -17,8 +17,6 @@ itest_ctx_t itest_ctx = {0};
 /* Used to store total test run and test failures */
 static int total_run = 0, fails = 0;
 
-uint16_t soc;
-
 static inline void print_version()
 {
 	ITEST_LOG("itest %d.%d commit: %s %s\n",
