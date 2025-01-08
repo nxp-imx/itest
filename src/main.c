@@ -12,6 +12,14 @@
 #include "version.h"
 #include "imx8_tests_list.h"
 
+uint16_t soc;
+
+#ifdef V2X_SHE_MU
+she_hdl_t she_session_hdl, key_store_hdl;
+#else
+hsm_hdl_t hsm_session_hdl, key_store_hdl;
+#endif
+
 /* Itest ctx*/
 itest_ctx_t itest_ctx = {0};
 /* Used to store total test run and test failures */
