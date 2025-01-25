@@ -87,7 +87,7 @@ find_package(OpenMP)
 
 if(DEFINED ELE)
 #ELE_HSM_TEST#
-file(GLOB SOURCES src/hsm_ele_tests/*.c src/crypto_utils/*.c src/*.c)
+file(GLOB SOURCES src/ele_hsm_tests/*.c src/crypto_utils/*.c src/*.c)
 add_executable(itest ${SOURCES})
 target_compile_definitions(itest PRIVATE -DPSA_COMPLIANT)
 
@@ -114,7 +114,7 @@ endif()
 
 if (DEFINED V2X)
  #V2X_SHE_TEST#
- file(GLOB SOURCES_v2x src/v2x_tests/*.c src/*.c)
+ file(GLOB SOURCES_v2x src/v2x_she_tests/*.c src/*.c)
  add_executable(itest_v2x ${SOURCES_v2x})
  target_compile_definitions(itest_v2x PRIVATE -DV2X_SHE_MU)
 
