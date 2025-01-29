@@ -17,7 +17,7 @@ uint16_t soc;
 #ifdef V2X_SHE_MU
 she_hdl_t she_session_hdl, key_store_hdl;
 #else
-hsm_hdl_t hsm_session_hdl, key_store_hdl;
+hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
 #endif
 
 /* Itest ctx*/
@@ -70,6 +70,11 @@ static void catch_failure(int signo) {
 		ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl),
 			     HSM_NO_ERROR);
 	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+
+	/* close the second session hdl if opened */
+	if (hsm_session_hdl2)
+		ASSERT_EQUAL(hsm_close_session(hsm_session_hdl2), HSM_NO_ERROR);
+
 #endif
 	print_stats();
 	exit(signo);

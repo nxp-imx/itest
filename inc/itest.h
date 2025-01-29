@@ -36,7 +36,7 @@ extern uint16_t soc;
 #ifdef V2X_SHE_MU
 extern she_hdl_t she_session_hdl, key_store_hdl;
 #else
-extern hsm_hdl_t hsm_session_hdl, key_store_hdl;
+extern hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
 #endif
 
 #define ITEST_LOG(...)  outputLog(__VA_ARGS__)
