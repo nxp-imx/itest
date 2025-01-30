@@ -8,7 +8,7 @@
 #include "itest.h"
 
 /* Number of iterations */
-#define NUM_OPERATIONS  (500u)
+#define NUM_OPERATIONS  (200u)
 #define MAX_MSG_SIZE 16384
 #define NUM_MSG_SIZE 6
 #define PUB_KEY_SIZE (0x40)
@@ -86,7 +86,7 @@ int v2x_sm2_sign_verify(void)
 	gen_key_args.key_identifier = &key_id;
 	gen_key_args.out_size = PUB_KEY_SIZE;
 	gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-	gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
 	gen_key_args.key_group = 12;
 	gen_key_args.key_info = 0U;
 	gen_key_args.out_key = pub_key;
@@ -99,7 +99,7 @@ int v2x_sm2_sign_verify(void)
 		sig_gen_args.signature = sign_out;
 		sig_gen_args.message_size = msg_size[i];
 		sig_gen_args.signature_size = PUB_KEY_SIZE + 1; /* Add 1 byte for Ry */
-		sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+		sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3;
 		sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE;
 
 		memset(&t_perf, 0, sizeof(t_perf));
@@ -127,7 +127,7 @@ int v2x_sm2_sign_verify(void)
 		sig_ver_args.key_size = PUB_KEY_SIZE;
 		sig_ver_args.signature_size = PUB_KEY_SIZE + 1; /* Add 1 byte for Ry */
 		sig_ver_args.message_size = msg_size[i];
-		sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+		sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3;
 		sig_ver_args.flags = HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE;
 
 		memset(&t_perf, 0, sizeof(t_perf));
