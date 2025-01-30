@@ -68,7 +68,7 @@ testsuite imx8_ts[] = {
 {v2x_hash, "v2x_hash", SOC_IMX95 | SOC_IMX8DXL | SOC_IMX943},
 {v2x_ecdsa_verify_brainpool, "v2x_ecdsa_verify_brainpool", SOC_IMX95 | SOC_IMX8DXL | SOC_IMX943},
 {v2x_hash_SM3, "v2x_hash_SM3", SOC_IMX95 | SOC_IMX8DXL | SOC_IMX943},
-{v2x_sm2_sign_verify, "v2x_sm2_sign_verify", SOC_IMX8DXL},
+{v2x_sm2_sign_verify, "v2x_sm2_sign_verify", SOC_IMX8DXL | SOC_IMX943},
 #endif
 {NULL, NULL, SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95 | SOC_IMX943},
 };
