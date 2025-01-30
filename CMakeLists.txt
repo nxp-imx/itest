@@ -114,7 +114,7 @@ endif()
 
 if (DEFINED V2X)
  #V2X_SHE_TEST#
- file(GLOB SOURCES_v2x src/v2x_she_tests/*.c src/*.c)
+ file(GLOB SOURCES_v2x src/v2x_she_tests/*.c src/itest.c src/main.c)
  add_executable(itest_v2x ${SOURCES_v2x})
  target_compile_definitions(itest_v2x PRIVATE -DV2X_SHE_MU)
 
