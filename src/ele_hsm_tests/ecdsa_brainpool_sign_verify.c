@@ -39,6 +39,12 @@ static hsm_permitted_algo_t permitted_algo[NB_ALGO] = {
 	PERMITTED_ALGO_ECDSA_SHA384,
 };
 
+static char *algo[NB_ALGO] = {
+	"ECDSA_BRAINPOOL_R1_SHA_224",
+	"ECDSA_BRAINPOOL_R1_SHA_256",
+	"ECDSA_BRAINPOOL_R1_SHA_384",
+};
+
 int ecdsa_brainpool_sign_verify(void)
 {
 	open_session_args_t open_session_args = {0};
@@ -125,8 +131,8 @@ int ecdsa_brainpool_sign_verify(void)
 			     HSM_NO_ERROR);
 
 		for (k = 0; k < NUM_MSG_SIZE; k++) {
-			ITEST_LOG("ECDSA_SHA_%d signing for 1s on %d byte size blocks: ",
-				  bit_key_sz[j], msg_size[k]);
+			ITEST_LOG("%s signing for 1s on %d byte size blocks: ",
+				  algo[j], msg_size[k]);
 			sig_gen_args.key_identifier = key_id[j];
 			sig_gen_args.message = msg_0;
 			sig_gen_args.signature = sign_out_0;
@@ -161,8 +167,8 @@ int ecdsa_brainpool_sign_verify(void)
 			ASSERT_EQUAL(hsm_pub_key_recovery(key_store_hdl,
 							  &args),
 				     HSM_NO_ERROR);
-			ITEST_LOG("ECDSA_SHA_%d verification for 1s on %d byte size blocks: ",
-				  bit_key_sz[j], msg_size[k]);
+			ITEST_LOG("%s verification for 1s on %d byte size blocks: ",
+				  algo[j], msg_size[k]);
 			sig_ver_args.key = pub_key[j];
 			sig_ver_args.message = msg_0;
 			sig_ver_args.signature = sign_out_0;
