@@ -138,6 +138,11 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		    uint8_t *aad, uint16_t aad_size,
 		    hsm_op_auth_enc_algo_t algo,
 		    hsm_op_auth_enc_flags_t flags, uint32_t session_hdl);
+/*===========CMAC============*/
+hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
+		    hsm_op_mac_one_go_algo_t algo, uint8_t *payload,
+		    uint32_t payload_size, uint8_t *mac,
+		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl);
 #ifdef V2X_SHE_MU
 /*===========V2X_SHE KEY UPDATE============*/
 void key_update_test(she_hdl_t utils_handle);
