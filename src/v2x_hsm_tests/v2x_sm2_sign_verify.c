@@ -25,7 +25,7 @@ int v2x_sm2_sign_verify(void)
 	op_verify_sign_args_t sig_ver_args = {0};
 	hsm_hdl_t sg0_sig_gen_serv = 0, sv0_sig_ver_serv = 0;
 	hsm_hdl_t sg0_key_mgmt_srv = 0;
-	uint32_t key_id = 0;
+	uint32_t key_id = 0, num_msg_size = NUM_MSG_SIZE;
 	uint8_t msg_input[MAX_MSG_SIZE] = {0};
 	uint8_t sign_out[PUB_KEY_SIZE + 1] = {0};
 	uint8_t pub_key[PUB_KEY_SIZE] = {0};
@@ -47,6 +47,10 @@ int v2x_sm2_sign_verify(void)
 	open_session_args.mu_type = V2X_SV0;
 	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl2),
 		     HSM_NO_ERROR);
+
+	/* set number of nessage sizes based on soc */
+	if (soc != SOC_IMX8DXL)
+		num_msg_size = NUM_MSG_SIZE - 2;
 
 	key_store_srv_args.key_store_identifier = 1234;
 	key_store_srv_args.authentication_nonce = 1234;
@@ -93,7 +97,7 @@ int v2x_sm2_sign_verify(void)
 	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args),
 		     HSM_NO_ERROR);
 
-	for (i = 0; i < NUM_MSG_SIZE; i++) {
+	for (i = 0; i < num_msg_size; i++) {
 		sig_gen_args.key_identifier = key_id;
 		sig_gen_args.message = msg_input;
 		sig_gen_args.signature = sign_out;

@@ -8,11 +8,11 @@
 #include "itest.h"
 
 /* Number of iterations */
-#define NUM_OPERATIONS 3000
+#define NUM_OPERATIONS 1000
 
 #define MAX_DGST_SIZE 0x40
 #define MAX_MSG_SIZE 16384
-#define NUM_MSG_SIZE 4
+#define NUM_MSG_SIZE 6
 #define dgst_size 0x20
 
 int v2x_hash_SM3(void)
@@ -25,7 +25,7 @@ int v2x_hash_SM3(void)
 	uint8_t dgst_in_buff[MAX_MSG_SIZE] = {0};
 	uint8_t dgst_out_buff[MAX_DGST_SIZE] = {0};
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint32_t size_input = 0;
+	uint32_t size_input = 0, num_msg_size = NUM_MSG_SIZE;
 	uint32_t j = 0, k = 0, iter = NUM_OPERATIONS;
 	hsm_err_t err = 0;
 
@@ -34,11 +34,15 @@ int v2x_hash_SM3(void)
 				      &hsm_session_hdl),
 		     HSM_NO_ERROR);
 
+	/* set number of nessage sizes based on soc */
+	if (soc != SOC_IMX8DXL)
+		num_msg_size = NUM_MSG_SIZE - 2;
+
 	ASSERT_EQUAL(hsm_open_hash_service(hsm_session_hdl, &hash_srv_args,
 					   &hash_serv),
 		     HSM_NO_ERROR);
 
-	for (k = 0; k < NUM_MSG_SIZE; k++) {
+	for (k = 0; k < num_msg_size; k++) {
 		size_input = block_size[k];
 		ITEST_LOG("Doing SM3_256 for 1s on %d byte block: ",
 			  size_input);

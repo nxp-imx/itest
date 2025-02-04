@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include "itest.h"
 
-#define MAX_MSG_SIZE 1024
-#define NUM_MSG_SIZE 4
+#define MAX_MSG_SIZE 2048
+#define NUM_MSG_SIZE 5
 
 int v2x_sm4_ecb(void)
 {
@@ -23,8 +23,8 @@ int v2x_sm4_ecb(void)
 	uint8_t msg_input[MAX_MSG_SIZE] = {0};
 	uint8_t buff_encr[MAX_MSG_SIZE] = {0};
 	uint8_t buff_decr[MAX_MSG_SIZE] = {0};
-	uint32_t i = 0;
-	uint32_t msg_size[] = {16, 64, 256, 1024};
+	uint32_t i = 0, num_msg_size = NUM_MSG_SIZE;
+	uint32_t msg_size[] = {16, 64, 256, 1024, 2048};
 	hsm_err_t err = 0;
 
 	/* input buffer as random */
@@ -34,6 +34,10 @@ int v2x_sm4_ecb(void)
 	open_session_args.mu_type = V2X_SG0;
 	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
 		     HSM_NO_ERROR);
+
+	/* set number of nessage sizes based on soc */
+	if (soc == SOC_IMX8DXL)
+		num_msg_size = NUM_MSG_SIZE - 1;
 
 	key_store_srv_args.key_store_identifier = 1234;
 	key_store_srv_args.authentication_nonce = 1234;
@@ -77,7 +81,7 @@ int v2x_sm4_ecb(void)
 	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args),
 		     HSM_NO_ERROR);
 
-	for (i = 0; i < NUM_MSG_SIZE; i++) {
+	for (i = 0; i < num_msg_size; i++) {
 		ITEST_LOG("SM4-128-ECB encryption for 1s on %d byte blocks: ",
 			  msg_size[i]);
 		err = cipher_test(sg0_cipher_hdl, key_id, msg_input, buff_encr,

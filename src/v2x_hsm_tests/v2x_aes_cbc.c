@@ -8,7 +8,7 @@
 #include "itest.h"
 
 #define MAX_MSG_SIZE 2048
-#define NUM_MSG_SIZE 4
+#define NUM_MSG_SIZE 5
 #define NUM_KEY_SIZE 3
 #define IV_SIZE 16
 
@@ -27,8 +27,8 @@ int v2x_aes_cbc(void)
 	uint8_t buff_encr[MAX_MSG_SIZE] = {0};
 	uint8_t buff_decr[MAX_MSG_SIZE] = {0};
 	uint8_t iv[IV_SIZE] = {0};
-	uint32_t i = 0, j = 0;
-	uint32_t msg_size[] = {16, 64, 256, 1024};
+	uint32_t i = 0, j = 0, num_msg_size = NUM_MSG_SIZE;
+	uint32_t msg_size[] = {16, 64, 256, 1024, 2048};
 	hsm_err_t err = 0;
 
 	// INPUT BUFF AS RANDOM
@@ -39,6 +39,10 @@ int v2x_aes_cbc(void)
 	open_session_args.mu_type = V2X_SG0;
 	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
 		     HSM_NO_ERROR);
+
+	/* set number of nessage sizes based on soc */
+	if (soc == SOC_IMX8DXL)
+		num_msg_size = NUM_MSG_SIZE - 1;
 
 	key_store_srv_args.key_store_identifier = 1234;
 	key_store_srv_args.authentication_nonce = 1234;
@@ -96,7 +100,7 @@ int v2x_aes_cbc(void)
 
 	for (j = 0; j < NUM_KEY_SIZE; j ++)
 	{
-		for (i = 0; i < NUM_MSG_SIZE; i++) {
+		for (i = 0; i < num_msg_size; i++) {
 			ITEST_LOG("AES-%d-CBC encryption for 1s on %d byte blocks: ",
 				  key_size[j], msg_size[i]);
 			err = cipher_test(sg0_cipher_hdl, key_id_aes[j],
