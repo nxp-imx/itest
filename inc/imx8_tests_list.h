@@ -42,6 +42,7 @@ int v2x_aes_cbc(void);
 int v2x_aes_ecb(void);
 int v2x_aes_cmac(void);
 int v2x_aes_gcm(void);
+int v2x_sm4_ccm(void);
 #endif
 
 testsuite imx8_ts[] = {
@@ -81,6 +82,7 @@ testsuite imx8_ts[] = {
 {v2x_aes_ecb, "v2x_aes_ecb", SOC_IMX8DXL},
 {v2x_aes_cmac, "v2x_aes_cmac", SOC_IMX8DXL},
 {v2x_aes_gcm, "v2x_aes_gcm", SOC_IMX8DXL},
+{v2x_sm4_ccm, "v2x_sm4_ccm", SOC_IMX8DXL},
 #endif
 {NULL, NULL, SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 };
