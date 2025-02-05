@@ -7,9 +7,6 @@
 #include <stdlib.h>
 #include "itest.h"
 
-/* Number of iterations */
-#define NUM_OPERATIONS (2000u)
-
 #define MAX_MSG_SIZE 16384
 #define NUM_MSG_SIZE 6
 #define AUTH_TAG_SIZE 16
