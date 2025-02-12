@@ -88,3 +88,46 @@ hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 	print_perf(&t_perf, iter);
 	return err;
 }
+
+hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
+		    uint8_t *input, uint32_t input_size, uint8_t *output,
+		    uint32_t output_size, uint8_t *iv, uint16_t iv_size,
+		    uint8_t *aad, uint16_t aad_size,
+		    hsm_op_auth_enc_algo_t algo, hsm_op_auth_enc_flags_t flags,
+		    uint32_t session_hdl)
+{
+	op_auth_enc_args_t auth_enc_args = {0};
+	uint32_t j = 0, iter = NUM_OPERATIONS;
+	timer_perf_t t_perf = {0};
+	hsm_err_t err = 0;
+
+	auth_enc_args.key_identifier = key_identifier;
+	auth_enc_args.iv_size = iv_size;
+	auth_enc_args.iv = iv;
+	auth_enc_args.ae_algo = algo;
+	auth_enc_args.flags = flags;
+	auth_enc_args.aad_size = aad_size;
+	auth_enc_args.aad = aad;
+	auth_enc_args.input_size = input_size;
+	auth_enc_args.input = input;
+	auth_enc_args.output_size = output_size;
+	auth_enc_args.output = output;
+
+	memset(&t_perf, 0, sizeof(t_perf));
+	t_perf.session_hdl = session_hdl;
+
+	for (j = 0; j < iter; j++) {
+		/* Start the timer */
+		start_timer(&t_perf);
+		err = hsm_auth_enc(cipher_hdl, &auth_enc_args);
+		if (err)
+			return err;
+		/* Stop the timer */
+		stop_timer(&t_perf);
+	}
+	/* Finalize time to get stats */
+	finalize_timer(&t_perf, iter);
+	print_perf(&t_perf, iter);
+
+	return err;
+}
