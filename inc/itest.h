@@ -126,11 +126,29 @@ typedef struct{
     int target;
 } itest_ctx_t;
 
+/*========OPEN KEY STORE========*/
+hsm_err_t hsm_open_key_store(hsm_hdl_t hsm_session_hdl,
+			     hsm_hdl_t *key_store_hdl);
+/*=====GENERATE KEY PERF======*/
+hsm_err_t hsm_generate_key_perf(hsm_hdl_t key_mgmt_hdl, uint32_t key_id,
+				uint16_t out_size, hsm_key_group_t key_group,
+				hsm_key_type_t key_type, uint8_t *out_key,
+#ifdef PSA_COMPLIANT
+				hsm_key_lifetime_t key_lifetime,
+				hsm_key_usage_t key_usage,
+				hsm_permitted_algo_t permitted_algo,
+				hsm_bit_key_sz_t bit_key_sz,
+				hsm_key_lifecycle_t key_lifecycle,
+#else
+				hsm_key_info_t key_info,
+#endif
+				timer_perf_t *t_perf);
 /*===========CIPHER============*/
-hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier, uint8_t *input,
-		 uint8_t *output, uint32_t block_size, uint8_t *iv,
-		 uint16_t iv_size, hsm_op_cipher_one_go_algo_t algo,
-		 hsm_op_cipher_one_go_flags_t flags, uint32_t session_hdl);
+hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
+		      uint8_t *input, uint8_t *output, uint32_t block_size,
+		      uint8_t *iv, uint16_t iv_size,
+		      hsm_op_cipher_one_go_algo_t algo,
+		      hsm_op_cipher_one_go_flags_t flags, uint32_t session_hdl);
 /*===========AUTH TEST============*/
 hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		    uint8_t *input, uint32_t input_size, uint8_t *output,
@@ -160,5 +178,6 @@ void stop_timer(timer_perf_t *timer);
 void finalize_timer(timer_perf_t *timer, uint32_t nb_iter);
 double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
 void print_perf(timer_perf_t *timer, uint32_t nb_iter);
-
+void finalize_timer_rsa(timer_perf_t *timer, uint32_t nb_iter);
+void print_perf_rsa(timer_perf_t *timer, uint32_t nb_iter);
 #endif

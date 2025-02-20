@@ -131,3 +131,71 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 
 	return err;
 }
+
+hsm_err_t hsm_generate_key_perf(hsm_hdl_t key_mgmt_hdl, uint32_t key_id,
+				uint16_t out_size, hsm_key_group_t key_group,
+				hsm_key_type_t key_type, uint8_t *out_key,
+#ifdef PSA_COMPLIANT
+				hsm_key_lifetime_t key_lifetime,
+				hsm_key_usage_t key_usage,
+				hsm_permitted_algo_t permitted_algo,
+				hsm_bit_key_sz_t bit_key_sz,
+				hsm_key_lifecycle_t key_lifecycle,
+#else
+				hsm_key_info_t key_info,
+#endif
+				timer_perf_t *t_perf)
+{
+	op_generate_key_args_t key_gen_args = {0};
+	hsm_err_t err = 0;
+
+	key_gen_args.key_identifier = &key_id;
+	key_gen_args.out_size = out_size;
+	key_gen_args.key_group = key_group;
+	key_gen_args.out_key = out_key;
+	key_gen_args.key_type = key_type;
+#ifdef PSA_COMPLIANT
+	key_gen_args.bit_key_sz = bit_key_sz;
+	key_gen_args.key_lifecycle = key_lifecycle;
+	key_gen_args.key_lifetime = key_lifetime;
+	key_gen_args.key_usage = key_usage;
+	key_gen_args.permitted_algo = permitted_algo;
+#else
+	key_gen_args.key_info = key_info;
+#endif
+	/* Start the timer */
+	start_timer(t_perf);
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (err)
+		return err;
+
+	/* Stop the timer */
+	stop_timer(t_perf);
+
+	return err;
+}
+
+hsm_err_t hsm_open_key_store(hsm_hdl_t hsm_session_hdl, hsm_hdl_t *key_store_hdl)
+{
+	hsm_err_t err = 0;
+	open_svc_key_store_args_t key_store_args = {0};
+
+	key_store_args.key_store_identifier = 0xABCD;
+	key_store_args.authentication_nonce = 0x1234;
+	key_store_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
+	err = hsm_open_key_store_service(hsm_session_hdl,
+					 &key_store_args,
+					 key_store_hdl);
+
+	if (err == HSM_KEY_STORE_CONFLICT) {
+		key_store_args.flags = 0;
+		ASSERT_EQUAL(hsm_open_key_store_service(hsm_session_hdl,
+							&key_store_args,
+							key_store_hdl),
+			     HSM_NO_ERROR);
+	} else {
+		ASSERT_EQUAL(err, HSM_NO_ERROR);
+	}
+
+	return err;
+}
