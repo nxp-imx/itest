@@ -24,7 +24,8 @@ int ele_randomness_gcm(void);
 int ele_cfb(void);
 int ele_ctr(void);
 int ele_ofb(void);
-int ele_hash(void);
+int ele_hash_sha2(void);
+int ele_hash_sha3(void);
 int rsa_key_gen_pkcs1_v15(void);
 int rsa_key_gen_pkcs1_pss_mgf1(void);
 #elif defined(V2X_SHE_MU)
@@ -66,7 +67,8 @@ testsuite imx8_ts[] = {
 {ele_cfb, "ele_cfb", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 {ele_ctr, "ele_ctr", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
 {ele_ofb, "ele_ofb", SOC_IMX93 | SOC_IMX95},
-{ele_hash, "ele_hash", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
+{ele_hash_sha2, "ele_hash_sha2", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95},
+{ele_hash_sha3, "ele_hash_sha3", SOC_IMX93 | SOC_IMX95},
 {rsa_key_gen_pkcs1_v15, "rsa_key_gen_pkcs1_v15", SOC_IMX93 | SOC_IMX95},
 {rsa_key_gen_pkcs1_pss_mgf1, "rsa_key_gen_pkcs1_pss_mgf1", SOC_IMX93 | SOC_IMX95},
 #elif defined(V2X_SHE_MU)
