@@ -91,6 +91,14 @@ void finalize_timer(timer_perf_t *timer, uint32_t nb_iter)
 	timer->nb_iter = nb_iter;
 }
 
+void finalize_timer_rsa(timer_perf_t *timer, uint32_t nb_iter)
+{
+	/* number of ops in 50s */
+	timer->op_sec = 1000000*50*nb_iter/timer->time_us;
+	timer->t_per_op = timer->time_us/nb_iter;
+	timer->nb_iter = nb_iter;
+}
+
 double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2)
 {
 	double diff_microsec = 0;
@@ -126,5 +134,25 @@ void print_perf(timer_perf_t *timer, uint32_t nb_iter)
 				      "Kernel -> SE LIB");
 	ITEST_LOG("%14.2lfus", lib_request_t_per_op);
 	ITEST_LOG("%16.2lfus", fw_t_per_op);
+	ITEST_LOG("%17.2lfus\n\n", lib_response_t_per_op);
+}
+
+void print_perf_rsa(timer_perf_t *timer, uint32_t nb_iter)
+{
+	double lib_request_t_per_op = timer->lib_request_t/nb_iter;
+	double lib_response_t_per_op = timer->lib_response_t/nb_iter;
+	double fw_t_per_op = timer->fw_t/nb_iter;
+
+	ITEST_LOG("%d ops (%.2lfsec/op)\n", timer->op_sec,
+					  timer->t_per_op * 0.000001);
+	ITEST_LOG("%20s %12s %23s\n", "SE LIB -> Kernel",
+#ifdef PSA_COMPLIANT
+				      "ELE FW",
+#else
+				      "V2X FW",
+#endif
+				      "Kernel -> SE LIB");
+	ITEST_LOG("%14.2lfus", lib_request_t_per_op);
+	ITEST_LOG("%16.2lfsec", fw_t_per_op * 0.000001);
 	ITEST_LOG("%17.2lfus\n\n", lib_response_t_per_op);
 }

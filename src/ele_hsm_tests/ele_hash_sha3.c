@@ -1,19 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2025 NXP
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
 #include "crypto_utils/dgst.h"
-
-// requirement: hash tests all algos from 1 byte to 300 bytes
-
-// HSM_HASH_ALGO_SHA_224
-// HSM_HASH_ALGO_SHA_256
-// HSM_HASH_ALGO_SHA_384
-// HSM_HASH_ALGO_SHA_512
 
 /* Number of iterations */
 #define NUM_OPERATIONS 3000
@@ -24,18 +17,18 @@
 #define NUM_MSG_SIZE 6
 
 static hsm_hash_algo_t algos[NB_ALGO] = {
-	HSM_HASH_ALGO_SHA_224,
-	HSM_HASH_ALGO_SHA_256,
-	HSM_HASH_ALGO_SHA_384,
-	HSM_HASH_ALGO_SHA_512,
+	HSM_HASH_ALGO_SHA3_224,
+	HSM_HASH_ALGO_SHA3_256,
+	HSM_HASH_ALGO_SHA3_384,
+	HSM_HASH_ALGO_SHA3_512,
 };
 
 static char *algos_str[NB_ALGO] = {
-	"sha224",
-	"sha256",
-	"sha384",
-	"sha512",
-	};
+	"sha3-224",
+	"sha3-256",
+	"sha3-384",
+	"sha3-512",
+};
 
 static uint16_t dgst_size[NB_ALGO] = {
 	0x1C,
@@ -44,7 +37,7 @@ static uint16_t dgst_size[NB_ALGO] = {
 	0x40,
 };
 
-int ele_hash(void)
+int ele_hash_sha3(void)
 {
 	open_session_args_t open_session_args = {0};
 	timer_perf_t t_perf = {0};
@@ -82,7 +75,7 @@ int ele_hash(void)
 			memset(&t_perf, 0, sizeof(t_perf));
 			t_perf.session_hdl = hsm_session_hdl;
 			for (j = 0; j < iter; j++) {
-				 /* Start the timer */
+				/* Start the timer */
 				start_timer(&t_perf);
 				err = hsm_hash_one_go(hsm_session_hdl,
 						      &hash_args);
@@ -102,9 +95,9 @@ int ele_hash(void)
 						    dgst_size[i]),
 					     0);
 			}
-				/* Finalize time to get stats */
-				finalize_timer(&t_perf, iter);
-				print_perf(&t_perf, iter);
+			/* Finalize time to get stats */
+			finalize_timer(&t_perf, iter);
+			print_perf(&t_perf, iter);
 		}
 	}
 
