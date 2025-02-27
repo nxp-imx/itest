@@ -35,8 +35,10 @@ int v2x_cmac(void);
 #else
 /* V2X HSM tests */
 int v2x_ecdsa_verify(void);
+int v2x_ecdsa_nist_sign_verify(void);
 int v2x_hash(void);
 int v2x_ecdsa_verify_brainpool(void);
+int v2x_ecdsa_brainpool_sign_verify(void);
 int v2x_hash_SM3(void);
 int v2x_sm2_sign_verify(void);
 int v2x_sm4_cbc(void);
@@ -78,9 +80,11 @@ testsuite imx8_ts[] = {
 {v2x_cmac, "v2x_cmac", SOC_IMX95 | SOC_IMX8DXL | SOC_IMX943},
 #else
 /* V2X HSM tests */
-{v2x_ecdsa_verify, "v2x_ecdsa_verify", SOC_IMX95 | SOC_IMX8DXL | SOC_IMX943},
+{v2x_ecdsa_verify, "v2x_ecdsa_verify", SOC_IMX95},
+{v2x_ecdsa_nist_sign_verify, "v2x_ecdsa_nist_sign_verify", SOC_IMX8DXL | SOC_IMX943},
 {v2x_hash, "v2x_hash", SOC_IMX95 | SOC_IMX8DXL | SOC_IMX943},
-{v2x_ecdsa_verify_brainpool, "v2x_ecdsa_verify_brainpool", SOC_IMX95 | SOC_IMX8DXL | SOC_IMX943},
+{v2x_ecdsa_verify_brainpool, "v2x_ecdsa_verify_brainpool", SOC_IMX95},
+{v2x_ecdsa_brainpool_sign_verify, "v2x_ecdsa_brainpool_sign_verify", SOC_IMX8DXL | SOC_IMX943},
 {v2x_hash_SM3, "v2x_hash_SM3", SOC_IMX95 | SOC_IMX8DXL | SOC_IMX943},
 {v2x_sm2_sign_verify, "v2x_sm2_sign_verify", SOC_IMX8DXL | SOC_IMX943},
 {v2x_sm4_cbc, "v2x_sm4_cbc", SOC_IMX8DXL | SOC_IMX943},
