@@ -62,7 +62,7 @@ testsuite imx8_ts[] = {
 {ele_ecb, "ele_ecb", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95 | SOC_IMX943},
 {ecdsa_nist_sign_verify, "ecdsa_nist_sign_verify", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95 | SOC_IMX943},
 {ele_cmac, "ele_cmac", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95 | SOC_IMX943},
-{ele_hmac,	 "ele_hmac", SOC_IMX8ULP | SOC_IMX93},
+{ele_hmac,	 "ele_hmac", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX943},
 {ecdsa_brainpool_sign_verify, "ecdsa_brainpool_sign_verify", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95 | SOC_IMX943},
 {ele_gcm, "ele_gcm", SOC_IMX93 | SOC_IMX95 | SOC_IMX943},
 {ele_ccm, "ele_ccm", SOC_IMX8ULP | SOC_IMX93 | SOC_IMX95 | SOC_IMX943},
