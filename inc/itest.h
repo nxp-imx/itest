@@ -129,6 +129,20 @@ typedef struct{
 /*========OPEN KEY STORE========*/
 hsm_err_t hsm_open_key_store(hsm_hdl_t hsm_session_hdl,
 			     hsm_hdl_t *key_store_hdl);
+/*=====GENERATE KEY REQUEST======*/
+hsm_err_t hsm_generate_key_request(hsm_hdl_t key_mgmt_hdl, uint32_t *key_id,
+				   uint16_t out_size, hsm_key_group_t key_group,
+				   hsm_key_type_t key_type, hsm_op_key_gen_flags_t flags,
+#ifdef PSA_COMPLIANT
+				   hsm_key_lifetime_t key_lifetime,
+				   hsm_key_usage_t key_usage,
+				   hsm_permitted_algo_t permitted_algo,
+				   hsm_bit_key_sz_t bit_key_sz,
+				   hsm_key_lifecycle_t key_lifecycle,
+#else
+				   hsm_key_info_t key_info,
+#endif
+				   uint8_t *out_key);
 /*=====GENERATE KEY PERF======*/
 hsm_err_t hsm_generate_key_perf(hsm_hdl_t key_mgmt_hdl, uint32_t key_id,
 				uint16_t out_size, hsm_key_group_t key_group,

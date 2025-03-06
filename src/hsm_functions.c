@@ -199,3 +199,40 @@ hsm_err_t hsm_open_key_store(hsm_hdl_t hsm_session_hdl, hsm_hdl_t *key_store_hdl
 
 	return err;
 }
+
+hsm_err_t hsm_generate_key_request(hsm_hdl_t key_mgmt_hdl, uint32_t *key_id,
+				   uint16_t out_size, hsm_key_group_t key_group,
+				   hsm_key_type_t key_type, hsm_op_key_gen_flags_t flags,
+#ifdef PSA_COMPLIANT
+				   hsm_key_lifetime_t key_lifetime,
+				   hsm_key_usage_t key_usage,
+				   hsm_permitted_algo_t permitted_algo,
+				   hsm_bit_key_sz_t bit_key_sz,
+				   hsm_key_lifecycle_t key_lifecycle,
+#else
+				   hsm_key_info_t key_info,
+#endif
+				   uint8_t *out_key)
+{
+	op_generate_key_args_t key_gen_args = {0};
+	hsm_err_t err = 0;
+
+	key_gen_args.key_identifier = key_id;
+	key_gen_args.out_size = out_size;
+	key_gen_args.key_group = key_group;
+	key_gen_args.out_key = out_key;
+	key_gen_args.key_type = key_type;
+	key_gen_args.flags = flags;
+#ifdef PSA_COMPLIANT
+	key_gen_args.bit_key_sz = bit_key_sz;
+	key_gen_args.key_lifecycle = key_lifecycle;
+	key_gen_args.key_lifetime = key_lifetime;
+	key_gen_args.key_usage = key_usage;
+	key_gen_args.permitted_algo = permitted_algo;
+#else
+	key_gen_args.key_info = key_info;
+#endif
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+
+	return err;
+}
