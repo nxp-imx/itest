@@ -73,6 +73,7 @@ int v2x_cmac(void)
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
 
+	/* Support for only single keystore on i.MX8DXL, whereas 5 on i.MX95 */
 	key_store_args.key_store_identifier = 0x1;
 	key_store_args.authentication_nonce = 0xbec00001;
 	key_store_args.max_updates_number = 300;
