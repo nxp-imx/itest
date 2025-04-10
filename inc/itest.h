@@ -20,6 +20,7 @@
 #endif
 
 #define MU_CHANNEL_PLAT_SHE       (0x01u)
+#define NUM_SOCS 10
 
 /*===========Test API============*/
 #define DBG    0x10
@@ -114,16 +115,17 @@ typedef struct {
 } timer_perf_t;
 
 typedef struct{
-    int (*tc_ptr)(void);
-    char *name;
-    int target;
+	int (*tc_ptr)(void);
+	char *name;
+	int supported_board;
+	int board[NUM_SOCS];
 } testsuite;
 
 typedef struct{
-    char *test_name;
-    int nb_assert_fails;
-    testsuite *ts;
-    int target;
+	char *test_name;
+	int nb_assert_fails;
+	testsuite *ts;
+	int board;
 } itest_ctx_t;
 
 /*========OPEN KEY STORE========*/

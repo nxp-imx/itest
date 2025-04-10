@@ -48,12 +48,14 @@ static void print_help(void) {
 	ITEST_LOG("  -t < test_name > : Run test test_name\n");
 }
 
-void print_test_suite(testsuite *ts){
-	int i;
-
+void print_test_suite(testsuite *ts)
+{
+	int i = 0, j = 0;
 	for (i = 0; ts[i].tc_ptr != NULL; i++) {
-		if ((ts[i].target & itest_ctx.target) == itest_ctx.target)
-			ITEST_LOG("%s\n", ts[i].name);
+		for (j = 0; j < ts[i].supported_board; j++) {
+			if (ts[i].board[j] == itest_ctx.board)
+				ITEST_LOG("%s\n", ts[i].name);
+		}
 	}
 }
 
@@ -113,13 +115,12 @@ static void itest_init(void) {
 	itest_ctx.test_name = NULL;
 	itest_ctx.nb_assert_fails = 0;
 	itest_ctx.ts = imx8_ts;
-	itest_ctx.target = soc;
+	itest_ctx.board = soc;
 }
 
 int main(int argc, char *argv[]){
-        
-	int i = 0;
-	int status = 0, valid_usage = 0, valid_test = 0;
+	int i = 0, j = 0;
+	int status = 0, valid_usage = 0, valid_test = 0, valid_board = 0;
 	int c = 0;
 	int print_ts = 0;
 
@@ -195,10 +196,17 @@ int main(int argc, char *argv[]){
 	}
 	for (i = 0; itest_ctx.ts[i].tc_ptr != NULL; i++) {
 		if (!strcmp(itest_ctx.ts[i].name, itest_ctx.test_name)) {
-			if (!(itest_ctx.ts[i].target & itest_ctx.target)) {
+			for (j = 0; j < itest_ctx.ts[i].supported_board; j++) {
+				if (itest_ctx.ts[i].board[j] == itest_ctx.board) {
+					valid_board = 1;
+					break;
+				}
+			}
+
+			if (!valid_board) {
 				ITEST_LOG("###############################");
 				ITEST_LOG("########################\n");
-				ITEST_LOG("# BAD TARGET FOR TEST: %s\n",
+				ITEST_LOG("# BOARD NOT SUPPORTED FOR THE TEST: %s\n",
 					  itest_ctx.ts[i].name);
 				ITEST_LOG("###############################");
 				ITEST_LOG("########################\n");
