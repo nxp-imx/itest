@@ -47,7 +47,7 @@ int v2x_aes_gcm(void)
 		     HSM_NO_ERROR);
 
 	/* set number of nessage sizes based on soc */
-	if (soc == SOC_IMX8DXL)
+	if (soc == IMX8DXL_DL2 || soc == IMX8DXL_DL3)
 		num_msg_size = NUM_MSG_SIZE - 1;
 
 	key_store_args.key_store_identifier = 0xABCD;

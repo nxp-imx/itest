@@ -35,7 +35,7 @@ int v2x_hash_SM3(void)
 		     HSM_NO_ERROR);
 
 	/* set number of nessage sizes based on soc */
-	if (soc != SOC_IMX8DXL)
+	if (soc != IMX8DXL_DL3)
 		num_msg_size = NUM_MSG_SIZE - 2;
 
 	ASSERT_EQUAL(hsm_open_hash_service(hsm_session_hdl, &hash_srv_args,
