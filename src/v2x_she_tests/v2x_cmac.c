@@ -62,7 +62,7 @@ int v2x_cmac(void)
 	uint8_t num_payload = NUM_PAYLOAD_SIZE;
 
 	/* Since 2k message size not supported on IMX8DXL */
-	if (soc == SOC_IMX8DXL)
+	if (soc == IMX8DXL_DL3)
 		num_payload -= 1;
 
 	ASSERT_EQUAL(randomize(message, sizeof(message)), sizeof(message));

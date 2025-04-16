@@ -39,7 +39,7 @@ int v2x_sm4_cbc(void)
 		     HSM_NO_ERROR);
 
 	/* set number of nessage sizes based on soc */
-	if (soc == SOC_IMX8DXL)
+	if (soc == IMX8DXL_DL3)
 		num_msg_size = NUM_MSG_SIZE - 1;
 
 	key_store_srv_args.key_store_identifier = 1234;

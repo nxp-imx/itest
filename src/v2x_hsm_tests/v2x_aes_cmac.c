@@ -36,7 +36,7 @@ int v2x_aes_cmac(void)
 				      &hsm_session_hdl),
 		     HSM_NO_ERROR);
 
-	if (soc == SOC_IMX8DXL)
+	if (soc == IMX8DXL_DL2 || soc == IMX8DXL_DL3)
 		num_payload_size = NUM_PAYLOAD_SIZE - 1;
 
 	key_store_args.key_store_identifier = 0xABCD;
