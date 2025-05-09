@@ -96,6 +96,10 @@ static void itest_init(void) {
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
 	soc = se_get_soc_id();
+
+	if (soc == SOC_IMX95)
+		soc = se_get_soc_rev();
+
 	if (soc == SOC_IMX8DXL)
 		soc = se_get_board_type();
 	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
@@ -112,6 +116,10 @@ static void itest_init(void) {
 		     HSM_NO_ERROR);
 
 	soc = se_get_soc_id();
+
+	if (soc == SOC_IMX95)
+		soc = se_get_soc_rev();
+
 #ifndef PSA_COMPLIANT
 	if (soc == SOC_IMX8DXL)
 		soc = se_get_board_type();
