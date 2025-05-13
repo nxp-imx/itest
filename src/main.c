@@ -13,6 +13,7 @@
 #include "imx8_tests_list.h"
 
 uint16_t soc;
+#define MAX_SOC_VAL 10
 
 #ifdef V2X_SHE_MU
 she_hdl_t she_session_hdl, key_store_hdl;
@@ -87,15 +88,58 @@ static void catch_failure_continue(int signo) {
 	itest_ctx.nb_assert_fails++;
 }
 
-static void itest_init(void) {
+static int itest_init(void)
+{
 	open_session_args_t open_session_args = {0};
+	char soc_val[MAX_SOC_VAL];
+
+	FILE *file = fopen("/sys/devices/soc0/soc_id", "r");
+
+	if (file == NULL) {
+		perror("Error opening the /sys/devices/soc0/soc_id file");
+		return -1;
+	}
+
+	if (fgets(soc_val, MAX_SOC_VAL, file) == NULL) {
+		perror("Error reading the /sys/devices/soc0/soc_id file");
+		fclose(file);
+		return -1;
+	}
+
+	fclose(file);
+
+	soc_val[strcspn(soc_val, "\t\n")] = 0;
+
+	if (strcmp(soc_val, "i.MX8ULP") == 0)
+		soc = SOC_IMX8ULP;
+#ifndef PSA_COMPLIANT
+	else if (strcmp(soc_val, "i.MX8DXL") == 0)
+		soc = SOC_IMX8DXL;
+#endif
+	else if (strcmp(soc_val, "i.MX91") == 0)
+		soc = SOC_IMX91;
+	else if (strcmp(soc_val, "i.MX93") == 0)
+		soc = SOC_IMX93;
+	else if (strcmp(soc_val, "i.MX943") == 0)
+		soc = SOC_IMX943;
+	else if (strcmp(soc_val, "i.MX95") == 0)
+		soc = SOC_IMX95;
+	else {
+		perror("Undefined SOC\n");
+		return -1;
+	}
+
 #ifdef V2X_SHE_MU
 	she_hdl_t she_session_hdl = 0;
 
-	open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
+	/* Only SHE1 MU supported on iMX943 platform */
+	if (soc == SOC_IMX943)
+		open_session_args.mu_type = V2X_SHE1;
+
+	else
+		open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
-	soc = se_get_soc_id();
 
 	if (soc == SOC_IMX95)
 		soc = se_get_soc_rev();
@@ -115,8 +159,6 @@ static void itest_init(void) {
 	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
 		     HSM_NO_ERROR);
 
-	soc = se_get_soc_id();
-
 	if (soc == SOC_IMX95)
 		soc = se_get_soc_rev();
 
@@ -130,15 +172,22 @@ static void itest_init(void) {
 	itest_ctx.nb_assert_fails = 0;
 	itest_ctx.ts = imx8_ts;
 	itest_ctx.board = soc;
+
+	return 0;
 }
 
 int main(int argc, char *argv[]){
 	int i = 0, j = 0;
 	int status = 0, valid_usage = 0, valid_test = 0, valid_board = 0;
 	int c = 0;
-	int print_ts = 0;
+	int print_ts = 0, ret = 0;
 
-	itest_init();
+	ret = itest_init();
+	if (ret) {
+		ITEST_LOG("itest init failed\n");
+		return -1;
+	}
+
 	opterr = 0;
 
 	if (argc < 2 || argc > 3 || strlen(argv[1]) != 2) {

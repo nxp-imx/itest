@@ -99,7 +99,11 @@ int v2x_fast_mac(void)
 	// Randomizing input message
 	ASSERT_EQUAL(randomize(message, sizeof(message)), sizeof(message));
 
-	open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
+	/* Only SHE1 MU supported on iMX943 platform */
+	if (soc == SOC_IMX943)
+		open_session_args.mu_type = V2X_SHE1;
+	else
+		open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
 	// SHE OPEN SESSION
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
