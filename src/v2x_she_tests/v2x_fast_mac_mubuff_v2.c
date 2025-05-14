@@ -22,14 +22,19 @@ int v2x_fast_mac_mubuff_v2(void)
 	op_generate_mac_t generate_mac_args = {0};
 	op_verify_mac_t verify_mac_args = {0};
 	uint8_t mac[SHE_MAC_SIZE] = {0}, message[MAX_MSG_SIZE] = {0};
-	uint32_t msg_size[] = {16, 64, 240};
+	uint32_t msg_size[] = {16, 64, 240}, num_msg_size = NUM_MSG_SIZE;
 	uint32_t i = 0, j = 0, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf = {0};
 
 	// Randomizing input message
 	ASSERT_EQUAL(randomize(message, MAX_MSG_SIZE), MAX_MSG_SIZE);
 
-	open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
+	/* Only SHE1 MU supported on iMX943 platform */
+	if (soc == SOC_IMX943) {
+		open_session_args.mu_type = V2X_SHE1;
+		num_msg_size = num_msg_size - 2;
+	} else
+		open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
 	// SHE OPEN SESSION
 	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
 		     SHE_NO_ERROR);
@@ -70,7 +75,7 @@ int v2x_fast_mac_mubuff_v2(void)
 	if (!key_store_load)
 		key_update_test(utils_args.utils_handle);
 
-	for (j = 0; j < NUM_MSG_SIZE; j++) {
+	for (j = 0; j < num_msg_size; j++) {
 		// MAC GENERATION
 		ITEST_LOG("FAST MAC V2 generation for 1s on %d byte blocks: ",
 			  msg_size[j]);
