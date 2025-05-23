@@ -61,23 +61,43 @@ void print_test_suite(testsuite *ts)
 }
 
 static void catch_failure(int signo) {
+	int err = 0;
 	fails++;
 	ITEST_LOG("FAIL: tests interrupted by signal %d\n", signo);
 #ifdef V2X_SHE_MU
 	if (key_store_hdl)
-		ASSERT_EQUAL(she_close_key_store_service(key_store_hdl),
-			     SHE_NO_ERROR);
-	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
+		err = she_close_key_store_service(key_store_hdl);
+	if (err != SHE_NO_ERROR) {
+		printf("she_close_key_store_service failed err:0x%x\n", err);
+		return;
+	}
+
+	err = she_close_session(she_session_hdl);
+	if (err != SHE_NO_ERROR) {
+		printf("she_close_session failed err:0x%x\n", err);
+		return;
+	}
 #else
 	if (key_store_hdl)
-		ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl),
-			     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+		err = hsm_close_key_store_service(key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_close_key_store_service failed err:0x%x\n", err);
+		return;
+	}
+
+	err = hsm_close_session(hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_close_session failed err:0x%x\n", err);
+		return;
+	}
 
 	/* close the second session hdl if opened */
-	if (hsm_session_hdl2)
-		ASSERT_EQUAL(hsm_close_session(hsm_session_hdl2), HSM_NO_ERROR);
-
+	if (hsm_session_hdl2) {
+		hsm_close_session(hsm_session_hdl2);
+		if (err != HSM_NO_ERROR)
+			printf("hsm_close_session failed for hdl2 err:0x%x\n",
+					err);
+	}
 #endif
 	print_stats();
 	exit(signo);
@@ -92,6 +112,7 @@ static int itest_init(void)
 {
 	open_session_args_t open_session_args = {0};
 	char soc_val[MAX_SOC_VAL];
+	int err = 0;
 
 	FILE *file = fopen("/sys/devices/soc0/soc_id", "r");
 
@@ -138,15 +159,22 @@ static int itest_init(void)
 
 	else
 		open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
-	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
-		     SHE_NO_ERROR);
+	err = she_open_session(&open_session_args, &she_session_hdl);
+	if (err != SHE_NO_ERROR) {
+		printf("she_open_session failed err:0x%x\n", err);
+		return -1;
+	}
 
 	if (soc == SOC_IMX95)
 		soc = se_get_soc_rev();
 
 	if (soc == SOC_IMX8DXL)
 		soc = se_get_board_type();
-	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
+	err = she_close_session(she_session_hdl);
+	if (err != SHE_NO_ERROR) {
+		printf("she_close_session failed err:0x%x\n", err);
+		return -1;
+	}
 #else
 	hsm_hdl_t hsm_session_hdl = 0;
 
@@ -156,8 +184,11 @@ static int itest_init(void)
 	/* Open session for SV0 channel on V2X HSM */
 	open_session_args.mu_type = V2X_SV0;
 #endif
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		return -1;
+	}
 
 	if (soc == SOC_IMX95)
 		soc = se_get_soc_rev();
@@ -166,7 +197,11 @@ static int itest_init(void)
 	if (soc == SOC_IMX8DXL)
 		soc = se_get_board_type();
 #endif
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	err = hsm_close_session(hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_close_session failed err:0x%x\n", err);
+		return -1;
+	}
 #endif
 	itest_ctx.test_name = NULL;
 	itest_ctx.nb_assert_fails = 0;
@@ -286,10 +321,9 @@ int main(int argc, char *argv[]){
 			status = itest_ctx.ts[i].tc_ptr();
 			ITEST_LOG("#######################################");
 			ITEST_LOG("################\n");
-			if (!status || (itest_ctx.nb_assert_fails > 0)) {
-				ITEST_LOG("%s: FAIL ===> %d fails\n",
-					  itest_ctx.test_name,
-					  itest_ctx.nb_assert_fails);
+			if (status || (itest_ctx.nb_assert_fails > 0)) {
+				ITEST_LOG("%s: FAIL\n",
+					  itest_ctx.test_name);
 				fails++;
 			} else
 				ITEST_LOG("%s: PASS\n", itest_ctx.test_name);

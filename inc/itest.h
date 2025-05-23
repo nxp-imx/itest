@@ -22,12 +22,8 @@
 #define MU_CHANNEL_PLAT_SHE       (0x01u)
 #define NUM_SOCS 10
 
-/*===========Test API============*/
-#define DBG    0x10
-#define FIPS   0x80
-
-#define TRUE_TEST 1
-#define FALSE_TEST 0
+#define TRUE_TEST 0
+#define FALSE_TEST -1
 
 /* Log macros and functions */
 void outputLog(const char *const format, ...);
@@ -43,60 +39,10 @@ extern hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
 #define ITEST_LOG(...)  outputLog(__VA_ARGS__)
 
 /*======================ASSERT FAILURE ABORT======================*/
-#define ASSERT_TRUE(x)  if (!x) {ITEST_LOG("Fail ==> #x expected True => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
-#define ASSERT_FALSE(x) if (x) {ITEST_LOG("Fail ==> #x expected False => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__);raise(SIGINT);while(1);}
 #define ASSERT_EQUAL(x, y) \
     if ( (x) != (y)) { \
-        ITEST_LOG("assert_equal Fail ==> "); \
-        /*ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
-        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
-        raise(SIGINT); \
-        while(1); \
-    }
-#define ASSERT_NOT_EQUAL(x, y) \
-    if ( (x) == (y)) { \
-        ITEST_LOG("assert_not_equal Fail ==> "); \
-        /*ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
-        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
-        raise(SIGINT); \
-        while(1); \
-    }
-
-#define ASSERT_TRUE_HIGH_API(x)  if (!x) {ITEST_LOG("Fail in subsequence ==> #x expected True => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__);break;}
-#define ASSERT_FALSE_HIGH_API(x) if (x) {ITEST_LOG("Fail in subsequence ==> #x expected False => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__);break;}
-
-#define ASSERT_EQUAL_HIGH_API(x, y) \
-    if ( (x) != (y)) { \
-        ITEST_LOG("assert_equal Fail in subsequence ==> "); \
-        /*ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
-        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
-        break; \
-    }
-#define ASSERT_NOT_HIGH_API(x, y) \
-    if ( (x) == (y)) { \
-        ITEST_LOG("assert_not_equal Fail in subsequence ==> "); \
-        /*ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
-        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
-        break; \
-    }
-
-
-/*======================ASSERT FAILURE CONTINUE======================*/
-#define ASSERT_TRUE_W(x)  if (!x) {ITEST_LOG("Fail ==> #x expected True => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
-#define ASSERT_FALSE_W(x) if (x) {ITEST_LOG("Fail ==> #x expected False => " );ITEST_LOG(#x);ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); while(1) raise(SIGUSR1);}
-#define ASSERT_EQUAL_W(x, y) \
-    if ( (x) != (y)) { \
-        ITEST_LOG("assert_equal Fail ==> "); \
-        /*ITEST_LOG("0x%08X != 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
-        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
-        raise(SIGUSR1); \
-    }
-#define ASSERT_NOT_EQUAL_W(x, y) \
-    if ( (x) == (y)) { \
-        ITEST_LOG("assert_not_equal Fail ==> "); \
-        /*ITEST_LOG("0x%08X = 0x%08X", (unsigned int)x, (unsigned int)y);*/ \
-        ITEST_LOG(" @%s line:%d\n",__FILE__,__LINE__); \
-        raise(SIGUSR1); \
+	ITEST_LOG(" @%s line:%d\n", __FILE__, __LINE__); \
+	return -1; \
     }
 
 typedef struct {
@@ -172,14 +118,30 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		    uint8_t *aad, uint16_t aad_size,
 		    hsm_op_auth_enc_algo_t algo,
 		    hsm_op_auth_enc_flags_t flags, uint32_t session_hdl);
+hsm_err_t auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
+			   uint8_t *input, uint32_t input_size,
+			   uint8_t *output, uint32_t output_size, uint8_t *iv,
+			   uint16_t iv_size, uint8_t *aad, uint16_t aad_size,
+			   hsm_op_auth_enc_algo_t algo,
+			   hsm_op_auth_enc_flags_t flags);
 /*===========CMAC============*/
 hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 		    hsm_op_mac_one_go_algo_t algo, uint8_t *payload,
 		    uint32_t payload_size, uint8_t *mac,
 		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl);
+/*===========HMAC============*/
+hsm_err_t hmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
+		    uint8_t *payload, uint32_t payload_size,
+		    uint8_t *mac, uint32_t mac_size,
+		    hsm_op_mac_one_go_algo_t algorithm,
+		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl);
 #ifdef V2X_SHE_MU
 /*===========V2X_SHE KEY UPDATE============*/
-void key_update_test(she_hdl_t utils_handle);
+she_err_t key_update_test(she_hdl_t utils_handle);
+she_err_t she_cmac_test(she_hdl_t mac_hdl, uint32_t key_identifier,
+			uint8_t *payload, uint16_t payload_size,
+			uint8_t *mac, hsm_op_mac_flags_t flags,
+			uint32_t session_hdl);
 #endif
 /*===========ASN1 DER to RAW ENCODING======*/
 void parse_der_to_raw(uint8_t *sign, int len_component_der,

@@ -1,53 +1,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
 
-/* Number of iterations */
-#define NUM_OPERATIONS	(3000u)
 #define MAC_SIZE	16
 #define MAX_PAYLOAD_SIZE 2048
 #define NUM_PAYLOAD_SIZE 5
-
-she_err_t she_cmac_test(she_hdl_t mac_hdl, uint32_t key_identifier,
-			uint8_t *payload, uint16_t payload_size,
-			uint8_t *mac, hsm_op_mac_flags_t flags,
-			uint32_t session_hdl)
-{
-	op_mac_one_go_args_t mac_one_go = {0};
-	she_mac_verification_status_t status;
-	timer_perf_t t_perf = {0};
-	uint32_t i = 0, iter = NUM_OPERATIONS;
-	she_err_t err = 0;
-
-	mac_one_go.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
-	mac_one_go.key_identifier = key_identifier;
-	mac_one_go.flags = flags;
-	mac_one_go.mac = mac;
-	mac_one_go.mac_size = SHE_MAC_SIZE;
-	mac_one_go.payload = payload;
-	mac_one_go.payload_size = payload_size;
-
-	t_perf.session_hdl = session_hdl;
-	for (i = 0; i < iter; i++) {
-		/* Start the timer */
-		start_timer(&t_perf);
-		err = she_mac_one_go(mac_hdl, &mac_one_go, &status);
-		if (err)
-			return err;
-		/* Stop the timer */
-		stop_timer(&t_perf);
-	}
-
-	/* Finalize time to get stats */
-	finalize_timer(&t_perf, iter);
-	print_perf(&t_perf, iter);
-	return err;
-}
 
 int v2x_cmac(void)
 {
@@ -74,8 +36,11 @@ int v2x_cmac(void)
 		open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
 
 	// SHE OPEN SESSION
-	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
-		     SHE_NO_ERROR);
+	err = she_open_session(&open_session_args, &she_session_hdl);
+	if (err != SHE_NO_ERROR) {
+		printf("she_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* Support for only single keystore on i.MX8DXL, whereas 5 on i.MX95 */
 	key_store_args.key_store_identifier = 0x1;
@@ -92,27 +57,38 @@ int v2x_cmac(void)
 	// SHE OPEN KEY STORE
 	err = she_open_key_store_service(she_session_hdl,
 					 &key_store_args);
-
 	if (err != SHE_NO_ERROR) {
 		if (err == SHE_KEY_STORE_CONFLICT || err == SHE_ID_CONFLICT) {
 			key_store_args.flags = KEY_STORE_OPEN_FLAGS_SHE;
 			err = she_open_key_store_service(she_session_hdl,
 							 &key_store_args);
-			ASSERT_EQUAL(err, SHE_NO_ERROR);
+			if (err != SHE_NO_ERROR) {
+				printf("she_open_key_store_service failed err:0x%x\n",
+					err);
+				goto out;
+			}
 			key_store_load = 1;
 		} else {
-			ASSERT_EQUAL(she_close_session(she_session_hdl),
-				     SHE_NO_ERROR);
-			ASSERT_FALSE(err);
+			printf("she_open_key_store_service failed err:0x%x\n",
+				err);
+			goto out;
 		}
 	}
 
 	key_store_hdl = key_store_args.key_store_hdl;
 
 	// SHE OPEN UTILS
-	ASSERT_EQUAL(she_open_utils(key_store_hdl, &utils_args), SHE_NO_ERROR);
+	err = she_open_utils(key_store_hdl, &utils_args);
+	if (err != SHE_NO_ERROR) {
+		printf("she_open_utils failed err:0x%x\n", err);
+		goto out;
+	}
 
-	ASSERT_EQUAL(she_open_mac_service(key_store_hdl, &mac_args), SHE_NO_ERROR);
+	err = she_open_mac_service(key_store_hdl, &mac_args);
+	if (err != SHE_NO_ERROR) {
+		printf("she_open_mac_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	// SHE KEY UPDATE
 	if (!key_store_load)
@@ -136,13 +112,16 @@ int v2x_cmac(void)
 			goto out;
 	}
 out:
-	ASSERT_EQUAL(she_close_mac_service(mac_args.mac_serv_hdl), SHE_NO_ERROR);
-	ASSERT_EQUAL(she_close_utils(utils_args.utils_handle), SHE_NO_ERROR);
-	ASSERT_EQUAL(she_close_key_store_service(key_store_hdl), SHE_NO_ERROR);
-	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
+	if (mac_args.mac_serv_hdl)
+		she_close_mac_service(mac_args.mac_serv_hdl);
+	if (utils_args.utils_handle)
+		she_close_utils(utils_args.utils_handle);
+	if (key_store_hdl)
+		she_close_key_store_service(key_store_hdl);
+	she_close_session(she_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

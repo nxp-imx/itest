@@ -40,9 +40,12 @@ int rsa_key_gen_pkcs1_pss_mgf1(void)
 
 	/* open session for ELE HSM MU */
 	open_session_args.mu_type = HSM1;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args,
-				      &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args,
+			&hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (i = 0; i < NB_KEY_SIZE; i++) {
 		/* reset timer */
@@ -51,38 +54,53 @@ int rsa_key_gen_pkcs1_pss_mgf1(void)
 		ITEST_LOG("Generating %d bits RSA Key for 50sec: ", bit_key_sz[i]);
 		for (j = 0; j < iter; j++) {
 			/* open key store service */
-			ASSERT_EQUAL(hsm_open_key_store(hsm_session_hdl, &key_store_hdl),
-				     HSM_NO_ERROR);
+			err = hsm_open_key_store(hsm_session_hdl,
+					&key_store_hdl);
+			if (err != HSM_NO_ERROR) {
+				printf("hsm_open_key_store failed err:0x%x\n", err);
+				goto out;
+			}
 
 			/* open key management service */
-			ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-								     &key_mgmt_args,
-								     &key_mgmt_hdl),
-				     HSM_NO_ERROR);
+			err = hsm_open_key_management_service(key_store_hdl,
+					&key_mgmt_args,
+					&key_mgmt_hdl);
+			if (err != HSM_NO_ERROR) {
+				printf("hsm_open_key_management_service failed err:0x%x\n", err);
+				goto out;
+			}
 
 			key_id[i] = 0;
 			/* calculate performance for generate key */
 			err = hsm_generate_key_perf(key_mgmt_hdl, key_id[i],
-						    size_pub_key[i], KEY_GROUP,
-						    HSM_KEY_TYPE_RSA, pub_key,
-						    HSM_SE_KEY_STORAGE_VOLATILE,
-						    HSM_KEY_USAGE_SIGN_MSG |
-						    HSM_KEY_USAGE_VERIFY_MSG,
-						    PERMITTED_ALGO_RSA_PKCS1_PSS_MGF1_SHA_ANY,
-						    bit_key_sz[i],
-						    KEY_LIFE_CYCLE, &t_perf);
+					size_pub_key[i], KEY_GROUP,
+					HSM_KEY_TYPE_RSA, pub_key,
+					HSM_SE_KEY_STORAGE_VOLATILE,
+					HSM_KEY_USAGE_SIGN_MSG |
+					HSM_KEY_USAGE_VERIFY_MSG,
+					PERMITTED_ALGO_RSA_PKCS1_PSS_MGF1_SHA_ANY,
+					bit_key_sz[i],
+					KEY_LIFE_CYCLE, &t_perf);
 			if (err)
 				goto out;
 
 			/* close key management service */
-			ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
-				     HSM_NO_ERROR);
+			err = hsm_close_key_management_service(key_mgmt_hdl);
+			if (err != HSM_NO_ERROR) {
+				printf("hsm_close_key_management_service failed err:0x%x\n", err);
+				goto out;
+			}
+
 			key_mgmt_hdl = 0;
 			memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
 
 			/* close key store service */
-			ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl),
-				     HSM_NO_ERROR);
+
+			err = hsm_close_key_store_service(key_store_hdl);
+			if (err != HSM_NO_ERROR) {
+				printf("hsm_close_key_store failed err:0x%x\n", err);
+				goto out;
+			}
 			key_store_hdl = 0;
 		}
 		/* Finalize time to get stats */
@@ -92,16 +110,14 @@ int rsa_key_gen_pkcs1_pss_mgf1(void)
 
 out:
 	if (key_mgmt_hdl)
-		ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
-			     HSM_NO_ERROR);
+		hsm_close_key_management_service(key_mgmt_hdl);
 
 	if (key_store_hdl)
-		ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl),
-			     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+		hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return -1;
 
 	return TRUE_TEST;
 }

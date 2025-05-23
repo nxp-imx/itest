@@ -16,7 +16,6 @@
 int v2x_sm2_sign_verify(void)
 {
 	open_session_args_t open_session_args = {0};
-	open_svc_key_store_args_t key_store_srv_args = {0};
 	open_svc_key_management_args_t key_mgmt_srv_args = {0};
 	open_svc_sign_gen_args_t sig_gen_srv_args = {0};
 	open_svc_sign_ver_args_t sig_ver_srv_args = {0};
@@ -40,52 +39,58 @@ int v2x_sm2_sign_verify(void)
 
 	/* Open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* Open session for V2X HSM SV MU */
 	open_session_args.mu_type = V2X_SV0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl2),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args, &hsm_session_hdl2);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* set number of nessage sizes based on soc */
 	if (soc != IMX8DXL_DL3)
 		num_msg_size = NUM_MSG_SIZE - 2;
 
-	key_store_srv_args.key_store_identifier = 1234;
-	key_store_srv_args.authentication_nonce = 1234;
-	key_store_srv_args.max_updates_number = 12;
-	key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
-	key_store_srv_args.signed_message = NULL;
-	key_store_srv_args.signed_msg_size = 0;
-	err = hsm_open_key_store_service(hsm_session_hdl, &key_store_srv_args,
-					 &key_store_hdl);
-	if (err == HSM_KEY_STORE_CONFLICT) {
-		/* key store may already exist. */
-		key_store_srv_args.flags = 0;
-		err = hsm_open_key_store_service(hsm_session_hdl,
-						 &key_store_srv_args,
-						 &key_store_hdl);
-	} else
-		ASSERT_EQUAL(err, HSM_NO_ERROR);
+	err = hsm_open_key_store(hsm_session_hdl,
+				 &key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
+	}
 
 	// KEY MGMNT SG0
-	ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-						     &key_mgmt_srv_args,
-						     &sg0_key_mgmt_srv),
-		     HSM_NO_ERROR);
+	err = hsm_open_key_management_service(key_store_hdl,
+					      &key_mgmt_srv_args,
+					      &sg0_key_mgmt_srv);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	// SIGN GEN OPEN SRV
-	ASSERT_EQUAL(hsm_open_signature_generation_service(key_store_hdl,
-							   &sig_gen_srv_args,
-							   &sg0_sig_gen_serv),
-		     HSM_NO_ERROR);
+	err = hsm_open_signature_generation_service(key_store_hdl,
+						    &sig_gen_srv_args,
+						    &sg0_sig_gen_serv);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_signature_generation_service failed err:0x%x\n", err);
+		goto out;
+	}
+
 
 	// SIGN VERIFY OPEN SRV
-	ASSERT_EQUAL(hsm_open_signature_verification_service(hsm_session_hdl2,
-							     &sig_ver_srv_args,
-							     &sv0_sig_ver_serv),
-		     HSM_NO_ERROR);
+	err = hsm_open_signature_verification_service(hsm_session_hdl2,
+						      &sig_ver_srv_args,
+						      &sv0_sig_ver_serv);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_signature_verification_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	gen_key_args.key_identifier = &key_id;
 	gen_key_args.out_size = PUB_KEY_SIZE;
@@ -94,8 +99,11 @@ int v2x_sm2_sign_verify(void)
 	gen_key_args.key_group = 12;
 	gen_key_args.key_info = 0U;
 	gen_key_args.out_key = pub_key;
-	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args),
-		     HSM_NO_ERROR);
+	err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_generate_key failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (i = 0; i < num_msg_size; i++) {
 		sig_gen_args.key_identifier = key_id;
@@ -116,8 +124,10 @@ int v2x_sm2_sign_verify(void)
 			start_timer(&t_perf);
 			err = hsm_generate_signature(sg0_sig_gen_serv,
 						     &sig_gen_args);
-			if (err)
+			if (err) {
+				printf("hsm_generate_signature failed err:0x%x\n", err);
 				goto out;
+			}
 			/* Stop the timer */
 			stop_timer(&t_perf);
 		}
@@ -146,12 +156,17 @@ int v2x_sm2_sign_verify(void)
 			err = hsm_verify_signature(sv0_sig_ver_serv,
 						   &sig_ver_args,
 						   &verify_status);
-			if (err)
+			if (err) {
+				printf("hsm_verify_signature failed err:0x%x\n", err);
 				goto out;
-			ASSERT_EQUAL(verify_status,
-				     HSM_VERIFICATION_STATUS_SUCCESS);
+			}
 			/* Stop the timer */
 			stop_timer(&t_perf);
+			if (verify_status != HSM_VERIFICATION_STATUS_SUCCESS) {
+				printf("Signature Verification failed\n");
+				err = -1;
+				goto out;
+			}
 		}
 		/* Finalize time to get stats */
 		finalize_timer(&t_perf, iter);
@@ -159,19 +174,17 @@ int v2x_sm2_sign_verify(void)
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_signature_verification_service(sv0_sig_ver_serv),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_signature_generation_service(sg0_sig_gen_serv),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl2),
-		     HSM_NO_ERROR);
+	if (sv0_sig_ver_serv)
+		hsm_close_signature_verification_service(sv0_sig_ver_serv);
+	if (sg0_sig_gen_serv)
+		hsm_close_signature_generation_service(sg0_sig_gen_serv);
+	if (key_store_hdl)
+		hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
+	hsm_close_session(hsm_session_hdl2);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

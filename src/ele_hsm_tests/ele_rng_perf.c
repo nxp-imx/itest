@@ -25,13 +25,18 @@ int ele_rng_perf(void)
 
 	// ELE OPEN SESSION
 	args.mu_type = HSM1;
-	ASSERT_EQUAL(hsm_open_session(&args, &hsm_session_hdl), HSM_NO_ERROR);
+	err = hsm_open_session(&args, &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	// GET RANDOM Mu SV/SG
 	rng_get_random_args.output = rng_out_buff;
 
 	for (i = 0; i < NUM_BUFF_SZ; i++) {
-		ITEST_LOG("Generating %d byte random number for 1s: ", buff_size[i]);
+		ITEST_LOG("Generating %d byte random number for 1s: ",
+			  buff_size[i]);
 		rng_get_random_args.random_size = buff_size[i];
 
 		memset(&t_perf, 0, sizeof(t_perf));
@@ -41,8 +46,10 @@ int ele_rng_perf(void)
 			start_timer(&t_perf);
 			err = hsm_get_random(hsm_session_hdl,
 					     &rng_get_random_args);
-			if (err)
+			if (err) {
+				printf("hsm_get_random failed err:0x%x\n", err);
 				goto out;
+			}
 			/* Stop the timer */
 			stop_timer(&t_perf);
 		}
@@ -52,11 +59,10 @@ int ele_rng_perf(void)
 	}
 
 out:
-	// ELE CLOSE SESSION
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

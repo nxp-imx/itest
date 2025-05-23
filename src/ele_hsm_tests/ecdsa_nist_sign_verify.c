@@ -53,7 +53,6 @@ static char *algo[NB_ALGO] = {
 int ecdsa_nist_sign_verify(void)
 {
 	open_session_args_t open_session_args = {0};
-	open_svc_key_store_args_t key_store_args = {0};
 	open_svc_key_management_args_t key_mgmt_args = {0};
 	op_generate_sign_args_t sig_gen_args = {0};
 	op_verify_sign_args_t sig_ver_args = {0};
@@ -75,49 +74,46 @@ int ecdsa_nist_sign_verify(void)
 	op_pub_key_recovery_args_t args = {0};
 
 	open_session_args.mu_type = HSM1;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args,
-				      &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args,
+			       &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
-	key_store_args.key_store_identifier = 0xABCD;
-	key_store_args.authentication_nonce = 0x1234;
-	key_store_args.flags = 1;
-	err = hsm_open_key_store_service(hsm_session_hdl,
-					 &key_store_args,
-					 &key_store_hdl);
-
-	if (err == HSM_KEY_STORE_CONFLICT) {
-		key_store_args.flags = 0;
-		ASSERT_EQUAL(hsm_open_key_store_service(hsm_session_hdl,
-							&key_store_args,
-							&key_store_hdl),
-			     HSM_NO_ERROR);
-	} else {
-		ASSERT_EQUAL(err, HSM_NO_ERROR);
+	err = hsm_open_key_store(hsm_session_hdl,
+				 &key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
 	}
 
 	// INPUT BUFF AS RANDOM
 	ASSERT_EQUAL(randomize(msg_0, MAX_MSG_SIZE), MAX_MSG_SIZE);
 
-	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
-	memset(&sign_out_0, 0, sizeof(sign_out_0));
+	err = hsm_open_key_management_service(key_store_hdl,
+					      &key_mgmt_args,
+					      &key_mgmt_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
 
-	ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-						     &key_mgmt_args,
-						     &key_mgmt_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_signature_generation_service(key_store_hdl,
+						    &open_sig_gen_args,
+						    &sig_gen_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_signature_generation_service failed err:0x%x\n", err);
+		goto out;
+	}
 
-	memset(&open_sig_gen_args, 0, sizeof(open_sig_gen_args));
-	ASSERT_EQUAL(hsm_open_signature_generation_service(key_store_hdl,
-							   &open_sig_gen_args,
-							   &sig_gen_hdl),
-		     HSM_NO_ERROR);
-
-	memset(&open_sig_ver_args, 0, sizeof(open_sig_ver_args));
-	ASSERT_EQUAL(hsm_open_signature_verification_service(hsm_session_hdl,
-							     &open_sig_ver_args,
-							     &sig_ver_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_signature_verification_service(hsm_session_hdl,
+						      &open_sig_ver_args,
+						      &sig_ver_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_signature_verification_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (j = 0; j < num_algo; j++) {
 		key_gen_args.key_identifier = &key_id[j];
@@ -132,8 +128,11 @@ int ecdsa_nist_sign_verify(void)
 		key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
 		key_gen_args.out_key = pub_key[j];
 
-		ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
-			     HSM_NO_ERROR);
+		err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+		if (err != HSM_NO_ERROR) {
+			printf("hsm_generate_key failed err:0x%x\n", err);
+			goto out;
+		}
 
 		for (k = 0; k < NUM_MSG_SIZE; k++) {
 			ITEST_LOG("%s signing for 1s on %d byte size blocks: ",
@@ -155,8 +154,10 @@ int ecdsa_nist_sign_verify(void)
 				start_timer(&t_perf);
 				err = hsm_generate_signature(sig_gen_hdl,
 							     &sig_gen_args);
-				if (err)
+				if (err) {
+					printf("hsm_generate_signature failed err:0x%x\n", err);
 					goto out;
+				}
 				/* Stop the timer */
 				stop_timer(&t_perf);
 			}
@@ -169,8 +170,12 @@ int ecdsa_nist_sign_verify(void)
 			args.out_key_size = size_pub_key[j];
 			args.out_key = pub_key[j];
 
-			ASSERT_EQUAL(hsm_pub_key_recovery(key_store_hdl, &args),
-				     HSM_NO_ERROR);
+			err = hsm_pub_key_recovery(key_store_hdl, &args);
+			if (err != HSM_NO_ERROR) {
+				printf("hsm_pub_key_recovery failed err:0x%x\n", err);
+				goto out;
+			}
+
 			ITEST_LOG("%s verification for 1s on %d byte size blocks: ",
 				  algo[j], msg_size[k]);
 			sig_ver_args.key = pub_key[j];
@@ -194,11 +199,17 @@ int ecdsa_nist_sign_verify(void)
 				err = hsm_verify_signature(sig_ver_hdl,
 							   &sig_ver_args,
 							   &verify_status);
-				if (err)
+				if (err) {
+					printf("hsm_verify_signature failed err:0x%x\n", err);
 					goto out;
+				}
 
-				ASSERT_EQUAL(verify_status,
-					     HSM_VERIFICATION_STATUS_SUCCESS);
+				if (verify_status != HSM_VERIFICATION_STATUS_SUCCESS) {
+					printf("Sign Verification unsuccessful err:0x%x\n",
+						err);
+					goto out;
+				}
+
 				/* Stop the timer */
 				stop_timer(&t_perf);
 			}
@@ -210,17 +221,14 @@ int ecdsa_nist_sign_verify(void)
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_signature_generation_service(sig_gen_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_signature_verification_service(sig_ver_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	hsm_close_signature_generation_service(sig_gen_hdl);
+	hsm_close_signature_verification_service(sig_ver_hdl);
+	hsm_close_key_management_service(key_mgmt_hdl);
+	hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

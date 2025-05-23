@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2023-2024 NXP
+# Copyright 2023-2025 NXP
 #
 
 cmake_minimum_required(VERSION 3.10)
@@ -87,7 +87,7 @@ find_package(OpenMP)
 
 if(DEFINED ELE)
 #ELE_HSM_TEST#
-file(GLOB SOURCES src/ele_hsm_tests/*.c src/crypto_utils/*.c src/*.c)
+file(GLOB SOURCES src/ele_hsm_tests/*.c src/crypto_utils/*.c src/itest.c src/main.c src/hsm_functions.c)
 add_executable(itest ${SOURCES})
 target_compile_definitions(itest PRIVATE -DPSA_COMPLIANT)
 
@@ -114,7 +114,7 @@ endif()
 
 if (DEFINED V2X)
  #V2X_SHE_TEST#
- file(GLOB SOURCES_v2x src/v2x_she_tests/*.c src/itest.c src/main.c)
+ file(GLOB SOURCES_v2x src/v2x_she_tests/*.c src/itest.c src/main.c src/she_functions.c)
  add_executable(itest_v2x ${SOURCES_v2x})
  target_compile_definitions(itest_v2x PRIVATE -DV2X_SHE_MU)
 
@@ -138,7 +138,7 @@ if (DEFINED V2X)
  install(TARGETS itest_v2x DESTINATION ${CMAKE_INSTALL_BINDIR})
 
  #V2X HSM TEST#
- file(GLOB SOURCES_v2x_hsm src/v2x_hsm_tests/*.c src/crypto_utils/*.c src/*.c)
+ file(GLOB SOURCES_v2x_hsm src/v2x_hsm_tests/*.c src/crypto_utils/*.c src/hsm_functions.c src/itest.c src/main.c)
  add_executable(itest_v2x_hsm ${SOURCES_v2x_hsm})
 
  target_link_libraries(

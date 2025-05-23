@@ -147,48 +147,71 @@ int v2x_ecdsa_verify(void)
 
 	/* Open session for V2X HSM MU */
 	open_session_args.mu_type = V2X_SV0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
-	ASSERT_EQUAL(hsm_open_signature_verification_service(hsm_session_hdl,
-				&open_sig_ver_args,
-				&sig_ver_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_signature_verification_service(hsm_session_hdl,
+						      &open_sig_ver_args,
+						      &sig_ver_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_signature_verification_service failed err:0x%x\n", err);
+		goto out;
+	}
 
-	ASSERT_EQUAL(randomize(msg, MAX_MSG_SIZE), MAX_MSG_SIZE);
+	randomize(msg, MAX_MSG_SIZE);
 
 	for (i = 0; i < NB_ALGO; i++) {
 		pkey = EVP_EC_gen(openssl_algo[i]);
-		ASSERT_NOT_EQUAL(pkey, NULL)
+		if (!pkey) {
+			printf("EVP_EC_gen failed\n");
+			goto out;
+		}
 
 		for (k = 0; k < NUM_MSG_SIZE; k++) {
 			mdctx = EVP_MD_CTX_new();
+			if (!mdctx) {
+				printf("EVP_MD_CTX_new failed\n");
+				goto out;
+			}
 
-			ASSERT_NOT_EQUAL(mdctx, NULL);
+			err = EVP_DigestSignInit(mdctx, NULL,
+						 EVP_hash[i](), NULL,
+						 pkey);
+			if (err != EVP_SUCCESS) {
+				printf("EVP_DigestSignInit failed\n");
+				goto out;
+			}
 
-			ASSERT_EQUAL(EVP_DigestSignInit(mdctx, NULL,
-							EVP_hash[i](), NULL,
-							pkey),
-				     EVP_SUCCESS);
+			err = EVP_DigestSignUpdate(mdctx, msg,
+						   msg_size[k]);
+			if (err != EVP_SUCCESS) {
+				printf("EVP_DigestSignInit failed\n");
+				goto out;
+			}
 
-			ASSERT_EQUAL(EVP_DigestSignUpdate(mdctx, msg,
-							  msg_size[k]),
-				     EVP_SUCCESS);
+			err = EVP_DigestSignFinal(mdctx, NULL,
+						  &sign_len);
+			if (err != EVP_SUCCESS) {
+				printf("EVP_DigestSignFinal failed\n");
+				goto out;
+			}
 
-			ASSERT_EQUAL(EVP_DigestSignFinal(mdctx, NULL,
-							 &sign_len),
-				     EVP_SUCCESS);
-
-			ASSERT_EQUAL(EVP_DigestSignFinal(mdctx, sign,
-							 &sign_len),
-				     EVP_SUCCESS);
+			err = EVP_DigestSignFinal(mdctx, sign,
+						  &sign_len);
+			if (err != EVP_SUCCESS) {
+				printf("EVP_DigestSignFinal failed\n");
+				goto out;
+			}
 
 			decode_signature(size_pub_key[i], sign);
 
 			if (!EVP_PKEY_get_octet_string_param(pkey, "pub",
-							    out_pubkey,
-							    sizeof(out_pubkey),
-							    &out_pubkey_len)) {
+							     out_pubkey,
+							     sizeof(out_pubkey),
+							     &out_pubkey_len)) {
 				ITEST_LOG("Public key fetch failed\n");
 				goto out;
 			}
@@ -213,14 +236,18 @@ int v2x_ecdsa_verify(void)
 				err = hsm_verify_signature(sig_ver_hdl,
 							   &sig_ver_args,
 							   &verify_status);
-				if (err)
+				if (err) {
+					printf("hsm_verify_signature failed err:0x%x\n", err);
 					goto out;
-
-				ASSERT_EQUAL(verify_status,
-					     HSM_VERIFICATION_STATUS_SUCCESS);
-
+				}
 				/* Stop the timer */
 				stop_timer(&t_perf);
+
+				if (verify_status != HSM_VERIFICATION_STATUS_SUCCESS) {
+					printf("Signature Verification failed\n");
+					err = -1;
+					goto out;
+				}
 			}
 
 			/* Finalize time to get stats */
@@ -230,13 +257,15 @@ int v2x_ecdsa_verify(void)
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_signature_verification_service(sig_ver_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	if (sig_ver_hdl)
+		hsm_close_signature_verification_service(sig_ver_hdl);
+	hsm_close_session(hsm_session_hdl);
 
-	if (err)
-		ASSERT_FALSE(err);
 	EVP_PKEY_free(pkey);
 	EVP_MD_CTX_free(mdctx);
+
+	if (err)
+		return FALSE_TEST;
+
 	return TRUE_TEST;
 }
