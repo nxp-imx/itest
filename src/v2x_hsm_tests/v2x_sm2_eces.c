@@ -40,24 +40,37 @@ int v2x_sm2_eces(void)
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args,
+			       &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open key store service */
-	ASSERT_EQUAL(hsm_open_key_store(hsm_session_hdl, &key_store_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_key_store(hsm_session_hdl, &key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open key management service */
-	ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-						     &key_mgmt_args,
-						     &key_mgmt_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_key_management_service(key_store_hdl,
+					      &key_mgmt_args,
+					      &key_mgmt_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open sm2 eces service */
-	ASSERT_EQUAL(hsm_open_sm2_eces_service(key_store_hdl,
-					       &open_sm2_eces_args,
-					       &sm2_eces_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_sm2_eces_service(key_store_hdl,
+					&open_sm2_eces_args,
+					&sm2_eces_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_sm2_eces_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* generate sm2 eces key */
 	key_gen_args.key_identifier = &key_id;
@@ -67,8 +80,11 @@ int v2x_sm2_eces(void)
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = 0;
 	key_gen_args.out_key = pub_key;
-	ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
-		     HSM_NO_ERROR);
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_generate_key failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (i = 0; i < NUM_MSG_SIZE; i++) {
 		/* sm2 eces encryption */
@@ -95,8 +111,10 @@ int v2x_sm2_eces(void)
 			start_timer(&t_perf);
 			err = hsm_sm2_eces_encryption(hsm_session_hdl,
 						      &sm2_eces_enc_args);
-			if (err)
+			if (err) {
+				printf("hsm_sm2_eces_encryption failed err:0x%x\n", err);
 				goto out;
+			}
 			/* Stop the timer */
 			stop_timer(&t_perf);
 		}
@@ -121,10 +139,16 @@ int v2x_sm2_eces(void)
 			start_timer(&t_perf);
 			err = hsm_sm2_eces_decryption(sm2_eces_hdl,
 						      &sm2_eces_dec_args);
-			if (err)
+			if (err) {
+				printf("hsm_sm2_eces_decryption failed err:0x%x\n", err);
 				goto out;
-			ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]),
-				     0);
+			}
+			err = memcmp(test_msg, plaintext, block_size[i]);
+			if (err != 0) {
+				printf("Decryption failed\n");
+				err = -1;
+				goto out;
+			}
 			/* Stop the timer */
 			stop_timer(&t_perf);
 		}
@@ -134,13 +158,16 @@ int v2x_sm2_eces(void)
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_sm2_eces_service(sm2_eces_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	if (sm2_eces_hdl)
+		hsm_close_sm2_eces_service(sm2_eces_hdl);
+	if (key_mgmt_hdl)
+		hsm_close_key_management_service(key_mgmt_hdl);
+	if (key_store_hdl)
+		hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return -1;
 
 	return TRUE_TEST;
 }

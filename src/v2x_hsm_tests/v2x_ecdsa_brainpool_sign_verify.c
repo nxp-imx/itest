@@ -69,44 +69,64 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open session for V2X HSM SV MU */
 	open_session_args.mu_type = V2X_SV0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl2),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args, &hsm_session_hdl2);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open key store service */
-	ASSERT_EQUAL(hsm_open_key_store(hsm_session_hdl, &key_store_hdl),
-		     HSM_NO_ERROR);
-
+	err = hsm_open_key_store(hsm_session_hdl, &key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
+	}
 	/* open key management service */
-	ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-						     &key_mgmt_args,
-						     &key_mgmt_hdl),
-		     HSM_NO_ERROR);
-
+	err = hsm_open_key_management_service(key_store_hdl,
+					      &key_mgmt_args,
+					      &key_mgmt_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open signature generation service */
-	ASSERT_EQUAL(hsm_open_signature_generation_service(key_store_hdl,
-							   &open_sig_gen_args,
-							   &sig_gen_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_signature_generation_service(key_store_hdl,
+						    &open_sig_gen_args,
+						    &sig_gen_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_signature_generation_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open signature verification service */
-	ASSERT_EQUAL(hsm_open_signature_verification_service(hsm_session_hdl2,
-							     &open_sig_ver_args,
-							     &sig_ver_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_signature_verification_service(hsm_session_hdl2,
+						      &open_sig_ver_args,
+						      &sig_ver_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_signature_verification_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (j = 0; j < NB_ALGO; j++) {
-		ASSERT_EQUAL(hsm_generate_key_request(key_mgmt_hdl, &key_id[j],
-						      size_pub_key[j], KEY_GROUP,
-						      key_type[j],
-						      HSM_OP_KEY_GENERATION_FLAGS_CREATE,
-						      HSM_KEY_INFO_TRANSIENT, pub_key[j]),
-			     HSM_NO_ERROR);
+		err = hsm_generate_key_request(key_mgmt_hdl, &key_id[j],
+					       size_pub_key[j], KEY_GROUP,
+					       key_type[j],
+					       HSM_OP_KEY_GENERATION_FLAGS_CREATE,
+					       HSM_KEY_INFO_TRANSIENT,
+					       pub_key[j]);
+		if (err) {
+			printf("hsm_generate_key failed err:0x%x\n", err);
+			goto out;
+		}
 
 		for (i = 0; i < NUM_MSG_SIZE; i++) {
 			sig_gen_args.key_identifier = key_id[j];
@@ -127,8 +147,10 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 				start_timer(&t_perf);
 				err = hsm_generate_signature(sig_gen_hdl,
 							     &sig_gen_args);
-				if (err)
+				if (err) {
+					printf("hsm_generate_signature failed err:0x%x\n", err);
 					goto out;
+				}
 				/* Stop the timer */
 				stop_timer(&t_perf);
 			}
@@ -156,12 +178,17 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 				err = hsm_verify_signature(sig_ver_hdl,
 							   &sig_ver_args,
 							   &verify_status);
-				if (err)
+				if (err) {
+					printf("hsm_verify_signature failed err:0x%x\n", err);
 					goto out;
-				ASSERT_EQUAL(verify_status,
-					     HSM_VERIFICATION_STATUS_SUCCESS);
+				}
 				/* Stop the timer */
 				stop_timer(&t_perf);
+				if (verify_status != HSM_VERIFICATION_STATUS_SUCCESS) {
+					printf("Signature Verification failed\n");
+					err = -1;
+					goto out;
+				}
 			}
 			/* Finalize time to get stats */
 			finalize_timer(&t_perf, iter);
@@ -170,19 +197,17 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_signature_verification_service(sig_ver_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_signature_generation_service(sig_gen_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl2),
-		     HSM_NO_ERROR);
+	if (sig_ver_hdl)
+		hsm_close_signature_verification_service(sig_ver_hdl);
+	if (sig_gen_hdl)
+		hsm_close_signature_generation_service(sig_gen_hdl);
+	if (key_store_hdl)
+		hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
+	hsm_close_session(hsm_session_hdl2);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

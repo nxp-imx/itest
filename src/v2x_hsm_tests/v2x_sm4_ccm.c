@@ -16,7 +16,6 @@
 int v2x_sm4_ccm(void)
 {
 	open_session_args_t open_session_args = {0};
-	open_svc_key_store_args_t key_store_args = {0};
 	open_svc_key_management_args_t key_mgmt_args = {0};
 	open_svc_cipher_args_t open_cipher_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
@@ -39,46 +38,41 @@ int v2x_sm4_ccm(void)
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args,
-				      &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args,
+			       &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* set number of nessage sizes based on soc */
 	if (soc == IMX8DXL_DL3)
 		num_msg_size = NUM_MSG_SIZE - 1;
 
-	key_store_args.key_store_identifier = 0xABCD;
-	key_store_args.authentication_nonce = 0x1234;
-	key_store_args.flags = 1;
-
 	/* open key store service */
-	err = hsm_open_key_store_service(hsm_session_hdl,
-					 &key_store_args,
-					 &key_store_hdl);
-
-	if (err == HSM_KEY_STORE_CONFLICT) {
-		/* key store may already exist */
-		key_store_args.flags = 0;
-		ASSERT_EQUAL(hsm_open_key_store_service(hsm_session_hdl,
-							&key_store_args,
-							&key_store_hdl),
-			     HSM_NO_ERROR);
-	} else {
-		ASSERT_EQUAL(err, HSM_NO_ERROR);
+	err = hsm_open_key_store(hsm_session_hdl,
+				 &key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
 	}
 
 	/* open key management service */
-	ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-						     &key_mgmt_args,
-						     &key_mgmt_hdl),
-		     HSM_NO_ERROR);
-
-	open_cipher_args.flags = 0;
+	err = hsm_open_key_management_service(key_store_hdl,
+					      &key_mgmt_args,
+					      &key_mgmt_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open cipher service */
-	ASSERT_EQUAL(hsm_open_cipher_service(key_store_hdl, &open_cipher_args,
-					     &cipher_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args,
+				      &cipher_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_cipher_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* generate sm4 128bit key */
 	key_gen_args.key_identifier = &key_id;
@@ -89,8 +83,11 @@ int v2x_sm4_ccm(void)
 	key_gen_args.key_info = 0;
 	key_gen_args.out_key = NULL;
 
-	ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
-		     HSM_NO_ERROR);
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_generate_key failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (i = 0; i < num_msg_size; i++) {
 		ITEST_LOG("SM4-128-CCM encryption(v2x iv 8bytes) for 1s on %d byte blocks: ",
@@ -118,7 +115,11 @@ int v2x_sm4_ccm(void)
 				hsm_session_hdl);
 		if (err)
 			goto out;
-		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
+		err = memcmp(test_msg, plaintext, block_size[i]);
+		if (err != 0) {
+			printf("Decryption failed\n");
+			goto out;
+		}
 	}
 
 	for (i = 0; i < num_msg_size; i++) {
@@ -147,18 +148,24 @@ int v2x_sm4_ccm(void)
 				hsm_session_hdl);
 		if (err)
 			goto out;
-		ASSERT_EQUAL(memcmp(test_msg, plaintext, block_size[i]), 0);
+		err = memcmp(test_msg, plaintext, block_size[i]);
+		if (err != 0) {
+			printf("Decryption failed\n");
+			goto out;
+		}
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	if (cipher_hdl)
+		hsm_close_cipher_service(cipher_hdl);
+	if (key_mgmt_hdl)
+		hsm_close_key_management_service(key_mgmt_hdl);
+	if (key_store_hdl)
+		hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

@@ -35,9 +35,12 @@ int v2x_fast_mac_mubuff_v2(void)
 		num_msg_size = num_msg_size - 2;
 	} else
 		open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
-	// SHE OPEN SESSION
-	ASSERT_EQUAL(she_open_session(&open_session_args, &she_session_hdl),
-		     SHE_NO_ERROR);
+						     // SHE OPEN SESSION
+	err = she_open_session(&open_session_args, &she_session_hdl);
+	if (err != SHE_NO_ERROR) {
+		printf("she_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* Support for only single keystore on i.MX8DXL, whereas 5 on i.MX95 */
 	key_store_args.key_store_identifier = 0x1;
@@ -51,29 +54,41 @@ int v2x_fast_mac_mubuff_v2(void)
 	// SHE OPEN KEY STORE
 	err = she_open_key_store_service(she_session_hdl,
 					 &key_store_args);
-
 	if (err != SHE_NO_ERROR) {
 		if (err == SHE_KEY_STORE_CONFLICT || err == SHE_ID_CONFLICT) {
 			key_store_args.flags = KEY_STORE_OPEN_FLAGS_SHE;
 			err = she_open_key_store_service(she_session_hdl,
 							 &key_store_args);
-			ASSERT_EQUAL(err, SHE_NO_ERROR);
+			if (err != SHE_NO_ERROR) {
+				printf("she_open_key_store_service failed err:0x%x\n",
+				       err);
+				goto out;
+			}
 			key_store_load = 1;
 		} else {
-			ASSERT_EQUAL(she_close_session(she_session_hdl),
-				     SHE_NO_ERROR);
-			ASSERT_FALSE(err);
+			printf("she_open_key_store_service failed err:0x%x\n",
+			       err);
+			goto out;
 		}
 	}
 
 	key_store_hdl = key_store_args.key_store_hdl;
 
 	// SHE OPEN UTILS
-	ASSERT_EQUAL(she_open_utils(key_store_hdl, &utils_args), SHE_NO_ERROR);
+	err = she_open_utils(key_store_hdl, &utils_args);
+	if (err != SHE_NO_ERROR) {
+		printf("she_open_utils failed err:0x%x\n", err);
+		goto out;
+	}
 
 	// SHE KEY UPDATE
-	if (!key_store_load)
-		key_update_test(utils_args.utils_handle);
+	if (!key_store_load) {
+		err = key_update_test(utils_args.utils_handle);
+		if (err != SHE_NO_ERROR) {
+			printf("she_open_utils failed err:0x%x\n", err);
+			goto out;
+		}
+	}
 
 	for (j = 0; j < num_msg_size; j++) {
 		// MAC GENERATION
@@ -92,8 +107,10 @@ int v2x_fast_mac_mubuff_v2(void)
 			start_timer(&t_perf);
 			err = she_generate_fast_mac_mubuff_v2(utils_args.utils_handle,
 							      &generate_mac_args);
-			if (err)
+			if (err) {
+				printf("she_generate_fast_mac_mubuff_v2 failed err:0x%x\n", err);
 				goto out;
+			}
 			/* Stop the timer */
 			stop_timer(&t_perf);
 		}
@@ -119,8 +136,10 @@ int v2x_fast_mac_mubuff_v2(void)
 			start_timer(&t_perf);
 			err = she_verify_fast_mac_mubuff_v2(utils_args.utils_handle,
 							    &verify_mac_args);
-			if (err)
+			if (err) {
+				printf("she_verify_fast_mac_mubuff_v2 failed err:0x%x\n", err);
 				goto out;
+			}
 			/* Stop the timer */
 			stop_timer(&t_perf);
 		}
@@ -128,16 +147,23 @@ int v2x_fast_mac_mubuff_v2(void)
 		finalize_timer(&t_perf, iter);
 		print_perf(&t_perf, iter);
 
-		ASSERT_EQUAL(verify_mac_args.verification_status,
-			     SHE_MAC_VERIFICATION_SUCCESS);
+		if (verify_mac_args.verification_status !=
+		    SHE_MAC_VERIFICATION_SUCCESS) {
+			printf("MAC Verification failed\n");
+			err = -1;
+			goto out;
+		}
 	}
+
 out:
-	ASSERT_EQUAL(she_close_utils(utils_args.utils_handle), SHE_NO_ERROR);
-	she_close_key_store_service(key_store_hdl);
-	ASSERT_EQUAL(she_close_session(she_session_hdl), SHE_NO_ERROR);
+	if (utils_args.utils_handle)
+		she_close_utils(utils_args.utils_handle);
+	if (key_store_hdl)
+		she_close_key_store_service(key_store_hdl);
+	she_close_session(she_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

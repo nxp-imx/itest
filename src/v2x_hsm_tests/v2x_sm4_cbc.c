@@ -14,7 +14,6 @@
 int v2x_sm4_cbc(void)
 {
 	open_session_args_t open_session_args = {0};
-	open_svc_key_store_args_t key_store_srv_args = {0};
 	open_svc_key_management_args_t key_mgmt_srv_args = {0};
 	open_svc_cipher_args_t cipher_srv_args = {0};
 	op_generate_key_args_t gen_key_args = {0};
@@ -35,42 +34,41 @@ int v2x_sm4_cbc(void)
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args, &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args,
+			       &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* set number of nessage sizes based on soc */
 	if (soc == IMX8DXL_DL3)
 		num_msg_size = NUM_MSG_SIZE - 1;
 
-	key_store_srv_args.key_store_identifier = 1234;
-	key_store_srv_args.authentication_nonce = 1234;
-	key_store_srv_args.max_updates_number = 12;
-	key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
-	key_store_srv_args.signed_message = NULL;
-	key_store_srv_args.signed_msg_size = 0;
-
 	/* open key store service */
-	err = hsm_open_key_store_service(hsm_session_hdl, &key_store_srv_args,
-					 &key_store_hdl);
-	if (err == HSM_KEY_STORE_CONFLICT) {
-		/* key store may already exist. */
-		key_store_srv_args.flags = 0;
-		err = hsm_open_key_store_service(hsm_session_hdl,
-						 &key_store_srv_args,
-						 &key_store_hdl);
-	} else
-		ASSERT_EQUAL(err, HSM_NO_ERROR);
+	err = hsm_open_key_store(hsm_session_hdl,
+				 &key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open cipher service */
-	ASSERT_EQUAL(hsm_open_cipher_service(key_store_hdl, &cipher_srv_args,
-					     &sg0_cipher_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_cipher_service(key_store_hdl, &cipher_srv_args,
+				      &sg0_cipher_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_cipher_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* open key management service */
-	ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-						     &key_mgmt_srv_args,
-						     &sg0_key_mgmt_srv),
-		     HSM_NO_ERROR);
+	err = hsm_open_key_management_service(key_store_hdl,
+					      &key_mgmt_srv_args,
+					      &sg0_key_mgmt_srv);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	gen_key_args.key_identifier = &key_id;
 	gen_key_args.out_size = 0;
@@ -81,12 +79,15 @@ int v2x_sm4_cbc(void)
 	gen_key_args.out_key = NULL;
 
 	/* generate SM4_128 key */
-	ASSERT_EQUAL(hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args),
-		     HSM_NO_ERROR);
+	err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_generate_key failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (i = 0; i < num_msg_size; i++) {
 		ITEST_LOG("SM4-128-CBC encryption for 1s on %d byte blocks: ",
-			  msg_size[i]);
+				msg_size[i]);
 		err = cipher_test(sg0_cipher_hdl, key_id, msg_input, buff_encr,
 				  msg_size[i], iv, IV_SIZE,
 				  HSM_CIPHER_ONE_GO_ALGO_SM4_CBC,
@@ -96,7 +97,7 @@ int v2x_sm4_cbc(void)
 			goto out;
 
 		ITEST_LOG("SM4-128-CBC decryption for 1s on %d byte blocks: ",
-			  msg_size[i]);
+				msg_size[i]);
 		err = cipher_test(sg0_cipher_hdl, key_id, buff_encr,
 				  buff_decr, msg_size[i], iv, IV_SIZE,
 				  HSM_CIPHER_ONE_GO_ALGO_SM4_CBC,
@@ -104,16 +105,24 @@ int v2x_sm4_cbc(void)
 				  hsm_session_hdl);
 		if (err)
 			goto out;
-		ASSERT_EQUAL(memcmp(msg_input, buff_decr, msg_size[i]), 0);
+		err = memcmp(msg_input, buff_decr, msg_size[i]);
+		if (err != 0) {
+			printf("Decryption failed\n");
+			goto out;
+		}
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_cipher_service(sg0_cipher_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	if (sg0_cipher_hdl)
+		hsm_close_cipher_service(sg0_cipher_hdl);
+	if (sg0_key_mgmt_srv)
+		hsm_close_key_management_service(sg0_key_mgmt_srv);
+	if (key_store_hdl)
+		hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

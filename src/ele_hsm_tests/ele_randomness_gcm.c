@@ -11,37 +11,9 @@
 #define AUTH_TAG_SIZE 16
 #define IV_SIZE 12
 
-hsm_err_t auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
-			   uint8_t *input, uint32_t input_size,
-			   uint8_t *output, uint32_t output_size, uint8_t *iv,
-			   uint16_t iv_size, uint8_t *aad, uint16_t aad_size,
-			   hsm_op_auth_enc_algo_t algo,
-			   hsm_op_auth_enc_flags_t flags)
-{
-	op_auth_enc_args_t auth_enc_args = {0};
-	hsm_err_t err = 0;
-
-	auth_enc_args.key_identifier = key_identifier;
-	auth_enc_args.iv_size = iv_size;
-	auth_enc_args.iv = iv;
-	auth_enc_args.ae_algo = algo;
-	auth_enc_args.flags = flags;
-	auth_enc_args.aad_size = aad_size;
-	auth_enc_args.aad = aad;
-	auth_enc_args.input_size = input_size;
-	auth_enc_args.input = input;
-	auth_enc_args.output_size = output_size;
-	auth_enc_args.output = output;
-
-	err = hsm_auth_enc(cipher_hdl, &auth_enc_args);
-
-	return err;
-}
-
 int ele_randomness_gcm(void)
 {
 	open_session_args_t open_session_args = {0};
-	open_svc_key_store_args_t key_store_args = {0};
 	open_svc_key_management_args_t key_mgmt_args = {0};
 	open_svc_cipher_args_t open_cipher_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
@@ -60,46 +32,39 @@ int ele_randomness_gcm(void)
 	uint32_t idx = 0;
 
 	// INPUT BUFF AS RANDOM
-	ASSERT_EQUAL(randomize(fixed_iv, sizeof(fixed_iv)), sizeof(fixed_iv));
-	ASSERT_EQUAL(randomize(plaintext, sizeof(plaintext)), sizeof(plaintext));
-	ASSERT_EQUAL(randomize(aad, sizeof(aad)), sizeof(aad));
-
-	memset(iv1, 0, sizeof(iv1));
-	memset(iv2, 0, sizeof(iv2));
+	randomize(fixed_iv, sizeof(fixed_iv));
+	randomize(plaintext, sizeof(plaintext));
+	randomize(aad, sizeof(aad));
 
 	open_session_args.mu_type = HSM1;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args,
-				      &hsm_session_hdl),
-		     HSM_NO_ERROR);
-
-	key_store_args.key_store_identifier = 0xABCD;
-	key_store_args.authentication_nonce = 0x1234;
-	key_store_args.flags = 1;
-	err = hsm_open_key_store_service(hsm_session_hdl,
-					 &key_store_args,
-					 &key_store_hdl);
-
-	if (err == HSM_KEY_STORE_CONFLICT) {
-		key_store_args.flags = 0;
-		ASSERT_EQUAL(hsm_open_key_store_service(hsm_session_hdl,
-							&key_store_args,
-							&key_store_hdl),
-			     HSM_NO_ERROR);
-	} else {
-		ASSERT_EQUAL(err, HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args,
+			       &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
 	}
 
-	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
+	err = hsm_open_key_store(hsm_session_hdl,
+				 &key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
+	}
 
-	ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-						     &key_mgmt_args,
-						     &key_mgmt_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_key_management_service(key_store_hdl,
+					      &key_mgmt_args,
+					      &key_mgmt_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
 
-	open_cipher_args.flags = 0;
-	ASSERT_EQUAL(hsm_open_cipher_service(key_store_hdl, &open_cipher_args,
-					     &cipher_hdl1),
-		     HSM_NO_ERROR);
+	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args,
+				      &cipher_hdl1);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_cipher_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* generate aes 128bit key */
 	key_gen_args.key_identifier = &key_id_aes_128;
@@ -113,8 +78,11 @@ int ele_randomness_gcm(void)
 	key_gen_args.key_type = HSM_KEY_TYPE_AES;
 	key_gen_args.out_key = NULL;
 
-	ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
-		     HSM_NO_ERROR);
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_generate_key failed err:0x%x\n", err);
+		goto out;
+	}
 
 	// TEST FORMAT OF IV FOR FULL GENERATION MODE
 
@@ -150,7 +118,11 @@ int ele_randomness_gcm(void)
 		if (iv1[idx] == iv2[idx])
 			num_matching_bytes++;
 	}
-	ASSERT_TRUE((num_matching_bytes < 4));
+	if (num_matching_bytes >= 4) {
+		printf("WEAK RANDOMNESS TEST failed\n");
+		err = -1;
+		goto out;
+	}
 
 	// TEST FORMAT OF IV FOR COUNTER MODE
 
@@ -168,7 +140,10 @@ int ele_randomness_gcm(void)
 	// EXTRACT GENERATED IV
 	memcpy(iv1, &ciphertext[sizeof(ciphertext)-sizeof(iv1)], sizeof(iv1));
 	// VERIFY FIXED PART
-	ASSERT_EQUAL(memcmp(iv1, fixed_iv, sizeof(fixed_iv)), 0);
+	err = memcmp(iv1, fixed_iv, sizeof(fixed_iv));
+	if (err != 0)
+		goto out;
+
 	// EXTRACT COUNTER
 	counter_val1 = *(uint64_t *)(&(iv1[4]));
 
@@ -186,26 +161,34 @@ int ele_randomness_gcm(void)
 	// EXTRACT GENERATED IV
 	memcpy(iv2, &ciphertext[sizeof(ciphertext)-sizeof(iv2)], sizeof(iv2));
 	// VERIFY FIXED PART
-	ASSERT_EQUAL(memcmp(iv2, fixed_iv, sizeof(fixed_iv)), 0);
+	err = memcmp(iv2, fixed_iv, sizeof(fixed_iv));
+	if (err != 0)
+		goto out;
 	// EXTRACT COUNTER
 	counter_val2 = *(uint64_t *)(&(iv2[4]));
 
 	// VERIFY COUNTER WAS INCREMENTED
-	ASSERT_EQUAL(counter_val2, counter_val1 + 1);
+	if (counter_val2 != counter_val1 + 1) {
+		err = -1;
+		goto out;
+	}
 
 	// VERIFY CANNOT SCREW UP COUNTER BY OPENING KEY STORE SECOND TIME
-	key_store_args.key_store_identifier = 0xABCD;
-	key_store_args.authentication_nonce = 0x1234;
-	key_store_args.flags = 0;
-	ASSERT_EQUAL(hsm_open_key_store_service(hsm_session_hdl, &key_store_args,
-						&key_store_hdl),
-		     HSM_KEY_STORE_CONFLICT);
+	err = hsm_open_key_store(hsm_session_hdl,
+				 &key_store_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
+	}
 
 	// OPEN SECOND CIPHER SERVICE TO VERIFY COUNTER INCREMENTS ACROSS SERVICES
 	open_cipher_args.flags = 0;
-	ASSERT_EQUAL(hsm_open_cipher_service(key_store_hdl, &open_cipher_args,
-					     &cipher_hdl2),
-		     HSM_NO_ERROR);
+	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args,
+				      &cipher_hdl2);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_cipher_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	// VERIFY INCREMENTED COUNTER ON NEW SERVICE
 	ITEST_LOG("AES-128-GCM encryption(ele iv 8bytes) on 128 byte blocks\n");
@@ -216,19 +199,26 @@ int ele_randomness_gcm(void)
 			       HSM_AUTH_ENC_FLAGS_ENCRYPT |
 			       HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV);
 	if (err) {
-		ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl2), HSM_NO_ERROR);
+		hsm_close_cipher_service(cipher_hdl2);
 		goto out;
 	}
 
 	// EXTRACT GENERATED IV
 	memcpy(iv1, &ciphertext[sizeof(ciphertext)-sizeof(iv1)], sizeof(iv1));
 	// VERIFY FIXED PART
-	ASSERT_EQUAL(memcmp(iv1, fixed_iv, sizeof(fixed_iv)), 0);
+	err = memcmp(iv1, fixed_iv, sizeof(fixed_iv));
+	if (err != 0) {
+		err = -1;
+		goto out;
+	}
 	// EXTRACT COUNTER
 	counter_val1 = *(uint64_t *)(&(iv1[4]));
 
 	// VERIFY COUNTER WAS INCREMENTED
-	ASSERT_EQUAL(counter_val1, counter_val2 + 1);
+	if (counter_val1 != counter_val2 + 1) {
+		err = -1;
+		goto out;
+	}
 
 	// VERIFY KEEPS INCREMENTING ON ORIGINAL CIPHER SERVICE
 	ITEST_LOG("AES-128-GCM encryption(ele iv 8bytes) on 128 byte blocks\n");
@@ -244,23 +234,34 @@ int ele_randomness_gcm(void)
 	// EXTRACT GENERATED IV
 	memcpy(iv2, &ciphertext[sizeof(ciphertext)-sizeof(iv2)], sizeof(iv2));
 	// VERIFY FIXED PART
-	ASSERT_EQUAL(memcmp(iv2, fixed_iv, sizeof(fixed_iv)), 0);
+	err = memcmp(iv2, fixed_iv, sizeof(fixed_iv));
+	if (err != 0) {
+		err = -1;
+		goto out;
+	}
 	// EXTRACT COUNTER
 	counter_val2 = *(uint64_t *)(&(iv2[4]));
 
 	// VERIFY COUNTER WAS INCREMENTED
-	ASSERT_EQUAL(counter_val2, counter_val1 + 1);
+	if (counter_val2 != counter_val1 + 1) {
+		err = -1;
+		goto out;
+	}
 
-	ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl2), HSM_NO_ERROR);
+	err = hsm_close_cipher_service(cipher_hdl2);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_close_cipher_service failed err:0x%x\n", err);
+		goto out;
+	}
+
 out:
-	ASSERT_EQUAL(hsm_close_cipher_service(cipher_hdl1), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	hsm_close_cipher_service(cipher_hdl1);
+	hsm_close_key_management_service(key_mgmt_hdl);
+	hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

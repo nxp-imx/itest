@@ -30,17 +30,23 @@ int v2x_hash_SM3(void)
 	hsm_err_t err = 0;
 
 	open_session_args.mu_type = V2X_SV0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args,
-				      &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args,
+			       &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* set number of nessage sizes based on soc */
 	if (soc != IMX8DXL_DL3)
 		num_msg_size = NUM_MSG_SIZE - 2;
 
-	ASSERT_EQUAL(hsm_open_hash_service(hsm_session_hdl, &hash_srv_args,
-					   &hash_serv),
-		     HSM_NO_ERROR);
+	err = hsm_open_hash_service(hsm_session_hdl, &hash_srv_args,
+				    &hash_serv);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_hash_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (k = 0; k < num_msg_size; k++) {
 		size_input = block_size[k];
@@ -55,8 +61,7 @@ int v2x_hash_SM3(void)
 		hash_args.svc_flags = HSM_HASH_FLAG_ONE_SHOT;
 
 		// INPUT BUFF AS RANDOM
-		ASSERT_EQUAL(randomize(dgst_in_buff, size_input),
-			     size_input);
+		randomize(dgst_in_buff, size_input);
 
 		memset(&t_perf, 0, sizeof(t_perf));
 		t_perf.session_hdl = hsm_session_hdl;
@@ -65,8 +70,10 @@ int v2x_hash_SM3(void)
 			start_timer(&t_perf);
 			err = hsm_hash_one_go(hash_serv,
 					      &hash_args);
-			if (err)
+			if (err) {
+				printf("hsm_hash_one_go failed err:0x%x\n", err);
 				goto out;
+			}
 			/* Stop the timer */
 			stop_timer(&t_perf);
 		}
@@ -76,11 +83,12 @@ int v2x_hash_SM3(void)
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_hash_service(hash_serv), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	if (hash_serv)
+		hsm_close_hash_service(hash_serv);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

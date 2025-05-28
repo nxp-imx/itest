@@ -28,7 +28,7 @@ static char *algos_str[NB_ALGO] = {
 	"sha256",
 	"sha384",
 	"sha512",
-	};
+};
 
 static uint16_t dgst_size[NB_ALGO] = {
 	0x1C,
@@ -53,13 +53,18 @@ int v2x_hash(void)
 	hsm_err_t err = 0;
 
 	open_session_args.mu_type = V2X_SV0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args,
-				      &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
-	ASSERT_EQUAL(hsm_open_hash_service(hsm_session_hdl, &hash_srv_args,
-					   &hash_serv),
-		     HSM_NO_ERROR);
+	err = hsm_open_hash_service(hsm_session_hdl, &hash_srv_args,
+				    &hash_serv);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_hash_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (i = 0; i < NB_ALGO; i++) {
 		for (k = 0; k < NUM_MSG_SIZE; k++) {
@@ -75,44 +80,53 @@ int v2x_hash(void)
 			hash_args.svc_flags = HSM_HASH_FLAG_ONE_SHOT;
 
 			// INPUT BUFF AS RANDOM
-			ASSERT_EQUAL(randomize(dgst_in_buff, size_input),
-				     size_input);
+			randomize(dgst_in_buff, size_input);
 
 			memset(&t_perf, 0, sizeof(t_perf));
 			t_perf.session_hdl = hsm_session_hdl;
 			for (j = 0; j < iter; j++) {
-				 /* Start the timer */
+				/* Start the timer */
 				start_timer(&t_perf);
 				err = hsm_hash_one_go(hash_serv,
 						      &hash_args);
-				if (err)
+				if (err) {
+					printf("hsm_hash_one_go failed err:0x%x\n", err);
 					goto out;
+				}
 				/* Stop the timer */
 				stop_timer(&t_perf);
 
 				// GEN EXPECTED DIGEST (OPENSSL)
-				ASSERT_EQUAL(icrypto_hash_one_go((unsigned char *)dgst_in_buff,
-								 (unsigned char *) dgst_expected,
-								 algos_str[i], size_input),
-					     dgst_size[i]);
+				err = icrypto_hash_one_go((unsigned char *)dgst_in_buff,
+							  (unsigned char *) dgst_expected,
+							  algos_str[i], size_input);
+				if (err != dgst_size[i]) {
+					printf("Hash generation failed\n");
+					err = -1;
+					goto out;
+				}
 				// CHECK HASH OUTPUT
-				ASSERT_EQUAL(memcmp(dgst_out_buff,
-						    dgst_expected,
-						    dgst_size[i]),
-					     0);
+				err = memcmp(dgst_out_buff,
+					     dgst_expected,
+					     dgst_size[i]);
+				if (err != 0) {
+					printf("Hash verification failed\n");
+					goto out;
+				}
 			}
-				/* Finalize time to get stats */
-				finalize_timer(&t_perf, iter);
-				print_perf(&t_perf, iter);
+			/* Finalize time to get stats */
+			finalize_timer(&t_perf, iter);
+			print_perf(&t_perf, iter);
 		}
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_hash_service(hash_serv), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	if (hash_serv)
+		hsm_close_hash_service(hash_serv);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

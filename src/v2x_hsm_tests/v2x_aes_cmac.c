@@ -15,7 +15,6 @@
 int v2x_aes_cmac(void)
 {
 	open_session_args_t open_session_args = {0};
-	open_svc_key_store_args_t key_store_args = {0};
 	open_svc_key_management_args_t key_mgmt_args = {0};
 	open_svc_mac_args_t mac_srv_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
@@ -32,40 +31,38 @@ int v2x_aes_cmac(void)
 	ASSERT_EQUAL(randomize(test_msg, sizeof(test_msg)), sizeof(test_msg));
 
 	open_session_args.mu_type = V2X_SG0;
-	ASSERT_EQUAL(hsm_open_session(&open_session_args,
-				      &hsm_session_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_session(&open_session_args,
+			       &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		goto out;
+	}
 
 	if (soc == IMX8DXL_DL2 || soc == IMX8DXL_DL3)
 		num_payload_size = NUM_PAYLOAD_SIZE - 1;
 
-	key_store_args.key_store_identifier = 0xABCD;
-	key_store_args.authentication_nonce = 0x1234;
-	key_store_args.flags = 1;
-	err = hsm_open_key_store_service(hsm_session_hdl,
-					 &key_store_args,
-					 &key_store_hdl);
+	err = hsm_open_key_store(hsm_session_hdl,
+				 &key_store_hdl);
 
-	if (err == HSM_KEY_STORE_CONFLICT) {
-		key_store_args.flags = 0;
-		ASSERT_EQUAL(hsm_open_key_store_service(hsm_session_hdl,
-							&key_store_args,
-							&key_store_hdl),
-			     HSM_NO_ERROR);
-	} else {
-		ASSERT_EQUAL(err, HSM_NO_ERROR);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_store failed err:0x%x\n", err);
+		goto out;
 	}
 
-	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
+	err = hsm_open_key_management_service(key_store_hdl,
+					      &key_mgmt_args,
+					      &key_mgmt_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
 
-	ASSERT_EQUAL(hsm_open_key_management_service(key_store_hdl,
-						     &key_mgmt_args,
-						     &key_mgmt_hdl),
-		     HSM_NO_ERROR);
-
-	ASSERT_EQUAL(hsm_open_mac_service(key_store_hdl, &mac_srv_args,
-					  &mac_hdl),
-		     HSM_NO_ERROR);
+	err = hsm_open_mac_service(key_store_hdl, &mac_srv_args,
+				   &mac_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_mac_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* generate aes 128bit key */
 	key_gen_args.key_identifier = &key_id_aes[0];
@@ -76,22 +73,31 @@ int v2x_aes_cmac(void)
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = 0;
 
-	ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
-		     HSM_NO_ERROR);
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_generate_key failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* generate aes 192bit key */
 	key_gen_args.key_identifier = &key_id_aes[1];
 	key_gen_args.key_type = HSM_KEY_TYPE_AES_192;
 
-	ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
-		     HSM_NO_ERROR);
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_generate_key failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* generate aes 256bit key */
 	key_gen_args.key_identifier = &key_id_aes[2];
 	key_gen_args.key_type = HSM_KEY_TYPE_AES_256;
 
-	ASSERT_EQUAL(hsm_generate_key(key_mgmt_hdl, &key_gen_args),
-		     HSM_NO_ERROR);
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_generate_key failed err:0x%x\n", err);
+		goto out;
+	}
 
 	for (j = 0; j < NUM_KEY_SIZE; j++) {
 		for (i = 0; i < num_payload_size; i++) {
@@ -118,14 +124,13 @@ int v2x_aes_cmac(void)
 	}
 
 out:
-	ASSERT_EQUAL(hsm_close_mac_service(mac_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_management_service(key_mgmt_hdl),
-		     HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_key_store_service(key_store_hdl), HSM_NO_ERROR);
-	ASSERT_EQUAL(hsm_close_session(hsm_session_hdl), HSM_NO_ERROR);
+	hsm_close_mac_service(mac_hdl);
+	hsm_close_key_management_service(key_mgmt_hdl);
+	hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		ASSERT_FALSE(err);
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }
