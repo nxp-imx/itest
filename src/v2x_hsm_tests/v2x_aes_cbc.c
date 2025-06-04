@@ -44,7 +44,7 @@ int v2x_aes_cbc(void)
 	}
 
 	/* set number of nessage sizes based on soc */
-	if (soc == IMX8DXL_DL2 || soc == IMX8DXL_DL3)
+	if (soc == IMX8DXL_DL1 || soc == IMX8DXL_DL2 || soc == IMX8DXL_DL3)
 		num_msg_size = NUM_MSG_SIZE - 1;
 
 	err = hsm_open_key_store(hsm_session_hdl,

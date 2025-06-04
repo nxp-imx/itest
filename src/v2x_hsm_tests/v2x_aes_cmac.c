@@ -38,7 +38,7 @@ int v2x_aes_cmac(void)
 		goto out;
 	}
 
-	if (soc == IMX8DXL_DL2 || soc == IMX8DXL_DL3)
+	if (soc == IMX8DXL_DL1 || soc == IMX8DXL_DL2 || soc == IMX8DXL_DL3)
 		num_payload_size = NUM_PAYLOAD_SIZE - 1;
 
 	err = hsm_open_key_store(hsm_session_hdl,
