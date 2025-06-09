@@ -17,6 +17,7 @@ int ele_randomness_gcm(void)
 	open_svc_key_management_args_t key_mgmt_args = {0};
 	open_svc_cipher_args_t open_cipher_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
+	open_svc_key_store_args_t key_store_args = {0};
 
 	hsm_err_t err = 0;
 	hsm_hdl_t key_mgmt_hdl = 0;
@@ -174,9 +175,13 @@ int ele_randomness_gcm(void)
 	}
 
 	// VERIFY CANNOT SCREW UP COUNTER BY OPENING KEY STORE SECOND TIME
-	err = hsm_open_key_store(hsm_session_hdl,
-				 &key_store_hdl);
-	if (err != HSM_NO_ERROR) {
+	key_store_args.key_store_identifier = 0xABCD;
+	key_store_args.authentication_nonce = 0x1234;
+	key_store_args.flags = HSM_SVC_KEY_STORE_FLAGS_LOAD;
+	err = hsm_open_key_store_service(hsm_session_hdl,
+					 &key_store_args,
+					 &key_store_hdl);
+	if (err != HSM_KEY_STORE_CONFLICT) {
 		printf("hsm_open_key_store failed err:0x%x\n", err);
 		goto out;
 	}
