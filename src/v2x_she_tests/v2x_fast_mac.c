@@ -42,8 +42,7 @@ int v2x_fast_mac(void)
 	key_store_args.authentication_nonce = 0xbec00001;
 	key_store_args.max_updates_number = 300;
 	key_store_args.flags = KEY_STORE_OPEN_FLAGS_CREATE |
-			       KEY_STORE_OPEN_FLAGS_SHE |
-			       KEY_STORE_OPEN_FLAGS_STRICT_OPERATION;
+			       KEY_STORE_OPEN_FLAGS_SHE;
 	key_store_args.min_mac_length = 32;
 
 	// SHE OPEN KEY STORE
