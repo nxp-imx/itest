@@ -49,7 +49,7 @@ she_err_t she_cmac_test(she_hdl_t mac_hdl, uint32_t key_identifier,
 she_err_t key_update_test(she_hdl_t utils_handle)
 {
 	she_err_t err = 0;
-	op_key_update_args_t key_update_args = {0};
+	op_key_update_ext_args_t key_update_args = {0};
 
 	uint8_t m1[SHE_KEY_SIZE_IN_BYTES] = { 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00,
@@ -99,7 +99,7 @@ she_err_t key_update_test(she_hdl_t utils_handle)
 	key_update_args.m4_size = sizeof(m4);
 	key_update_args.m5_size = sizeof(m5);
 
-	err = she_key_update(utils_handle, &key_update_args);
+	err = she_key_update_ext(utils_handle, &key_update_args);
 	if (err) {
 		printf("she_key_update failed err:0x%x\n", err);
 		return err;
@@ -120,7 +120,7 @@ she_err_t key_update_test(she_hdl_t utils_handle)
 	key_update_args.m4_size = sizeof(m4);
 	key_update_args.m5_size = sizeof(m5);
 
-	err = she_key_update(utils_handle, &key_update_args);
+	err = she_key_update_ext(utils_handle, &key_update_args);
 	if (err)
 		printf("she_key_update failed err:0x%x\n", err);
 	return err;
