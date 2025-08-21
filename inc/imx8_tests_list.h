@@ -29,6 +29,8 @@ int ele_hash_sha3(void);
 #if 0
 int rsa_key_gen_pkcs1_v15(void);
 int rsa_key_gen_pkcs1_pss_mgf1(void);
+int rsa_sign_verify_pkcs1_pss_mgf1(void);
+int rsa_sign_verify_pkcs1_v15(void);
 #endif
 #elif defined(V2X_SHE_MU)
 int v2x_fast_mac(void);
@@ -101,6 +103,12 @@ testsuite imx8_ts[] = {
 {rsa_key_gen_pkcs1_pss_mgf1, "rsa_key_gen_pkcs1_pss_mgf1", 6, {SOC_IMX91, SOC_IMX93,
 							       SOC_REV_A0, SOC_REV_A1,
 							       SOC_REV_B0, SOC_IMX943}},
+{rsa_sign_verify_pkcs1_pss_mgf1, "rsa_sign_verify_pkcs1_pss_mgf1", 6, {SOC_IMX91, SOC_IMX93,
+								       SOC_REV_A0, SOC_REV_A1,
+								       SOC_REV_B0, SOC_IMX943}},
+{rsa_sign_verify_pkcs1_v15, "rsa_sign_verify_pkcs1_v15", 6, {SOC_IMX91, SOC_IMX93,
+							     SOC_REV_A0, SOC_REV_A1,
+							     SOC_REV_B0, SOC_IMX943}},
 #endif
 #elif defined(V2X_SHE_MU)
 {v2x_fast_mac, "v2x_fast_mac", 5, {SOC_REV_A0, SOC_REV_A1, SOC_REV_B0,

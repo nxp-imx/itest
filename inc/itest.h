@@ -36,6 +36,10 @@ extern she_hdl_t she_session_hdl, key_store_hdl;
 extern hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
 #endif
 
+#define HSM_PUB_KEY_SIZE_RSA_2048 0x100
+#define HSM_PUB_KEY_SIZE_RSA_3072 0x180
+#define HSM_PUB_KEY_SIZE_RSA_4096 0x200
+
 #define ITEST_LOG(...)  outputLog(__VA_ARGS__)
 
 /*======================ASSERT FAILURE ABORT======================*/
