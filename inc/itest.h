@@ -55,8 +55,8 @@ typedef struct {
 	double time_us;
 	double min_time_us;
 	double max_time_us;
-	uint32_t nb_iter;
-	uint32_t op_sec;
+	uint64_t nb_iter;
+	uint64_t op_sec;
 	double t_per_op;
 	double fw_t;
 	double lib_request_t;
