@@ -86,7 +86,7 @@ void stop_timer(timer_perf_t *timer)
 
 void finalize_timer(timer_perf_t *timer, uint32_t nb_iter)
 {
-	timer->op_sec = 1000000*nb_iter/timer->time_us;
+	timer->op_sec = (uint64_t)(1000000ULL*nb_iter)/timer->time_us;
 	timer->t_per_op = timer->time_us/nb_iter;
 	timer->nb_iter = nb_iter;
 }
@@ -94,7 +94,7 @@ void finalize_timer(timer_perf_t *timer, uint32_t nb_iter)
 void finalize_timer_rsa(timer_perf_t *timer, uint32_t nb_iter)
 {
 	/* number of ops in 50s */
-	timer->op_sec = 1000000*50*nb_iter/timer->time_us;
+	timer->op_sec = (uint64_t)(1000000ULL*50*nb_iter)/timer->time_us;
 	timer->t_per_op = timer->time_us/nb_iter;
 	timer->nb_iter = nb_iter;
 }
