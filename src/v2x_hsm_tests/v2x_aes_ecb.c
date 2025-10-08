@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
+#include "hsm/hsm_functions.h"
 
 #define MAX_MSG_SIZE 2048
 #define NUM_MSG_SIZE 5

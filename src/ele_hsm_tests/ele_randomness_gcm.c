@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
+#include "hsm/hsm_functions.h"
 
 #define MSG_SIZE 128
 #define AUTH_TAG_SIZE 16

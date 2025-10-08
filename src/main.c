@@ -11,15 +11,13 @@
 #include "itest.h"
 #include "version.h"
 #include "imx8_tests_list.h"
+#ifdef V2X_SHE_MU
+#include "she/she_functions.h"
+#else
+#include "hsm/hsm_functions.h"
+#endif
 
 uint16_t soc;
-#define MAX_SOC_VAL 10
-
-#ifdef V2X_SHE_MU
-she_hdl_t she_session_hdl, key_store_hdl;
-#else
-hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
-#endif
 
 /* Itest ctx*/
 itest_ctx_t itest_ctx = {0};
@@ -110,99 +108,7 @@ static void catch_failure_continue(int signo) {
 
 static int itest_init(void)
 {
-	open_session_args_t open_session_args = {0};
-	char soc_val[MAX_SOC_VAL];
-	int err = 0;
-
-	FILE *file = fopen("/sys/devices/soc0/soc_id", "r");
-
-	if (file == NULL) {
-		perror("Error opening the /sys/devices/soc0/soc_id file");
-		return -1;
-	}
-
-	if (fgets(soc_val, MAX_SOC_VAL, file) == NULL) {
-		perror("Error reading the /sys/devices/soc0/soc_id file");
-		fclose(file);
-		return -1;
-	}
-
-	fclose(file);
-
-	soc_val[strcspn(soc_val, "\t\n")] = 0;
-
-	if (strcmp(soc_val, "i.MX8ULP") == 0)
-		soc = SOC_IMX8ULP;
-#ifndef PSA_COMPLIANT
-	else if (strcmp(soc_val, "i.MX8DXL") == 0)
-		soc = SOC_IMX8DXL;
-#endif
-	else if (strcmp(soc_val, "i.MX91") == 0)
-		soc = SOC_IMX91;
-	else if (strcmp(soc_val, "i.MX93") == 0)
-		soc = SOC_IMX93;
-	else if (strcmp(soc_val, "i.MX943") == 0)
-		soc = SOC_IMX943;
-	else if (strcmp(soc_val, "i.MX95") == 0)
-		soc = SOC_IMX95;
-	else {
-		perror("Undefined SOC\n");
-		return -1;
-	}
-
-#ifdef V2X_SHE_MU
-	she_hdl_t she_session_hdl = 0;
-
-	/* Only SHE1 MU supported on iMX943 platform */
-	if (soc == SOC_IMX943)
-		open_session_args.mu_type = V2X_SHE1;
-
-	else
-		open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
-	err = she_open_session(&open_session_args, &she_session_hdl);
-	if (err != SHE_NO_ERROR) {
-		printf("she_open_session failed err:0x%x\n", err);
-		return -1;
-	}
-
-	if (soc == SOC_IMX95)
-		soc = se_get_soc_rev();
-
-	if (soc == SOC_IMX8DXL)
-		soc = se_get_board_type();
-	err = she_close_session(she_session_hdl);
-	if (err != SHE_NO_ERROR) {
-		printf("she_close_session failed err:0x%x\n", err);
-		return -1;
-	}
-#else
-	hsm_hdl_t hsm_session_hdl = 0;
-
-#ifdef PSA_COMPLIANT
-	open_session_args.mu_type = HSM1;
-#else
-	/* Open session for SV0 channel on V2X HSM */
-	open_session_args.mu_type = V2X_SV0;
-#endif
-	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
-	if (err != HSM_NO_ERROR) {
-		printf("hsm_open_session failed err:0x%x\n", err);
-		return -1;
-	}
-
-	if (soc == SOC_IMX95)
-		soc = se_get_soc_rev();
-
-#ifndef PSA_COMPLIANT
-	if (soc == SOC_IMX8DXL)
-		soc = se_get_board_type();
-#endif
-	err = hsm_close_session(hsm_session_hdl);
-	if (err != HSM_NO_ERROR) {
-		printf("hsm_close_session failed err:0x%x\n", err);
-		return -1;
-	}
-#endif
+	soc = get_soc();
 	itest_ctx.test_name = NULL;
 	itest_ctx.nb_assert_fails = 0;
 	itest_ctx.ts = imx8_ts;

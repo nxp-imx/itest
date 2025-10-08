@@ -6,9 +6,81 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
+#include "she/she_functions.h"
 
 /* Number of iterations */
 #define NUM_OPERATIONS  (3000u)
+
+she_hdl_t she_session_hdl, key_store_hdl;
+
+int get_soc(void)
+{
+	open_session_args_t open_session_args = {0};
+	char soc_val[MAX_SOC_VAL];
+	int err = 0;
+
+	FILE *file = fopen("/sys/devices/soc0/soc_id", "r");
+
+	if (file == NULL) {
+		perror("Error opening the /sys/devices/soc0/soc_id file");
+		return -1;
+	}
+
+	if (fgets(soc_val, MAX_SOC_VAL, file) == NULL) {
+		perror("Error reading the /sys/devices/soc0/soc_id file");
+		fclose(file);
+		return -1;
+	}
+
+	fclose(file);
+
+	soc_val[strcspn(soc_val, "\t\n")] = 0;
+
+	if (strcmp(soc_val, "i.MX943") == 0)
+		soc = SOC_IMX943;
+	else if (strcmp(soc_val, "i.MX8DXL") == 0)
+		soc = SOC_IMX8DXL;
+	else if (strcmp(soc_val, "i.MX91") == 0)
+		soc = SOC_IMX91;
+	else if (strcmp(soc_val, "i.MX93") == 0)
+		soc = SOC_IMX93;
+	else if (strcmp(soc_val, "i.MX8ULP") == 0)
+		soc = SOC_IMX8ULP;
+	else if (strcmp(soc_val, "i.MX95") == 0)
+		soc = SOC_IMX95;
+	else {
+		perror("Undefined SOC\n");
+		return -1;
+	}
+
+	she_hdl_t she_session_hdl = 0;
+
+	/* Only SHE1 MU supported on iMX943 platform */
+	if (soc == SOC_IMX943)
+		open_session_args.mu_type = V2X_SHE1;
+
+	else
+		open_session_args.mu_type = V2X_SHE; // Use SHE1 to run on seco MU
+	err = she_open_session(&open_session_args, &she_session_hdl);
+	if (err != SHE_NO_ERROR) {
+		printf("she_open_session failed err:0x%x\n", err);
+		return -1;
+	}
+
+	if (soc == SOC_IMX95)
+		soc = se_get_soc_rev();
+
+	if (soc == SOC_IMX8DXL)
+		soc = se_get_board_type();
+
+	err = she_close_session(she_session_hdl);
+	if (err != SHE_NO_ERROR) {
+		printf("she_close_session failed err:0x%x\n", err);
+		return -1;
+	}
+
+	return soc;
+}
 
 she_err_t she_cmac_test(she_hdl_t mac_hdl, uint32_t key_identifier,
 			uint8_t *payload, uint16_t payload_size,

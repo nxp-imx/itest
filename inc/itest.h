@@ -19,8 +19,8 @@
 #include "internal/she_key.h"
 #endif
 
-#define MU_CHANNEL_PLAT_SHE       (0x01u)
 #define NUM_SOCS 10
+#define MAX_SOC_VAL 10
 
 #define TRUE_TEST 0
 #define FALSE_TEST -1
@@ -29,16 +29,6 @@
 void outputLog(const char *const format, ...);
 
 extern uint16_t soc;
-
-#ifdef V2X_SHE_MU
-extern she_hdl_t she_session_hdl, key_store_hdl;
-#else
-extern hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
-#endif
-
-#define HSM_PUB_KEY_SIZE_RSA_2048 0x100
-#define HSM_PUB_KEY_SIZE_RSA_3072 0x180
-#define HSM_PUB_KEY_SIZE_RSA_4096 0x200
 
 #define ITEST_LOG(...)  outputLog(__VA_ARGS__)
 
@@ -78,75 +68,7 @@ typedef struct{
 	int board;
 } itest_ctx_t;
 
-/*========OPEN KEY STORE========*/
-hsm_err_t hsm_open_key_store(hsm_hdl_t hsm_session_hdl,
-			     hsm_hdl_t *key_store_hdl);
-/*=====GENERATE KEY REQUEST======*/
-hsm_err_t hsm_generate_key_request(hsm_hdl_t key_mgmt_hdl, uint32_t *key_id,
-				   uint16_t out_size, hsm_key_group_t key_group,
-				   hsm_key_type_t key_type, hsm_op_key_gen_flags_t flags,
-#ifdef PSA_COMPLIANT
-				   hsm_key_lifetime_t key_lifetime,
-				   hsm_key_usage_t key_usage,
-				   hsm_permitted_algo_t permitted_algo,
-				   hsm_bit_key_sz_t bit_key_sz,
-				   hsm_key_lifecycle_t key_lifecycle,
-#else
-				   hsm_key_info_t key_info,
-#endif
-				   uint8_t *out_key);
-/*=====GENERATE KEY PERF======*/
-hsm_err_t hsm_generate_key_perf(hsm_hdl_t key_mgmt_hdl, uint32_t key_id,
-				uint16_t out_size, hsm_key_group_t key_group,
-				hsm_key_type_t key_type, uint8_t *out_key,
-#ifdef PSA_COMPLIANT
-				hsm_key_lifetime_t key_lifetime,
-				hsm_key_usage_t key_usage,
-				hsm_permitted_algo_t permitted_algo,
-				hsm_bit_key_sz_t bit_key_sz,
-				hsm_key_lifecycle_t key_lifecycle,
-#else
-				hsm_key_info_t key_info,
-#endif
-				timer_perf_t *t_perf);
-/*===========CIPHER============*/
-hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
-		      uint8_t *input, uint8_t *output, uint32_t block_size,
-		      uint8_t *iv, uint16_t iv_size,
-		      hsm_op_cipher_one_go_algo_t algo,
-		      hsm_op_cipher_one_go_flags_t flags, uint32_t session_hdl);
-/*===========AUTH TEST============*/
-hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
-		    uint8_t *input, uint32_t input_size, uint8_t *output,
-		    uint32_t output_size, uint8_t *iv, uint16_t iv_size,
-		    uint8_t *aad, uint16_t aad_size,
-		    hsm_op_auth_enc_algo_t algo,
-		    hsm_op_auth_enc_flags_t flags, uint32_t session_hdl);
-hsm_err_t auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
-			   uint8_t *input, uint32_t input_size,
-			   uint8_t *output, uint32_t output_size, uint8_t *iv,
-			   uint16_t iv_size, uint8_t *aad, uint16_t aad_size,
-			   hsm_op_auth_enc_algo_t algo,
-			   hsm_op_auth_enc_flags_t flags);
-/*===========CMAC============*/
-hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
-		    hsm_op_mac_one_go_algo_t algo, uint8_t *payload,
-		    uint32_t payload_size, uint8_t *mac,
-		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl);
-/*===========HMAC============*/
-hsm_err_t hmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
-		    uint8_t *payload, uint32_t payload_size,
-		    uint8_t *mac, uint32_t mac_size,
-		    hsm_op_mac_one_go_algo_t algorithm,
-		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl);
-#ifdef V2X_SHE_MU
-/*===========V2X_SHE KEY UPDATE============*/
-she_err_t key_update_test(she_hdl_t utils_handle);
-she_err_t she_cmac_test(she_hdl_t mac_hdl, uint32_t key_identifier,
-			uint8_t *payload, uint16_t payload_size,
-			uint8_t *mac, hsm_op_mac_flags_t flags,
-			uint32_t session_hdl);
-#endif
+int get_soc(void);
 /*===========ASN1 DER to RAW ENCODING======*/
 void parse_der_to_raw(uint8_t *sign, int len_component_der,
 		      int len_component_raw, int raw_component_start_index,
@@ -160,6 +82,4 @@ void stop_timer(timer_perf_t *timer);
 void finalize_timer(timer_perf_t *timer, uint32_t nb_iter);
 double timespec_elapse_usec(struct timespec *ts1, struct timespec *ts2);
 void print_perf(timer_perf_t *timer, uint32_t nb_iter);
-void finalize_timer_rsa(timer_perf_t *timer, uint32_t nb_iter);
-void print_perf_rsa(timer_perf_t *timer, uint32_t nb_iter);
 #endif

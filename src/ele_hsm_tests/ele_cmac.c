@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
+#include "hsm/hsm_functions.h"
 
 #define MAC_KEY_GROUP	50
 #define MAX_PAYLOAD_SIZE 16384

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "itest.h"
+#include "she/she_functions.h"
 
 #define MAC_SIZE	16
 #define MAX_PAYLOAD_SIZE 2048

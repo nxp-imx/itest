@@ -4,10 +4,84 @@
  */
 
 #include "itest.h"
+#include "hsm/hsm_functions.h"
 
 /* Number of iterations */
 #define NUM_OPERATIONS  (2000u)
 #define MAC_SIZE        16
+
+hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
+
+int get_soc(void)
+{
+	open_session_args_t open_session_args = {0};
+	char soc_val[MAX_SOC_VAL];
+	int err = 0;
+
+	FILE *file = fopen("/sys/devices/soc0/soc_id", "r");
+
+	if (file == NULL) {
+		perror("Error opening the /sys/devices/soc0/soc_id file");
+		return -1;
+	}
+
+	if (fgets(soc_val, MAX_SOC_VAL, file) == NULL) {
+		perror("Error reading the /sys/devices/soc0/soc_id file");
+		fclose(file);
+		return -1;
+	}
+
+	fclose(file);
+
+	soc_val[strcspn(soc_val, "\t\n")] = 0;
+
+	if (strcmp(soc_val, "i.MX943") == 0)
+		soc = SOC_IMX943;
+#ifndef PSA_COMPLIANT
+	else if (strcmp(soc_val, "i.MX8DXL") == 0)
+		soc = SOC_IMX8DXL;
+#endif
+	else if (strcmp(soc_val, "i.MX91") == 0)
+		soc = SOC_IMX91;
+	else if (strcmp(soc_val, "i.MX93") == 0)
+		soc = SOC_IMX93;
+	else if (strcmp(soc_val, "i.MX8ULP") == 0)
+		soc = SOC_IMX8ULP;
+	else if (strcmp(soc_val, "i.MX95") == 0)
+		soc = SOC_IMX95;
+	else {
+		perror("Undefined SOC\n");
+		return -1;
+	}
+
+	hsm_hdl_t hsm_session_hdl = 0;
+
+#ifdef PSA_COMPLIANT
+	open_session_args.mu_type = HSM1;
+#else
+	/* Open session for SV0 channel on V2X HSM */
+	open_session_args.mu_type = V2X_SV0;
+#endif
+	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		return -1;
+	}
+
+	if (soc == SOC_IMX95)
+		soc = se_get_soc_rev();
+
+#ifndef PSA_COMPLIANT
+	if (soc == SOC_IMX8DXL)
+		soc = se_get_board_type();
+#endif
+	err = hsm_close_session(hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_close_session failed err:0x%x\n", err);
+		return -1;
+	}
+	return soc;
+}
 
 hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		      uint8_t *input, uint8_t *output, uint32_t block_size,
@@ -321,4 +395,24 @@ hsm_err_t auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 	err = hsm_auth_enc(cipher_hdl, &auth_enc_args);
 
 	return err;
+}
+
+void print_perf_rsa(timer_perf_t *timer, uint32_t nb_iter)
+{
+	double lib_request_t_per_op = timer->lib_request_t/nb_iter;
+	double lib_response_t_per_op = timer->lib_response_t/nb_iter;
+	double fw_t_per_op = timer->fw_t/nb_iter;
+
+	ITEST_LOG("%d ops (%.2lfsec/op)\n", timer->op_sec,
+			timer->t_per_op * 0.000001);
+	ITEST_LOG("%20s %12s %23s\n", "SE LIB -> Kernel",
+#ifdef PSA_COMPLIANT
+			"ELE FW",
+#else
+			"V2X FW",
+#endif
+			"Kernel -> SE LIB");
+	ITEST_LOG("%14.2lfus", lib_request_t_per_op);
+	ITEST_LOG("%16.2lfsec", fw_t_per_op * 0.000001);
+	ITEST_LOG("%17.2lfus\n\n", lib_response_t_per_op);
 }

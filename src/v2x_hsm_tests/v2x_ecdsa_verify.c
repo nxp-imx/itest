@@ -8,6 +8,7 @@
 #include "itest.h"
 #include <openssl/ec.h>
 #include <openssl/evp.h>
+#include "hsm/hsm_functions.h"
 
 /* Number of iterations */
 #define NUM_OPERATIONS  (1000u)

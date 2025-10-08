@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "itest.h"
 #include "crypto_utils/dgst.h"
+#include "hsm/hsm_functions.h"
 
 /* Number of iterations */
 #define NUM_OPERATIONS 3000
