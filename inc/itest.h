@@ -9,15 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <time.h>
 #include <signal.h>
-#include "hsm_api.h"
 #include "common/global_info.h"
 #include "common/perf.h"
-#ifdef V2X_SHE_MU
-#include "she_api.h"
-#include "internal/she_key.h"
-#endif
 
 #define NUM_SOCS 10
 #define MAX_SOC_VAL 10

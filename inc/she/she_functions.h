@@ -7,8 +7,6 @@
 #define SHE_FUNCTIONS_H
 
 #include "hsm_api.h"
-#include "common/global_info.h"
-#include "common/perf.h"
 #include "she_api.h"
 #include "internal/she_key.h"
 
