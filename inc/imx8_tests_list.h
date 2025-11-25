@@ -36,6 +36,9 @@ int rsa_sign_verify_pkcs1_v15(void);
 int v2x_fast_mac(void);
 int v2x_fast_mac_mubuff_v2(void);
 int v2x_cmac(void);
+#elif defined(ENABLED_PRIME)
+/* PRIME tests */
+int hmac(void);
 #else
 /* V2X HSM tests */
 int v2x_ecdsa_verify(void);
@@ -114,6 +117,8 @@ testsuite imx8_ts[] = {
 						       SOC_REV_B0, SOC_IMX943}},
 {v2x_cmac, "v2x_cmac", 5, {SOC_REV_A0, SOC_REV_A1, SOC_REV_B0, IMX8DXL_DL3,
 			   SOC_IMX943}},
+#elif defined(ENABLED_PRIME)
+{hmac, "hmac", 1, {SOC_IMX943}},
 #else
 /* V2X HSM tests */
 {v2x_ecdsa_verify, "v2x_ecdsa_verify", 2, {SOC_REV_A0, SOC_REV_A1}},
@@ -142,6 +147,6 @@ testsuite imx8_ts[] = {
 {v2x_sm4_ccm, "v2x_sm4_ccm", 4, {IMX8DXL_DL1, IMX8DXL_DL3, SOC_IMX943, SOC_REV_B0}},
 {v2x_sm2_eces, "v2x_sm2_eces", 4, {IMX8DXL_DL1, IMX8DXL_DL3, SOC_IMX943, SOC_REV_B0}},
 #endif
-{NULL, NULL, 5, {SOC_IMX8ULP, SOC_IMX91, SOC_IMX93, SOC_IMX95, SOC_IMX943}},
+{NULL, NULL, 1, {SOC_IMX943}},
 };
 #endif

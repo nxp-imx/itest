@@ -5,6 +5,7 @@ exposed by Secure Enclave Library for:
 
 - HSM
 - SHE
+- PRIME
 
 These API(s) are consumed and responded by the ELE and V2X.
 
@@ -13,6 +14,7 @@ These API(s) are consumed and responded by the ELE and V2X.
 |       itest             | ELE_HSM      |
 |    itest_v2x_hsm        | V2X_HSM      |
 |     itest_v2x           | V2X_SHE      |
+|     itest_prime         | PRIME        |
 
 # Working
 
@@ -58,14 +60,41 @@ $ ./b -H arm64 -f
 ```
 -------------
 
-# 3. Run itest application
+# 3. Run application
 
 ## 3-1. List all tests for a platform
+### 3-1-1 ELE_HSM
 ```
 $ ./itest -l
 ```
+### 3-1-2 V2X_SHE
+```
+$ ./itest_v2x -l
+```
+### 3-1-3 V2X_HSM
+```
+$ ./itest_v2x_hsm -l
+```
+### 3-1-4 PRIME
+```
+$ ./itest_prime -l
+```
 
 ## 3-2. Run a test
+### 3-2-1 ELE_HSM
 ```
 $ ./itest -t <test name>
+```
+### 3-2-2 V2X_SHE
+```
+$ nvmd_conf_setup.sh config_id=0xc8;systemctl start nvm_daemon_v2x
+$ ./itest_v2x -t <test name>
+```
+### 3-2-3 V2X_HSM
+```
+$ ./itest_v2x_hsm -t <test name>
+```
+### 3-2-4 PRIME
+```
+$ ./itest_prime -t <test name>
 ```

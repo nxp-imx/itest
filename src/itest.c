@@ -59,6 +59,7 @@ void stop_timer(timer_perf_t *timer)
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts2);
 
+#ifndef ENABLED_PRIME
 	struct time_frame perf_time = {0};
 	uint32_t err = 0;
 
@@ -72,6 +73,7 @@ void stop_timer(timer_perf_t *timer)
 	timer->fw_t += timespec_elapse_usec(&perf_time.t_start, &perf_time.t_end);
 	timer->lib_request_t += timespec_elapse_usec(&timer->ts1, &perf_time.t_start);
 	timer->lib_response_t += timespec_elapse_usec(&perf_time.t_end, &timer->ts2);
+#endif
 
 	/* Compute the latency of a single operation */
 	latency_us = timespec_elapse_usec(&timer->ts1, &timer->ts2);

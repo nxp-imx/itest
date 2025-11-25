@@ -33,6 +33,10 @@ if (DEFINED ELE)
   set(ignoreMe "${ELE}")
 endif()
 
+if (DEFINED PRIME)
+  set(ignoreMe "${PRIME}")
+endif()
+
 if (DEFINED TOOLCHAIN_PATH)
   # Specify the cross compiler
   set(CMAKE_C_COMPILER   ${TOOLCHAIN_PATH}-gcc)
@@ -80,6 +84,10 @@ include_directories(${ELE_LIB_PATH}/include/hsm/internal)
 if (DEFINED V2X)
 include_directories(${ELE_LIB_PATH}/include/she)
 endif()
+if(DEFINED PRIME)
+include_directories(${ELE_LIB_PATH}/include/prime)
+endif()
+
 
 add_compile_options(-Wall -Wextra -fopenmp)
 
@@ -160,4 +168,28 @@ if (DEFINED V2X)
 
  install(TARGETS itest_v2x_hsm DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+endif()
+
+if(DEFINED PRIME)
+ #V2X PRIME TESTS#
+ file(GLOB SOURCES src/prime_tests/*.c src/main.c src/itest.c src/prime_functions.c)
+ add_executable(itest_prime ${SOURCES})
+ target_compile_definitions(itest_prime PRIVATE -DENABLED_PRIME)
+
+ target_link_libraries(
+   itest_prime
+   ${LIB_PATH}/libprime.so
+   ${LIB_PATH}/libprime.so.1
+   ${LIB_PATH}/libprime.so.1.0
+   gomp.a
+   pthread
+   dl
+   ${CMAKE_DL_LIBS}
+)
+
+ target_include_directories(itest_prime PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          )
+
+ install(TARGETS itest_prime DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
