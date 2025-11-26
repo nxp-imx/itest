@@ -7,8 +7,6 @@
 #define HSM_FUNCTIONS_H
 
 #include "hsm_api.h"
-#include "common/global_info.h"
-#include "common/perf.h"
 
 extern hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
 
