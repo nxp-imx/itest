@@ -13,8 +13,10 @@
 #include "imx8_tests_list.h"
 #ifdef V2X_SHE_MU
 #include "she/she_functions.h"
-#else
+#elif !defined(ENABLED_PRIME)
 #include "hsm/hsm_functions.h"
+#else
+#include "prime/prime_functions.h"
 #endif
 
 uint16_t soc;
@@ -59,9 +61,9 @@ void print_test_suite(testsuite *ts)
 }
 
 static void catch_failure(int signo) {
-	int err = 0;
+	int err = signo;
 	fails++;
-	ITEST_LOG("FAIL: tests interrupted by signal %d\n", signo);
+	ITEST_LOG("FAIL: tests interrupted by signal %d\n", err);
 #ifdef V2X_SHE_MU
 	if (key_store_hdl)
 		err = she_close_key_store_service(key_store_hdl);
@@ -75,6 +77,9 @@ static void catch_failure(int signo) {
 		printf("she_close_session failed err:0x%x\n", err);
 		return;
 	}
+#elif defined(ENABLED_PRIME)
+	if (serv_hdl)
+		prime_close_service(serv_hdl);
 #else
 	if (key_store_hdl)
 		err = hsm_close_key_store_service(key_store_hdl);

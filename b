@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2023-2024 NXP
+# Copyright 2023-2025 NXP
 #
 
 #!/bin/bash +x
@@ -140,7 +140,7 @@ if [ $ARCH_BUILD -eq 1 ]; then
        cd $WORKDIR/build
     fi
 
-   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DOPENSSL_PATH=$OPENSSL_PATH -DSYSTEM_PROCESSOR=$ARCH -DV2X=1 -DELE=1
+   cmake ../ -DELE_LIB_PATH=$ELE_LIB_PATH -DOPENSSL_PATH=$OPENSSL_PATH -DSYSTEM_PROCESSOR=$ARCH -DV2X=1 -DELE=1 -DPRIME=1
    make clean
    make -j$NPROC
    cp itest* ../

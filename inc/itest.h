@@ -12,11 +12,13 @@
 #include <stdint.h>
 #include <time.h>
 #include <signal.h>
+#ifndef ENABLED_PRIME
 #include "common/global_info.h"
 #include "common/perf.h"
-
+#endif
 #define NUM_SOCS 10
 #define MAX_SOC_VAL 10
+#define SOC_IMX943  0x9430
 
 #define TRUE_TEST 0
 #define FALSE_TEST -1
