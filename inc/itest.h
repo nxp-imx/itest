@@ -19,6 +19,7 @@
 #define NUM_SOCS 10
 #define MAX_SOC_VAL 10
 #define SOC_IMX943  0x9430
+#define SOC_IMX952  0x9520
 
 #define TRUE_TEST 0
 #define FALSE_TEST -1
