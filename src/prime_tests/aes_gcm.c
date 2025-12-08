@@ -26,7 +26,7 @@ static uint16_t key_sz[NUM_KEY_SIZE] = {
 	0x20,
 };
 
-int aes_gcm_enc(void)
+int aes_gcm(void)
 {
 	int err = 0;
 	crypto_op_args_t *op_ptr[BURST_SZ] = {0};
@@ -70,10 +70,12 @@ int aes_gcm_enc(void)
 					 &op.src.phys_addr,
 					 op.src.len);
 
-			/* output buffer */
+			/* allocate output buffer from reserved memory */
 			op.dst.len = op.src.len;
-			op.dst.virt_addr = op.src.virt_addr;
-			op.dst.phys_addr = op.src.phys_addr;
+			prime_malloc(serv_hdl,
+					&op.dst.virt_addr,
+					&op.dst.phys_addr,
+					op.dst.len);
 
 			/* copy the test vector input data */
 			prime_mcopy(op.src.virt_addr, test_msg, op.src.len);
@@ -146,13 +148,20 @@ int aes_gcm_enc(void)
 			/* cache clean and invalidate */
 			data_cache_clean(op.dst.virt_addr, op.dst.len, 0);
 			data_cache_clean(op.op_aead_args.tag.virt_addr, op.op_aead_args.tag.len, 0);
-#if 0
+
 			/* prepare op for decrypt operation */
 			op.op_aead_args.enc = CRYPTO_CIPHER_OP_DECRYPT;
 
 			/* clear the time structure */
 			memset(&t_perf, 0, sizeof(t_perf));
 			unused_ops = iter;
+
+			for (k = 0; k < payload_size[i]; k++) {
+				uint8_t virt_buff =  op.dst.virt_addr[k];
+
+				op.dst.virt_addr[k] = op.src.virt_addr[k];
+				op.src.virt_addr[k] = virt_buff;
+			}
 
 			ITEST_LOG("AES-%d-GCM decryption for 1s on %d byte blocks\n",
 				  key_sz[t] * 8, payload_size[i]);
@@ -187,7 +196,7 @@ int aes_gcm_enc(void)
 			if (prime_mcompare(op.dst.virt_addr, test_msg,
 					   op.dst.len))
 				printf("Decryption failed\n");
-#endif
+
 			/* free memory*/
 			if (op.dst.virt_addr != op.src.virt_addr)
 				prime_mfree(serv_hdl, op.dst.len);
