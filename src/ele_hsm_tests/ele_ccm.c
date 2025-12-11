@@ -26,19 +26,19 @@ int ele_ccm(void)
 	uint32_t key_id_aes[NUM_KEY_SIZE] = {0};
 	uint32_t key_size[] = {128, 192, 256};
 	uint8_t iv[IV_SIZE] = {0};
-	uint8_t fixed_iv[4] = {0};
 	uint8_t plaintext[MAX_MSG_SIZE] = {0};
-	uint8_t ciphertext[MAX_MSG_SIZE + AUTH_TAG_SIZE + IV_SIZE] = {0};
+	uint8_t ciphertext[MAX_MSG_SIZE] = {0};
 	uint8_t test_msg[MAX_MSG_SIZE] = {0};
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
 	uint32_t i = 0, j = 0;
 	uint8_t aad[16] = {0};
+	uint8_t tag[AUTH_TAG_SIZE] = {0};
 
 	// INPUT BUFF AS RANDOM
 	randomize(iv, sizeof(iv));
-	randomize(fixed_iv, sizeof(fixed_iv));
 	randomize(plaintext, MAX_MSG_SIZE);
 	randomize(aad, sizeof(aad));
+	randomize(tag, sizeof(tag));
 
 	open_session_args.mu_type = HSM1;
 	err = hsm_open_session(&open_session_args,
@@ -112,21 +112,25 @@ int ele_ccm(void)
 		for (i = 0; i < NUM_MSG_SIZE; i++) {
 			ITEST_LOG("AES-%d-CCM encryption for 1s on %d byte blocks: ",
 				  key_size[j], block_size[i]);
-			err = auth_test(cipher_hdl, key_id_aes[j], plaintext,
-					block_size[i], ciphertext,
-					block_size[i] + AUTH_TAG_SIZE,
-					iv, sizeof(iv), aad, sizeof(aad), HSM_AEAD_ALGO_CCM,
-					HSM_AUTH_ENC_FLAGS_ENCRYPT, hsm_session_hdl);
+			err = auth_test_new(cipher_hdl, key_id_aes[j], plaintext,
+					    block_size[i], ciphertext,
+					    block_size[i], iv, sizeof(iv),
+					    NULL, aad, sizeof(aad), ALGO_CCM,
+					    HSM_AUTH_ENC_FLAGS_ENCRYPT |
+					    HSM_AUTH_ENC_FLAGS_ONE_SHOT,
+					    AUTH_TAG_SIZE, tag, hsm_session_hdl);
 			if (err)
 				goto out;
 
 			ITEST_LOG("AES-%d-CCM decryption for 1s on %d byte blocks: ",
-				  key_size[j], block_size[i]);
-			err = auth_test(cipher_hdl, key_id_aes[j], ciphertext,
-					block_size[i] + AUTH_TAG_SIZE, test_msg,
-					block_size[i], iv, sizeof(iv), aad, sizeof(aad),
-					HSM_AEAD_ALGO_CCM, HSM_AUTH_ENC_FLAGS_DECRYPT,
-					hsm_session_hdl);
+					key_size[j], block_size[i]);
+			err = auth_test_new(cipher_hdl, key_id_aes[j], ciphertext,
+					    block_size[i], test_msg,
+					    block_size[i], iv, sizeof(iv), NULL,
+					    aad, sizeof(aad),
+					    ALGO_CCM, HSM_AUTH_ENC_FLAGS_DECRYPT |
+					    HSM_AUTH_ENC_FLAGS_ONE_SHOT,
+					    AUTH_TAG_SIZE, tag, hsm_session_hdl);
 			if (err)
 				goto out;
 			err = memcmp(test_msg, plaintext, block_size[i]);

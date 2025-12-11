@@ -58,6 +58,15 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		    uint8_t *aad, uint16_t aad_size,
 		    hsm_op_auth_enc_algo_t algo,
 		    hsm_op_auth_enc_flags_t flags, uint32_t session_hdl);
+#ifdef PSA_COMPLIANT
+hsm_err_t auth_test_new(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
+			uint8_t *input, uint32_t input_size, uint8_t *output,
+			uint32_t output_size, uint8_t *iv_in, uint16_t iv_size,
+			uint8_t *iv_out, uint8_t *aad, uint16_t aad_size,
+			hsm_op_auth_enc_algo_t algo,
+			hsm_op_auth_enc_new_flags_t flags,
+			uint16_t tag_size, uint8_t *tag, uint32_t session_hdl);
+#endif
 hsm_err_t auth_random_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 			   uint8_t *input, uint32_t input_size,
 			   uint8_t *output, uint32_t output_size, uint8_t *iv,
