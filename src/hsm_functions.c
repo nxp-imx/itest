@@ -214,6 +214,56 @@ hsm_err_t auth_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 	return err;
 }
 
+#ifdef PSA_COMPLIANT
+hsm_err_t auth_test_new(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
+			uint8_t *input, uint32_t input_size, uint8_t *output,
+			uint32_t output_size, uint8_t *iv_in, uint16_t iv_size,
+			uint8_t *iv_out, uint8_t *aad, uint16_t aad_size,
+			hsm_op_auth_enc_algo_t algo,
+			hsm_op_auth_enc_new_flags_t flags,
+			uint16_t tag_size, uint8_t *tag, uint32_t session_hdl)
+{
+	op_auth_enc_new_args_t args = {0};
+	uint32_t j = 0, iter = NUM_OPERATIONS;
+	timer_perf_t t_perf = {0};
+	hsm_err_t err = 0;
+
+	args.key_id = key_identifier;
+	args.iv_size = iv_size;
+	args.iv_in = iv_in;
+	args.iv_out = iv_out;
+	args.ae_algo = algo;
+	args.flags = flags;
+	args.aad_size = aad_size;
+	args.aad = aad;
+	args.input_size = input_size;
+	args.input = input;
+	args.output_size = output_size;
+	args.output = output;
+	args.tag_size = tag_size;
+	args.tag = tag;
+
+	memset(&t_perf, 0, sizeof(t_perf));
+	t_perf.session_hdl = session_hdl;
+	for (j = 0; j < iter; j++) {
+		/* Start the timer */
+		start_timer(&t_perf);
+		err = hsm_auth_enc_new(cipher_hdl, &args);
+		if (err) {
+			printf("hsm_auth_enc_new failed err:0x%x\n", err);
+			return err;
+		}
+		/* Stop the timer */
+		stop_timer(&t_perf);
+	}
+	/* Finalize time to get stats */
+	finalize_timer(&t_perf, iter);
+	print_perf(&t_perf, iter);
+
+	return err;
+}
+#endif
+
 hsm_err_t hsm_generate_key_perf(hsm_hdl_t key_mgmt_hdl, uint32_t key_id,
 				uint16_t out_size, hsm_key_group_t key_group,
 				hsm_key_type_t key_type, uint8_t *out_key,

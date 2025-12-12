@@ -26,19 +26,19 @@ int ele_gcm(void)
 	uint32_t key_id_aes[NUM_KEY_SIZE] = {0};
 	uint32_t key_size[] = {128, 192, 256};
 	uint8_t iv[IV_SIZE] = {0};
-	uint8_t fixed_iv[4] = {0};
 	uint8_t plaintext[MAX_MSG_SIZE] = {0};
-	uint8_t ciphertext[MAX_MSG_SIZE + AUTH_TAG_SIZE + IV_SIZE] = {0};
+	uint8_t ciphertext[MAX_MSG_SIZE] = {0};
 	uint8_t test_msg[MAX_MSG_SIZE] = {0};
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
 	uint32_t i = 0, j = 0;
 	uint8_t aad[16] = {0};
+	uint8_t tag[AUTH_TAG_SIZE] = {0};
 
 	// INPUT BUFF AS RANDOM
 	randomize(iv, sizeof(iv));
-	randomize(fixed_iv, sizeof(fixed_iv));
 	randomize(plaintext, MAX_MSG_SIZE);
 	randomize(aad, sizeof(aad));
+	randomize(tag, sizeof(tag));
 
 	open_session_args.mu_type = HSM1;
 	err = hsm_open_session(&open_session_args,
@@ -88,7 +88,6 @@ int ele_gcm(void)
 		goto out;
 	}
 
-
 	/* generate aes 192bit key */
 	key_gen_args.key_identifier = &key_id_aes[1];
 	key_gen_args.bit_key_sz = HSM_KEY_SIZE_AES_192;
@@ -113,79 +112,25 @@ int ele_gcm(void)
 		for (i = 0; i < NUM_MSG_SIZE; i++) {
 			ITEST_LOG("AES-%d-GCM encryption for 1s on %d byte blocks: ",
 				  key_size[j], block_size[i]);
-			err = auth_test(cipher_hdl, key_id_aes[j], plaintext,
-					block_size[i], ciphertext,
-					block_size[i] + AUTH_TAG_SIZE,
-					iv, sizeof(iv), aad, sizeof(aad), ALGO_GCM,
-					HSM_AUTH_ENC_FLAGS_ENCRYPT, hsm_session_hdl);
+			err = auth_test_new(cipher_hdl, key_id_aes[j], plaintext,
+					    block_size[i], ciphertext,
+					    block_size[i], iv, sizeof(iv),
+					    NULL, aad, sizeof(aad), ALGO_GCM,
+					    HSM_AUTH_ENC_FLAGS_ENCRYPT |
+					    HSM_AUTH_ENC_FLAGS_ONE_SHOT,
+					    AUTH_TAG_SIZE, tag, hsm_session_hdl);
 			if (err)
 				goto out;
 
 			ITEST_LOG("AES-%d-GCM decryption for 1s on %d byte blocks: ",
 				  key_size[j], block_size[i]);
-			err = auth_test(cipher_hdl, key_id_aes[j], ciphertext,
-					block_size[i] + AUTH_TAG_SIZE, test_msg,
-					block_size[i], iv, sizeof(iv), aad, sizeof(aad),
-					ALGO_GCM, HSM_AUTH_ENC_FLAGS_DECRYPT, hsm_session_hdl);
-			if (err)
-				goto out;
-			err = memcmp(test_msg, plaintext, block_size[i]);
-			if (err != 0) {
-				printf("Decryption failed\n");
-				goto out;
-			}
-		}
-
-		for (i = 0; i < NUM_MSG_SIZE; i++) {
-			ITEST_LOG("AES-%d-GCM encryption(ele iv 8bytes) for 1s on %d byte blocks: ",
-				  key_size[j], block_size[i]);
-			err = auth_test(cipher_hdl, key_id_aes[j], plaintext,
-					block_size[i], ciphertext,
-					block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
-					fixed_iv, sizeof(fixed_iv), aad, sizeof(aad),
-					ALGO_GCM, HSM_AUTH_ENC_FLAGS_ENCRYPT |
-					HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV,
-					hsm_session_hdl);
-			if (err)
-				goto out;
-
-			ITEST_LOG("AES-%d-GCM decryption(ele iv 8bytes) for 1s on %d byte blocks: ",
-				  key_size[j], block_size[i]);
-			err = auth_test(cipher_hdl, key_id_aes[j], ciphertext,
-					block_size[i] + AUTH_TAG_SIZE, test_msg,
-					block_size[i],
-					ciphertext + block_size[i] + AUTH_TAG_SIZE,
-					IV_SIZE, aad, sizeof(aad), ALGO_GCM,
-					HSM_AUTH_ENC_FLAGS_DECRYPT, hsm_session_hdl);
-			if (err)
-				goto out;
-			err = memcmp(test_msg, plaintext, block_size[i]);
-			if (err != 0) {
-				printf("Decryption failed\n");
-				goto out;
-			}
-		}
-
-		for (i = 0; i < NUM_MSG_SIZE; i++) {
-			ITEST_LOG("AES-%d-GCM encryption(ele iv) for 1s on %d byte blocks: ",
-				  key_size[j], block_size[i]);
-			err = auth_test(cipher_hdl, key_id_aes[j], plaintext,
-					block_size[i], ciphertext,
-					block_size[i] + AUTH_TAG_SIZE + IV_SIZE,
-					NULL, 0, aad, sizeof(aad), ALGO_GCM,
-					HSM_AUTH_ENC_FLAGS_ENCRYPT |
-					HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV, hsm_session_hdl);
-			if (err)
-				goto out;
-
-			ITEST_LOG("AES-%d-GCM decryption(ele iv) for 1s on %d byte blocks: ",
-				  key_size[j], block_size[i]);
-			err = auth_test(cipher_hdl, key_id_aes[j], ciphertext,
-					block_size[i] + AUTH_TAG_SIZE, test_msg,
-					block_size[i],
-					ciphertext + block_size[i] + AUTH_TAG_SIZE,
-					IV_SIZE, aad, sizeof(aad), ALGO_GCM,
-					HSM_AUTH_ENC_FLAGS_DECRYPT, hsm_session_hdl);
+			err = auth_test_new(cipher_hdl, key_id_aes[j], ciphertext,
+					    block_size[i], test_msg,
+					    block_size[i], iv, sizeof(iv), NULL,
+					    aad, sizeof(aad),
+					    ALGO_GCM, HSM_AUTH_ENC_FLAGS_DECRYPT |
+					    HSM_AUTH_ENC_FLAGS_ONE_SHOT,
+					    AUTH_TAG_SIZE, tag, hsm_session_hdl);
 			if (err)
 				goto out;
 			err = memcmp(test_msg, plaintext, block_size[i]);
