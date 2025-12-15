@@ -15,7 +15,7 @@
 #define NUM_PAYLOAD_SIZE 10
 #define BURST_SZ	252
 #define NUM_KEY_SIZE	3
-#define MAX_KEY_SZ	0x40
+#define MAX_KEY_SZ	0x80
 
 static uint8_t sha_algo[NUM_KEY_SIZE] = {
 	CRYPTO_AUTH_SHA_256,
