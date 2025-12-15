@@ -42,6 +42,8 @@ int hmac(void);
 int aes_cbc(void);
 int aes_ecb(void);
 int aes_gcm(void);
+int load_hmac_key(void);
+int load_aes_key(void);
 #else
 /* V2X HSM tests */
 int v2x_ecdsa_verify(void);
@@ -132,6 +134,8 @@ testsuite imx8_ts[] = {
 {aes_cbc, "aes_cbc", 2, {SOC_IMX943, SOC_IMX952}},
 {aes_ecb, "aes_ecb", 2, {SOC_IMX943, SOC_IMX952}},
 {aes_gcm, "aes_gcm", 2, {SOC_IMX943, SOC_IMX952}},
+{load_hmac_key, "load_hmac_key", 2, {SOC_IMX943, SOC_IMX952}},
+{load_aes_key, "load_aes_key", 2, {SOC_IMX943, SOC_IMX952}},
 #else
 /* V2X HSM tests */
 {v2x_ecdsa_verify, "v2x_ecdsa_verify", 2, {SOC_REV_A0, SOC_REV_A1}},
