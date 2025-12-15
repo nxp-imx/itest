@@ -12,7 +12,7 @@
 #define NUM_OPERATIONS 100000
 
 #define MAX_PAYLOAD_SIZE 16384
-#define NUM_PAYLOAD_SIZE 10
+#define NUM_PAYLOAD_SIZE 20
 #define BURST_SZ	252
 #define NUM_KEY_SIZE	3
 #define MAX_KEY_SZ	0x80
@@ -42,7 +42,9 @@ int hmac(void)
 	hmac_key_t key_args = {0};
 	crypto_op_args_t op  = {0};
 	uint8_t test_msg[MAX_PAYLOAD_SIZE] = {0};
-	uint32_t payload_size[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384};
+	uint32_t payload_size[] = {30, 32, 62, 64, 125, 128, 255, 256, 511,
+				   512, 1023, 1024, 2046, 2048, 4095, 4096, 8191,
+				   8192, 16383, 16384};
 	timer_perf_t t_perf = {0};
 	uint32_t i = 0, j = 0, k = 0, t = 0, iter = NUM_OPERATIONS;
 	uint8_t hmac_key[MAX_KEY_SZ] = {0};
