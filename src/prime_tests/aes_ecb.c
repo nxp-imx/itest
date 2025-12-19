@@ -100,7 +100,7 @@ int aes_ecb(void)
 				start_timer(&t_perf);
 
 				/* invoke fast crypto engine */
-				prime_process_ops(serv_hdl, op_ptr, BURST_SZ);
+				prime_process_ops(serv_hdl, op_ptr, enq_ops);
 
 				/* Stop the timer */
 				stop_timer(&t_perf);
@@ -136,7 +136,7 @@ int aes_ecb(void)
 				start_timer(&t_perf);
 
 				/* invoke fast crypto engine */
-				prime_process_ops(serv_hdl, op_ptr, BURST_SZ);
+				prime_process_ops(serv_hdl, op_ptr, enq_ops);
 
 				/* Stop the timer */
 				stop_timer(&t_perf);
