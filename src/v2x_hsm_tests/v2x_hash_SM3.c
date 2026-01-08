@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -38,8 +38,8 @@ int v2x_hash_SM3(void)
 		goto out;
 	}
 
-	/* set number of nessage sizes based on soc */
-	if (soc != IMX8DXL_DL3)
+	/* set number of message sizes based on soc */
+	if (soc != SOC_IMX8DXL)
 		num_msg_size = NUM_MSG_SIZE - 2;
 
 	err = hsm_open_hash_service(hsm_session_hdl, &hash_srv_args,

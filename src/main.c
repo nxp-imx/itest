@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -19,7 +19,8 @@
 #include "prime/prime_functions.h"
 #endif
 
-uint16_t soc;
+uint16_t soc, soc_rev;
+uint8_t board_type;
 
 /* Itest ctx*/
 itest_ctx_t itest_ctx = {0};
@@ -53,9 +54,13 @@ void print_test_suite(testsuite *ts)
 {
 	int i = 0, j = 0;
 	for (i = 0; ts[i].tc_ptr != NULL; i++) {
-		for (j = 0; j < ts[i].supported_board; j++) {
-			if (ts[i].board[j] == itest_ctx.board)
+		for (j = 0; ts[i].board[j].soc != 0; j++) {
+			if (ts[i].board[j].soc == itest_ctx.soc &&
+			    ts[i].board[j].board_type == itest_ctx.board_type &&
+			    ts[i].board[j].soc_rev == itest_ctx.soc_rev) {
 				ITEST_LOG("%s\n", ts[i].name);
+				break;
+			}
 		}
 	}
 }
@@ -117,7 +122,9 @@ static int itest_init(void)
 	itest_ctx.test_name = NULL;
 	itest_ctx.nb_assert_fails = 0;
 	itest_ctx.ts = imx8_ts;
-	itest_ctx.board = soc;
+	itest_ctx.soc = soc;
+	itest_ctx.soc_rev = soc_rev;
+	itest_ctx.board_type = board_type;
 
 	return 0;
 }
@@ -205,8 +212,10 @@ int main(int argc, char *argv[]){
 	}
 	for (i = 0; itest_ctx.ts[i].tc_ptr != NULL; i++) {
 		if (!strcmp(itest_ctx.ts[i].name, itest_ctx.test_name)) {
-			for (j = 0; j < itest_ctx.ts[i].supported_board; j++) {
-				if (itest_ctx.ts[i].board[j] == itest_ctx.board) {
+			for (j = 0; itest_ctx.ts[i].board[j].soc != 0; j++) {
+				if (itest_ctx.ts[i].board[j].soc == itest_ctx.soc &&
+				    itest_ctx.ts[i].board[j].board_type == itest_ctx.board_type &&
+				     itest_ctx.ts[i].board[j].soc_rev == itest_ctx.soc_rev) {
 					valid_board = 1;
 					break;
 				}
