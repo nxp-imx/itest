@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include "itest.h"
@@ -42,6 +42,7 @@ int get_soc(void)
 		perror("Undefined SOC\n");
 		return -1;
 	}
+
 	return soc;
 }
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include "itest.h"
@@ -14,6 +14,7 @@ hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
 
 int get_soc(void)
 {
+	hsm_hdl_t hsm_session_hdl = 0;
 	open_session_args_t open_session_args = {0};
 	char soc_val[MAX_SOC_VAL];
 	int err = 0;
@@ -56,7 +57,6 @@ int get_soc(void)
 		return -1;
 	}
 
-	hsm_hdl_t hsm_session_hdl = 0;
 
 #ifdef PSA_COMPLIANT
 	open_session_args.mu_type = HSM1;
@@ -70,13 +70,9 @@ int get_soc(void)
 		return -1;
 	}
 
-	if (soc == SOC_IMX95)
-		soc = se_get_soc_rev();
+	soc_rev = se_get_soc_rev();
+	board_type = se_get_board_type();
 
-#ifndef PSA_COMPLIANT
-	if (soc == SOC_IMX8DXL)
-		soc = se_get_board_type();
-#endif
 	err = hsm_close_session(hsm_session_hdl);
 	if (err != HSM_NO_ERROR) {
 		printf("hsm_close_session failed err:0x%x\n", err);

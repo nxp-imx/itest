@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -15,6 +15,7 @@ she_hdl_t she_session_hdl, key_store_hdl;
 
 int get_soc(void)
 {
+	she_hdl_t she_session_hdl = 0;
 	open_session_args_t open_session_args = {0};
 	char soc_val[MAX_SOC_VAL];
 	int err = 0;
@@ -55,8 +56,6 @@ int get_soc(void)
 		return -1;
 	}
 
-	she_hdl_t she_session_hdl = 0;
-
 	/* Only SHE1 MU supported on iMX943 platform */
 	if (soc == SOC_IMX943)
 		open_session_args.mu_type = V2X_SHE1;
@@ -69,11 +68,8 @@ int get_soc(void)
 		return -1;
 	}
 
-	if (soc == SOC_IMX95)
-		soc = se_get_soc_rev();
-
-	if (soc == SOC_IMX8DXL)
-		soc = se_get_board_type();
+	soc_rev = se_get_soc_rev();
+	board_type = se_get_board_type();
 
 	err = she_close_session(she_session_hdl);
 	if (err != SHE_NO_ERROR) {

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #ifndef TEST_API_H
@@ -16,7 +16,7 @@
 #include "common/global_info.h"
 #include "common/perf.h"
 #endif
-#define NUM_SOCS 10
+#define NUM_SOCS 20
 #define MAX_SOC_VAL 10
 #define SOC_IMX943  0x9430
 #define SOC_IMX952  0x9520
@@ -27,7 +27,8 @@
 /* Log macros and functions */
 void outputLog(const char *const format, ...);
 
-extern uint16_t soc;
+extern uint16_t soc, soc_rev;
+extern uint8_t board_type;
 
 #define ITEST_LOG(...)  outputLog(__VA_ARGS__)
 
@@ -54,17 +55,24 @@ typedef struct {
 } timer_perf_t;
 
 typedef struct{
+	uint16_t soc;
+	uint16_t soc_rev;
+	uint8_t board_type;
+} board_info;
+
+typedef struct{
 	int (*tc_ptr)(void);
 	char *name;
-	int supported_board;
-	int board[NUM_SOCS];
+	board_info board[NUM_SOCS];
 } testsuite;
 
 typedef struct{
 	char *test_name;
 	int nb_assert_fails;
 	testsuite *ts;
-	int board;
+	uint16_t soc;
+	uint16_t soc_rev;
+	uint8_t board_type;
 } itest_ctx_t;
 
 int get_soc(void);
