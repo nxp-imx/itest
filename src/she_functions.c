@@ -80,6 +80,17 @@ int get_soc(void)
 	return soc;
 }
 
+void print_help(void)
+{
+	ITEST_LOG("\nitest_v2x Help Menu:\n\n");
+	ITEST_LOG("$ ./itest_v2x [OPTION] <argument>\n\n");
+	ITEST_LOG("OPTIONS:\n");
+	ITEST_LOG("  -h : Print this help\n");
+	ITEST_LOG("  -v : Print test suite version\n");
+	ITEST_LOG("  -l : List all tests\n");
+	ITEST_LOG("  -t < test_name > : Run test test_name\n");
+}
+
 she_err_t she_cmac_test(she_hdl_t mac_hdl, uint32_t key_identifier,
 			uint8_t *payload, uint16_t payload_size,
 			uint8_t *mac, hsm_op_mac_flags_t flags,

@@ -96,5 +96,5 @@ $ ./itest_v2x_hsm -t <test name>
 ```
 ### 3-2-4 PRIME
 ```
-$ ./itest_prime -t <test name>
+$ ./itest_prime -t <test name> [-b <burst size> -i <iteration count>]
 ```

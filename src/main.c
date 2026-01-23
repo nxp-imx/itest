@@ -40,15 +40,6 @@ static inline void print_stats()
 	ITEST_LOG("Tests Fail : %d\n", fails);
 	ITEST_LOG("itest done!\n");
 }
-static void print_help(void) {
-	ITEST_LOG("\nitest Help Menu:\n\n");
-	ITEST_LOG("$ ./itest [OPTION] <argument>\n\n");
-	ITEST_LOG("OPTIONS:\n");
-	ITEST_LOG("  -h : Print this help\n");
-	ITEST_LOG("  -v : Print test suite version\n");
-	ITEST_LOG("  -l : List all tests\n");
-	ITEST_LOG("  -t < test_name > : Run test test_name\n");
-}
 
 void print_test_suite(testsuite *ts)
 {
@@ -143,17 +134,44 @@ int main(int argc, char *argv[]){
 
 	opterr = 0;
 
+#ifdef ENABLED_PRIME
+	if (argc < 2 || argc > 7 || strlen(argv[1]) != 2 ||
+	   (argc > 3 && strlen(argv[3]) != 2) ||
+	   (argc > 5 && strlen(argv[5]) != 2)) {
+#else
 	if (argc < 2 || argc > 3 || strlen(argv[1]) != 2) {
+#endif
 		print_help();
 		return 1;
 	}
 
+
+#ifdef ENABLED_PRIME
+	while ((c = getopt(argc, argv, ":hlvt:b:i:")) != -1) {
+#else
 	while ((c = getopt(argc, argv, ":hlvt:")) != -1) {
+#endif
 		valid_usage = 1;
 		switch (c) {
 		case 't':
 			itest_ctx.test_name = optarg;
 			break;
+#ifdef ENABLED_PRIME
+		case 'b':
+			if (!itest_ctx.test_name) {
+				print_help();
+				return 1;
+			}
+			itest_ctx.burst_size = atoi(optarg);
+			break;
+		case 'i':
+			if (!itest_ctx.test_name) {
+				print_help();
+				return 1;
+			}
+			itest_ctx.iterations = atoi(optarg);
+			break;
+#endif
 		case 'v':
 			if (argc > 2) {
 				print_help();

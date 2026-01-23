@@ -81,6 +81,22 @@ int get_soc(void)
 	return soc;
 }
 
+void print_help(void)
+{
+#ifdef PSA_COMPLIANT
+	ITEST_LOG("\nitest Help Menu:\n\n");
+	ITEST_LOG("$ ./itest [OPTION] <argument>\n\n");
+#else
+	ITEST_LOG("\nitest_v2x_hsm Help Menu:\n\n");
+	ITEST_LOG("$ ./itest_v2x_hsm [OPTION] <argument>\n\n");
+#endif
+	ITEST_LOG("OPTIONS:\n");
+	ITEST_LOG("  -h : Print this help\n");
+	ITEST_LOG("  -v : Print test suite version\n");
+	ITEST_LOG("  -l : List all tests\n");
+	ITEST_LOG("  -t < test_name > : Run test test_name\n");
+}
+
 hsm_err_t cipher_test(hsm_hdl_t cipher_hdl, uint32_t key_identifier,
 		      uint8_t *input, uint8_t *output, uint32_t block_size,
 		      uint8_t *iv, uint16_t iv_size,

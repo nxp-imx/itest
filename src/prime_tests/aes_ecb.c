@@ -26,7 +26,6 @@ static uint16_t key_sz[NUM_KEY_SIZE] = {
 int aes_ecb(void)
 {
 	prime_err_t err = 0;
-	crypto_op_args_t *op_ptr[BURST_SZ] = {0};
 	aes_key_t key_args = {0};
 	crypto_op_args_t op  = {0};
 	uint8_t test_msg[MAX_PAYLOAD_SIZE] = {0};
@@ -36,6 +35,17 @@ int aes_ecb(void)
 	uint8_t aes_key[MAX_KEY_SZ] = {0};
 	open_service_args_t op_serv_args = {0};
 	uint32_t unused_ops = iter, enq_ops = 0;
+	uint16_t burst_sz = BURST_SZ;
+
+	if (itest_ctx.iterations != 0)
+		iter  = itest_ctx.iterations;
+
+	if (itest_ctx.burst_size != 0)
+		burst_sz = itest_ctx.burst_size;
+
+	crypto_op_args_t *op_ptr[burst_sz];
+
+	memset(op_ptr, 0, sizeof(op_ptr));
 
 	/* open prime service */
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
@@ -83,7 +93,7 @@ int aes_ecb(void)
 			op.op_aes_args.ivlen = 0;
 
 			/* invoke fast crypto engine */
-			for (k = 0; k < BURST_SZ; k++)
+			for (k = 0; k < burst_sz; k++)
 				op_ptr[k] = &op;
 
 			/* clear the time structure */
@@ -94,7 +104,7 @@ int aes_ecb(void)
 				   key_sz[t] * 8, payload_size[i]);
 			for (j = 0; j < iter; j = j + enq_ops) {
 				/* calculate number of ops to be enqueued */
-				enq_ops = (unused_ops > BURST_SZ) ? BURST_SZ : unused_ops;
+				enq_ops = (unused_ops > burst_sz) ? burst_sz : unused_ops;
 
 				/* Start the timer */
 				start_timer(&t_perf);
@@ -130,7 +140,7 @@ int aes_ecb(void)
 				   key_sz[t] * 8, payload_size[i]);
 			for (j = 0; j < iter; j = j + enq_ops) {
 				/* calculate number of ops to be enqueued */
-				enq_ops = (unused_ops > BURST_SZ) ? BURST_SZ : unused_ops;
+				enq_ops = (unused_ops > burst_sz) ? burst_sz : unused_ops;
 
 				/* Start the timer */
 				start_timer(&t_perf);
