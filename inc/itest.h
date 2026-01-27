@@ -73,9 +73,17 @@ typedef struct{
 	uint16_t soc;
 	uint16_t soc_rev;
 	uint8_t board_type;
+#ifdef ENABLED_PRIME
+	uint16_t burst_size;
+	uint32_t iterations;
+#endif
 } itest_ctx_t;
 
+extern itest_ctx_t itest_ctx;
+
 int get_soc(void);
+void print_help(void);
+
 /*===========ASN1 DER to RAW ENCODING======*/
 void parse_der_to_raw(uint8_t *sign, int len_component_der,
 		      int len_component_raw, int raw_component_start_index,

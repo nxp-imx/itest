@@ -46,6 +46,18 @@ int get_soc(void)
 	return soc;
 }
 
+void print_help(void)
+{
+	ITEST_LOG("\nitest_prime Help Menu:\n\n");
+	ITEST_LOG("$ ./itest_prime [OPTION] <argument>\n\n");
+	ITEST_LOG("OPTIONS:\n");
+	ITEST_LOG("  -h : Print this help\n");
+	ITEST_LOG("  -v : Print test suite version\n");
+	ITEST_LOG("  -l : List all tests\n");
+	ITEST_LOG("  -t < test_name > [-b < burst size > -i < iteration count >] : ");
+	ITEST_LOG("Run test test_name\n");
+}
+
 void data_cache_clean(uint8_t *buf, uint32_t len, int clean_only)
 {
 	uint32_t i;
