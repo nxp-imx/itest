@@ -26,7 +26,7 @@ static uint16_t key_sz[NUM_KEY_SIZE] = {
 
 int aes_cbc(void)
 {
-	prime_err_t err = 0;
+	int err = 0;
 	aes_key_t key_args = {0};
 	crypto_op_args_t op  = {0};
 	uint8_t test_msg[MAX_PAYLOAD_SIZE] = {0};
@@ -113,7 +113,11 @@ int aes_cbc(void)
 				start_timer(&t_perf);
 
 				/* invoke fast crypto engine */
-				prime_process_ops(serv_hdl, op_ptr, enq_ops);
+				err = prime_process_ops(serv_hdl, op_ptr, enq_ops);
+				if (err) {
+					ITEST_LOG("prime_process_ops failed err: 0x%x\n", err);
+					goto out;
+				}
 
 				/* Stop the timer */
 				stop_timer(&t_perf);
@@ -149,7 +153,11 @@ int aes_cbc(void)
 				start_timer(&t_perf);
 
 				/* invoke fast crypto engine */
-				prime_process_ops(serv_hdl, op_ptr, enq_ops);
+				err = prime_process_ops(serv_hdl, op_ptr, enq_ops);
+				if (err) {
+					ITEST_LOG("prime_process_ops failed err: 0x%x\n", err);
+					goto out;
+				}
 
 				/* Stop the timer */
 				stop_timer(&t_perf);

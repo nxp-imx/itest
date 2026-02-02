@@ -139,7 +139,11 @@ int aes_gcm(void)
 				start_timer(&t_perf);
 
 				/* invoke fast crypto engine */
-				prime_process_ops(serv_hdl, op_ptr, enq_ops);
+				err = prime_process_ops(serv_hdl, op_ptr, enq_ops);
+				if (err) {
+					ITEST_LOG("prime_process_ops failed err: 0x%x\n", err);
+					goto out;
+				}
 
 				/* Stop the timer */
 				stop_timer(&t_perf);
@@ -183,7 +187,11 @@ int aes_gcm(void)
 				start_timer(&t_perf);
 
 				/* invoke fast crypto engine */
-				prime_process_ops(serv_hdl, op_ptr, enq_ops);
+				err = prime_process_ops(serv_hdl, op_ptr, enq_ops);
+				if (err) {
+					ITEST_LOG("prime_process_ops failed err: 0x%x\n", err);
+					goto out;
+				}
 
 				/* Stop the timer */
 				stop_timer(&t_perf);
