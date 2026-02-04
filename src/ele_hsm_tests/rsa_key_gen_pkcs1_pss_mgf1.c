@@ -118,7 +118,7 @@ out:
 	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		return -1;
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

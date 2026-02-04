@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -70,9 +70,15 @@ int ecdsa_nist_sign_verify(void)
 	hsm_verification_status_t verify_status = 0;
 	timer_perf_t t_perf = {0};
 	uint32_t i = 0, j = 0, k = 0, iter = NUM_OPERATIONS, num_algo = NB_ALGO;
-	uint8_t msg_0[MAX_MSG_SIZE] = {0};
+	uint8_t *input_msg = malloc(MAX_MSG_SIZE);
 	uint32_t msg_size[] = {16, 64, 256, 1024, 8192, 16384};
 	op_pub_key_recovery_args_t args = {0};
+
+	if (!input_msg) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
 
 	open_session_args.mu_type = HSM1;
 	err = hsm_open_session(&open_session_args,
@@ -90,7 +96,7 @@ int ecdsa_nist_sign_verify(void)
 	}
 
 	// INPUT BUFF AS RANDOM
-	ASSERT_EQUAL(randomize(msg_0, MAX_MSG_SIZE), MAX_MSG_SIZE);
+	randomize(input_msg, MAX_MSG_SIZE);
 
 	err = hsm_open_key_management_service(key_store_hdl,
 					      &key_mgmt_args,
@@ -139,7 +145,7 @@ int ecdsa_nist_sign_verify(void)
 			ITEST_LOG("%s signing for 1s on %d byte size blocks: ",
 				  algo[j], msg_size[k]);
 			sig_gen_args.key_identifier = key_id[j];
-			sig_gen_args.message = msg_0;
+			sig_gen_args.message = input_msg;
 			sig_gen_args.signature = sign_out_0;
 			sig_gen_args.signature_size = size_pub_key[j];
 			sig_gen_args.message_size = msg_size[k];
@@ -180,7 +186,7 @@ int ecdsa_nist_sign_verify(void)
 			ITEST_LOG("%s verification for 1s on %d byte size blocks: ",
 				  algo[j], msg_size[k]);
 			sig_ver_args.key = pub_key[j];
-			sig_ver_args.message = msg_0;
+			sig_ver_args.message = input_msg;
 			sig_ver_args.signature = sign_out_0;
 			sig_ver_args.key_size = size_pub_key[j];
 			sig_ver_args.signature_size = size_pub_key[j];
@@ -222,6 +228,9 @@ int ecdsa_nist_sign_verify(void)
 	}
 
 out:
+	/* free memory allocated for input msg */
+	free(input_msg);
+
 	hsm_close_signature_generation_service(sig_gen_hdl);
 	hsm_close_signature_verification_service(sig_ver_hdl);
 	hsm_close_key_management_service(key_mgmt_hdl);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -8,12 +8,8 @@
 #include "itest.h"
 #include "prime/prime_functions.h"
 
-/* Number of iterations */
-#define NUM_OPERATIONS 100000
-
 #define MAX_PAYLOAD_SIZE 16384
 #define NUM_PAYLOAD_SIZE 10
-#define BURST_SZ	252
 #define NUM_KEY_SIZE	3
 #define MAX_KEY_SZ	0x20
 
@@ -28,7 +24,7 @@ int aes_ecb(void)
 	int err = 0;
 	aes_key_t key_args = {0};
 	crypto_op_args_t op  = {0};
-	uint8_t test_msg[MAX_PAYLOAD_SIZE] = {0};
+	uint8_t *input_msg = malloc(MAX_PAYLOAD_SIZE);
 	uint32_t payload_size[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384};
 	timer_perf_t t_perf = {0};
 	uint32_t i = 0, j = 0, k = 0, t = 0, iter = NUM_OPERATIONS;
@@ -45,14 +41,20 @@ int aes_ecb(void)
 
 	crypto_op_args_t *op_ptr[burst_sz];
 
+	if (!input_msg) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
+
 	memset(op_ptr, 0, sizeof(op_ptr));
 
 	/* open prime service */
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
 	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
 
-	ASSERT_EQUAL(randomize(test_msg, sizeof(test_msg)), sizeof(test_msg));
-	ASSERT_EQUAL(randomize(aes_key, sizeof(aes_key)), sizeof(aes_key));
+	randomize(input_msg, MAX_PAYLOAD_SIZE);
+	randomize(aes_key, sizeof(aes_key));
 
 	for (t = 0; t < NUM_KEY_SIZE; t++) {
 		/* load aes key */
@@ -79,7 +81,7 @@ int aes_ecb(void)
 			op.dst.phys_addr = op.src.phys_addr;
 
 			/* copy the test vector input data */
-			prime_mcopy(op.src.virt_addr, test_msg, op.src.len);
+			prime_mcopy(op.src.virt_addr, input_msg, op.src.len);
 
 			/* cache clean */
 			data_cache_clean(op.src.virt_addr, op.src.len, 1);
@@ -174,7 +176,7 @@ int aes_ecb(void)
 			data_cache_clean(op.dst.virt_addr, op.dst.len, 0);
 
 			/* check decrypted output */
-			if (prime_mcompare(op.dst.virt_addr, test_msg,
+			if (prime_mcompare(op.dst.virt_addr, input_msg,
 					   op.dst.len))
 				printf("Decryption failed\n");
 
@@ -187,6 +189,9 @@ int aes_ecb(void)
 	}
 
 out:
+	/* free memory allocated for input msg */
+	free(input_msg);
+
 	/* close prime service */
 	prime_close_service(serv_hdl);
 

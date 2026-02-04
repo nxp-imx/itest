@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -23,13 +23,20 @@ int ele_cmac(void)
 	hsm_err_t err = 0;
 	hsm_hdl_t key_mgmt_hdl = 0;
 	hsm_hdl_t mac_hdl = 0;
-	uint8_t mac[128] = {0}, test_msg[MAX_PAYLOAD_SIZE] = {0};
+	uint8_t mac[128] = {0};
 	uint32_t payload_size[] = {16, 64, 256, 1024, 8192, 16384};
 	uint32_t i = 0, j = 0;
 	uint32_t key_id_aes[NUM_KEY_SIZE] = {0};
 	uint32_t key_size[] = {128, 256};
+	uint8_t *input_msg = malloc(MAX_PAYLOAD_SIZE);
 
-	ASSERT_EQUAL(randomize(test_msg, sizeof(test_msg)), sizeof(test_msg));
+	if (!input_msg) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
+
+	randomize(input_msg, MAX_PAYLOAD_SIZE);
 
 	open_session_args.mu_type = HSM1;
 	err = hsm_open_session(&open_session_args,
@@ -95,7 +102,7 @@ int ele_cmac(void)
 			ITEST_LOG("CMAC aes %d generation for 1s on %d byte blocks: ",
 				  key_size[j], payload_size[i]);
 			err = cmac_test(mac_hdl, key_id_aes[j], PERMITTED_ALGO_CMAC,
-					test_msg, payload_size[i], mac,
+					input_msg, payload_size[i], mac,
 					HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION,
 					hsm_session_hdl);
 			if (err)
@@ -104,7 +111,7 @@ int ele_cmac(void)
 			ITEST_LOG("CMAC aes %d verification for 1s on %d byte blocks: ",
 				  key_size[j], payload_size[i]);
 			err = cmac_test(mac_hdl, key_id_aes[j], PERMITTED_ALGO_CMAC,
-					test_msg, payload_size[i], mac,
+					input_msg, payload_size[i], mac,
 					HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION,
 					hsm_session_hdl);
 			if (err)
@@ -113,6 +120,9 @@ int ele_cmac(void)
 	}
 
 out:
+	/* free memory allocated on heap */
+	free(input_msg);
+
 	hsm_close_mac_service(mac_hdl);
 	hsm_close_key_management_service(key_mgmt_hdl);
 	hsm_close_key_store_service(key_store_hdl);

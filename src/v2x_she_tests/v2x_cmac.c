@@ -28,7 +28,7 @@ int v2x_cmac(void)
 	if (soc == SOC_IMX8DXL)
 		num_payload -= 1;
 
-	ASSERT_EQUAL(randomize(message, sizeof(message)), sizeof(message));
+	randomize(message, sizeof(message));
 
 	/* Only SHE1 MU supported on iMX943 platform */
 	if (soc == SOC_IMX943)
@@ -91,8 +91,13 @@ int v2x_cmac(void)
 	}
 
 	// SHE KEY UPDATE
-	if (!key_store_load)
-		key_update_test(utils_args.utils_handle);
+	if (!key_store_load) {
+		err = key_update_test(utils_args.utils_handle);
+		if (err != SHE_NO_ERROR) {
+			printf("key_update_test failed err:0x%x\n", err);
+			goto out;
+		}
+	}
 
 	for (int i = 0; i < num_payload; i++) {
 		ITEST_LOG("CMAC aes 128 generation for 1s on %d byte blocks: ",	payload_size[i]);

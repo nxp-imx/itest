@@ -33,9 +33,9 @@ int v2x_sm4_ccm(void)
 	uint8_t aad[16] = {0};
 
 	/* input buffer as random */
-	ASSERT_EQUAL(randomize(fixed_iv, sizeof(fixed_iv)), sizeof(fixed_iv));
-	ASSERT_EQUAL(randomize(plaintext, MAX_MSG_SIZE), MAX_MSG_SIZE);
-	ASSERT_EQUAL(randomize(aad, sizeof(aad)), sizeof(aad));
+	randomize(fixed_iv, sizeof(fixed_iv));
+	randomize(plaintext, MAX_MSG_SIZE);
+	randomize(aad, sizeof(aad));
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;

@@ -13,7 +13,7 @@
 
 she_hdl_t she_session_hdl, key_store_hdl;
 
-int get_soc(void)
+uint16_t get_soc(void)
 {
 	she_hdl_t she_session_hdl = 0;
 	open_session_args_t open_session_args = {0};
@@ -24,16 +24,18 @@ int get_soc(void)
 
 	if (file == NULL) {
 		perror("Error opening the /sys/devices/soc0/soc_id file");
-		return -1;
+		return 1;
 	}
 
 	if (fgets(soc_val, MAX_SOC_VAL, file) == NULL) {
 		perror("Error reading the /sys/devices/soc0/soc_id file");
-		fclose(file);
-		return -1;
+		if (fclose(file) != 0)
+			perror("Error closing the /sys/devices/soc0/soc_id file");
+		return 1;
 	}
 
-	fclose(file);
+	if (fclose(file) != 0)
+		printf("Error closing the /sys/devices/soc0/soc_id file");
 
 	soc_val[strcspn(soc_val, "\t\n")] = 0;
 
@@ -53,7 +55,7 @@ int get_soc(void)
 		soc = SOC_IMX952;
 	else {
 		perror("Undefined SOC\n");
-		return -1;
+		return 1;
 	}
 
 	/* Only SHE1 MU supported on iMX943 platform */
@@ -65,7 +67,7 @@ int get_soc(void)
 	err = she_open_session(&open_session_args, &she_session_hdl);
 	if (err != SHE_NO_ERROR) {
 		printf("she_open_session failed err:0x%x\n", err);
-		return -1;
+		return 1;
 	}
 
 	soc_rev = se_get_soc_rev();
@@ -74,7 +76,7 @@ int get_soc(void)
 	err = she_close_session(she_session_hdl);
 	if (err != SHE_NO_ERROR) {
 		printf("she_close_session failed err:0x%x\n", err);
-		return -1;
+		return 1;
 	}
 
 	return soc;
@@ -92,7 +94,7 @@ void print_help(void)
 }
 
 she_err_t she_cmac_test(she_hdl_t mac_hdl, uint32_t key_identifier,
-			uint8_t *payload, uint16_t payload_size,
+			uint8_t *payload, uint32_t payload_size,
 			uint8_t *mac, hsm_op_mac_flags_t flags,
 			uint32_t session_hdl)
 {

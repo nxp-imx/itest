@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef HSM_FUNCTIONS_H
@@ -8,6 +8,7 @@
 
 #include "hsm_api.h"
 
+extern uint8_t *input_msg, *output_msg, *expected_msg;
 extern hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
 
 #define HSM_PUB_KEY_SIZE_RSA_2048 0x100
@@ -81,7 +82,7 @@ hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 /*===========HMAC============*/
 hsm_err_t hmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 		    uint8_t *payload, uint32_t payload_size,
-		    uint8_t *mac, uint32_t mac_size,
+		    uint8_t *mac, uint16_t mac_size,
 		    hsm_op_mac_one_go_algo_t algorithm,
 		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl);
 /* PERFORMANCE RSA */

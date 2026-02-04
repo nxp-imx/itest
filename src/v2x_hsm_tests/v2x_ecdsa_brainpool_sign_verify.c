@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -56,7 +56,7 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 	hsm_hdl_t sig_gen_hdl = 0, sig_ver_hdl = 0;
 	hsm_hdl_t key_mgmt_hdl = 0;
 	uint32_t key_id[NB_ALGO] = {0};
-	uint8_t msg_input[MAX_MSG_SIZE] = {0};
+	uint8_t *input_msg = malloc(MAX_MSG_SIZE);
 	uint8_t sign_out[MAX_PUB_KEY_SIZE + 1] = {0};
 	uint8_t pub_key[NB_ALGO][MAX_PUB_KEY_SIZE] = {0};
 	uint32_t iter = NUM_OPERATIONS, i = 0, j = 0, k = 0;
@@ -65,8 +65,14 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 	hsm_err_t err = 0;
 	hsm_verification_status_t verify_status = 0;
 
+	if (!input_msg) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
+
 	/* input buffer as random */
-	ASSERT_EQUAL(randomize(msg_input, MAX_MSG_SIZE), MAX_MSG_SIZE);
+	randomize(input_msg, MAX_MSG_SIZE);
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;
@@ -131,7 +137,7 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 
 		for (i = 0; i < NUM_MSG_SIZE; i++) {
 			sig_gen_args.key_identifier = key_id[j];
-			sig_gen_args.message = msg_input;
+			sig_gen_args.message = input_msg;
 			sig_gen_args.signature = sign_out;
 			sig_gen_args.message_size = msg_size[i];
 			sig_gen_args.signature_size = size_pub_key[j] + 1; /* Add 1 byte for Ry */
@@ -160,7 +166,7 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 			print_perf(&t_perf, iter);
 
 			sig_ver_args.key = pub_key[j];
-			sig_ver_args.message = msg_input;
+			sig_ver_args.message = input_msg;
 			sig_ver_args.signature = sign_out;
 			sig_ver_args.key_size = size_pub_key[j];
 			sig_ver_args.signature_size = size_pub_key[j] + 1; /* Add 1 byte for Ry */
@@ -187,7 +193,7 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 				stop_timer(&t_perf);
 				if (verify_status != HSM_VERIFICATION_STATUS_SUCCESS) {
 					printf("Signature Verification failed\n");
-					err = -1;
+					err = 1;
 					goto out;
 				}
 			}
@@ -198,6 +204,9 @@ int v2x_ecdsa_brainpool_sign_verify(void)
 	}
 
 out:
+	/* free memory allocated for input msg */
+	free(input_msg);
+
 	if (sig_ver_hdl)
 		hsm_close_signature_verification_service(sig_ver_hdl);
 	if (sig_gen_hdl)

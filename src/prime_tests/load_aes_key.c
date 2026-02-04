@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -23,7 +23,7 @@ int load_aes_key(void)
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
 	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
 
-	ASSERT_EQUAL(randomize(aes_key, sizeof(aes_key)), sizeof(aes_key));
+	randomize(aes_key, sizeof(aes_key));
 
 	for (t = 0; t < NUM_LOAD_KEYS; t++) {
 		/* load aes key */

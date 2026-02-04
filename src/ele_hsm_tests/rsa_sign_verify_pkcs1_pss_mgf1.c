@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -64,9 +64,15 @@ int rsa_sign_verify_pkcs1_pss_mgf1(void)
 	uint32_t key_id[NB_KEY_SIZE] = {0};
 	uint32_t i = 0, j = 0, k = 0, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf = {0};
-	uint8_t msg[MAX_MSG_SIZE] = {0};
+	uint8_t *input_msg = malloc(MAX_MSG_SIZE);
 	uint32_t msg_size[] = {16, 64, 256, 1024, 8192, 16384};
 	hsm_verification_status_t verify_status = 0;
+
+	if (!input_msg) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
 
 	/* open session for ELE HSM MU */
 	open_session_args.mu_type = HSM1;
@@ -127,7 +133,7 @@ int rsa_sign_verify_pkcs1_pss_mgf1(void)
 			ITEST_LOG("%s signing for 1s on %d byte size blocks: ",
 				  algo[i], msg_size[j]);
 			sig_gen_args.key_identifier = key_id[i];
-			sig_gen_args.message = msg;
+			sig_gen_args.message = input_msg;
 			sig_gen_args.signature = signature;
 			sig_gen_args.signature_size = size_pub_key[i];
 			sig_gen_args.message_size = msg_size[j];
@@ -157,7 +163,7 @@ int rsa_sign_verify_pkcs1_pss_mgf1(void)
 			ITEST_LOG("%s verification for 1s on %d byte size blocks: ",
 				  algo[i], msg_size[j]);
 			sig_ver_args.key = pub_key;
-			sig_ver_args.message = msg;
+			sig_ver_args.message = input_msg;
 			sig_ver_args.signature = signature;
 			sig_ver_args.key_size = size_pub_key[i];
 			sig_ver_args.signature_size = size_pub_key[i];
@@ -196,6 +202,9 @@ int rsa_sign_verify_pkcs1_pss_mgf1(void)
 		}
 	}
 out:
+	/* free memory allocated on heap */
+	free(input_msg);
+
 	if (sig_gen_hdl)
 		hsm_close_signature_generation_service(sig_gen_hdl);
 	if (sig_ver_hdl)
@@ -207,7 +216,7 @@ out:
 	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		return -1;
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

@@ -32,13 +32,6 @@ extern uint8_t board_type;
 
 #define ITEST_LOG(...)  outputLog(__VA_ARGS__)
 
-/*======================ASSERT FAILURE ABORT======================*/
-#define ASSERT_EQUAL(x, y) \
-    if ( (x) != (y)) { \
-	ITEST_LOG(" @%s line:%d\n", __FILE__, __LINE__); \
-	return -1; \
-    }
-
 typedef struct {
 	struct timespec ts1; // for total iterations
 	struct timespec ts2; // for total iterations
@@ -81,7 +74,7 @@ typedef struct{
 
 extern itest_ctx_t itest_ctx;
 
-int get_soc(void);
+uint16_t get_soc(void);
 void print_help(void);
 
 /*===========ASN1 DER to RAW ENCODING======*/

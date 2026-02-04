@@ -131,7 +131,7 @@ int v2x_ecdsa_verify(void)
 	EVP_PKEY *pkey = NULL;
 	EVP_MD_CTX *mdctx = 0;
 	size_t sign_len = 0;
-	uint8_t msg[MAX_MSG_SIZE] = {0};
+	uint8_t *input_msg = malloc(MAX_MSG_SIZE);
 	uint32_t msg_size[] = {16, 64, 256, 1024, 8192, 16384};
 	uint8_t sign[MAX_DER_SIGN] = {0};
 	unsigned char out_pubkey[MAX_PUB_KEY_SIZE + 1] = {0};
@@ -145,6 +145,12 @@ int v2x_ecdsa_verify(void)
 	open_svc_sign_ver_args_t open_sig_ver_args = {0};
 	op_verify_sign_args_t sig_ver_args = {0};
 	hsm_verification_status_t verify_status = 0;
+
+	if (!input_msg) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
 
 	/* Open session for V2X HSM MU */
 	open_session_args.mu_type = V2X_SV0;
@@ -162,7 +168,7 @@ int v2x_ecdsa_verify(void)
 		goto out;
 	}
 
-	randomize(msg, MAX_MSG_SIZE);
+	randomize(input_msg, MAX_MSG_SIZE);
 
 	for (i = 0; i < NB_ALGO; i++) {
 		pkey = EVP_EC_gen(openssl_algo[i]);
@@ -186,7 +192,7 @@ int v2x_ecdsa_verify(void)
 				goto out;
 			}
 
-			err = EVP_DigestSignUpdate(mdctx, msg,
+			err = EVP_DigestSignUpdate(mdctx, input_msg,
 						   msg_size[k]);
 			if (err != EVP_SUCCESS) {
 				printf("EVP_DigestSignInit failed\n");
@@ -220,7 +226,7 @@ int v2x_ecdsa_verify(void)
 			ITEST_LOG("%s verification for 1s on %d byte size blocks: ",
 				  algo[i], msg_size[k]);
 			sig_ver_args.key = out_pubkey+1;
-			sig_ver_args.message = msg;
+			sig_ver_args.message = input_msg;
 			sig_ver_args.signature = sign;
 			sig_ver_args.key_size = size_pub_key[i];
 			sig_ver_args.signature_size = size_pub_key[i] + 1;
@@ -246,7 +252,7 @@ int v2x_ecdsa_verify(void)
 
 				if (verify_status != HSM_VERIFICATION_STATUS_SUCCESS) {
 					printf("Signature Verification failed\n");
-					err = -1;
+					err = 1;
 					goto out;
 				}
 			}
@@ -258,6 +264,9 @@ int v2x_ecdsa_verify(void)
 	}
 
 out:
+	/* free memory allocated for input msg */
+	free(input_msg);
+
 	if (sig_ver_hdl)
 		hsm_close_signature_verification_service(sig_ver_hdl);
 	hsm_close_session(hsm_session_hdl);

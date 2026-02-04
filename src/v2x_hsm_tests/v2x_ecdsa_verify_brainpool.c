@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  */
 
 #include <stdio.h>
@@ -64,8 +64,8 @@ int v2x_ecdsa_verify_brainpool(void)
 	EVP_PKEY *pkey = NULL;
 	EVP_MD_CTX *mdctx = 0;
 	size_t sign_len = 0;
-	uint8_t msg[MAX_MSG_SIZE] = {0};
 	uint32_t msg_size[] = {16, 64, 256, 1024, 8192, 16384};
+	uint8_t *input_msg = malloc(MAX_MSG_SIZE);
 	uint8_t sign[MAX_DER_SIGN] = {0};
 	unsigned char out_pubkey[MAX_PUB_KEY_SIZE + 1] = {0};
 	size_t out_pubkey_len = 0;
@@ -79,7 +79,13 @@ int v2x_ecdsa_verify_brainpool(void)
 	op_verify_sign_args_t sig_ver_args = {0};
 	hsm_verification_status_t verify_status = 0;
 
-	ASSERT_EQUAL(randomize(msg, MAX_MSG_SIZE), MAX_MSG_SIZE);
+	if (!input_msg) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
+
+	randomize(input_msg, MAX_MSG_SIZE);
 
 	/* Open session for V2X HSM MU */
 	open_session_args.mu_type = V2X_SV0;
@@ -119,7 +125,7 @@ int v2x_ecdsa_verify_brainpool(void)
 				goto out;
 			}
 
-			err = EVP_DigestSignUpdate(mdctx, msg,
+			err = EVP_DigestSignUpdate(mdctx, input_msg,
 						   msg_size[k]);
 			if (err != EVP_SUCCESS) {
 				printf("EVP_DigestSignInit failed\n");
@@ -153,7 +159,7 @@ int v2x_ecdsa_verify_brainpool(void)
 			ITEST_LOG("%s verification for 1s on %d byte size blocks: ",
 				  algo[i], msg_size[k]);
 			sig_ver_args.key = out_pubkey+1;
-			sig_ver_args.message = msg;
+			sig_ver_args.message = input_msg;
 			sig_ver_args.signature = sign;
 			sig_ver_args.key_size = size_pub_key[i];
 			sig_ver_args.signature_size = size_pub_key[i] + 1;
@@ -179,7 +185,7 @@ int v2x_ecdsa_verify_brainpool(void)
 
 				if (verify_status != HSM_VERIFICATION_STATUS_SUCCESS) {
 					printf("Signature Verification failed\n");
-					err = -1;
+					err = 1;
 					goto out;
 				}
 			}
@@ -191,6 +197,9 @@ int v2x_ecdsa_verify_brainpool(void)
 	}
 
 out:
+	/* free memory allocated for input msg */
+	free(input_msg);
+
 	if (sig_ver_hdl)
 		hsm_close_signature_verification_service(sig_ver_hdl);
 	hsm_close_session(hsm_session_hdl);
