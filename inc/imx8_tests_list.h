@@ -26,12 +26,10 @@ int ele_ctr(void);
 int ele_ofb(void);
 int ele_hash_sha2(void);
 int ele_hash_sha3(void);
-#if 0
 int rsa_key_gen_pkcs1_v15(void);
 int rsa_key_gen_pkcs1_pss_mgf1(void);
 int rsa_sign_verify_pkcs1_pss_mgf1(void);
 int rsa_sign_verify_pkcs1_v15(void);
-#endif
 #elif defined(V2X_SHE_MU)
 int v2x_fast_mac(void);
 int v2x_fast_mac_mubuff_v2(void);
@@ -348,7 +346,7 @@ testsuite imx8_ts[] = {
 	{0, 0, 0},
 	}
 },
-#if 0
+
 {rsa_key_gen_pkcs1_v15, "rsa_key_gen_pkcs1_v15", {
 	{SOC_IMX91, SOC_REV_A0, 0},
 	{SOC_IMX91, SOC_REV_A1, 0},
@@ -412,7 +410,7 @@ testsuite imx8_ts[] = {
 	{0, 0, 0},
 	}
 },
-#endif
+
 #elif defined(V2X_SHE_MU)
 {v2x_fast_mac, "v2x_fast_mac", {
 	{SOC_IMX943, SOC_REV_A0, 0},
