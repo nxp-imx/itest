@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -24,7 +24,7 @@ int load_hmac_key(void)
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
 	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
 
-	ASSERT_EQUAL(randomize(hmac_key, sizeof(hmac_key)), sizeof(hmac_key));
+	randomize(hmac_key, sizeof(hmac_key));
 
 	for (i = 0; i < NUM_LOAD_KEYS; i++) {
 		/* load hmac key */

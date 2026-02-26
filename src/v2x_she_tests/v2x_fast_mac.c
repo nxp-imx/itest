@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -24,7 +24,7 @@ int v2x_fast_mac(void)
 	timer_perf_t t_perf = {0};
 
 	// Randomizing input message
-	ASSERT_EQUAL(randomize(message, sizeof(message)), sizeof(message));
+	randomize(message, sizeof(message));
 
 	/* Only SHE1 MU supported on iMX943 platform */
 	if (soc == SOC_IMX943)
@@ -145,7 +145,7 @@ int v2x_fast_mac(void)
 
 	if (verify_mac_args.verification_status != SHE_MAC_VERIFICATION_SUCCESS) {
 		printf("MAC Verification failed\n");
-		err = -1;
+		err = 1;
 		goto out;
 	}
 

@@ -23,12 +23,18 @@ int v2x_hash_SM3(void)
 	timer_perf_t t_perf = {0};
 	open_svc_hash_args_t hash_srv_args = {0};
 	op_hash_one_go_args_t hash_args = {0};
-	uint8_t dgst_in_buff[MAX_MSG_SIZE] = {0};
+	uint8_t *dgst_in_buff = malloc(MAX_MSG_SIZE);
 	uint8_t dgst_out_buff[MAX_DGST_SIZE] = {0};
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint32_t size_input = 0, num_msg_size = NUM_MSG_SIZE;
-	uint32_t j = 0, k = 0, iter = NUM_OPERATIONS;
+	size_t size_input = 0;
+	uint32_t j = 0, k = 0, iter = NUM_OPERATIONS, num_msg_size = NUM_MSG_SIZE;
 	hsm_err_t err = 0;
+
+	if (!dgst_in_buff) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
 
 	open_session_args.mu_type = V2X_SV0;
 	err = hsm_open_session(&open_session_args,
@@ -51,7 +57,7 @@ int v2x_hash_SM3(void)
 
 	for (k = 0; k < num_msg_size; k++) {
 		size_input = block_size[k];
-		ITEST_LOG("Doing SM3_256 for 1s on %d byte block: ",
+		ITEST_LOG("Doing SM3_256 for 1s on %lu byte block: ",
 			  size_input);
 		// GEN HASH Mu SV0
 		hash_args.input = dgst_in_buff;
@@ -84,6 +90,9 @@ int v2x_hash_SM3(void)
 	}
 
 out:
+	/* free memory allocated for input msg */
+	free(dgst_in_buff);
+
 	if (hash_serv)
 		hsm_close_hash_service(hash_serv);
 	hsm_close_session(hsm_session_hdl);

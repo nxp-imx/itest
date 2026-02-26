@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -8,12 +8,8 @@
 #include "itest.h"
 #include "prime/prime_functions.h"
 
-/* Number of iterations */
-#define NUM_OPERATIONS 100000
-
 #define MAX_PAYLOAD_SIZE 16384
 #define NUM_PAYLOAD_SIZE 20
-#define BURST_SZ	252
 #define NUM_KEY_SIZE	3
 #define MAX_KEY_SZ	0x80
 
@@ -40,7 +36,7 @@ int hmac(void)
 	int err = 0;
 	hmac_key_t key_args = {0};
 	crypto_op_args_t op  = {0};
-	uint8_t test_msg[MAX_PAYLOAD_SIZE] = {0};
+	uint8_t *input_msg = malloc(MAX_PAYLOAD_SIZE);
 	uint32_t payload_size[] = {30, 32, 62, 64, 125, 128, 255, 256, 511,
 				   512, 1023, 1024, 2046, 2048, 4095, 4096, 8191,
 				   8192, 16383, 16384};
@@ -59,14 +55,20 @@ int hmac(void)
 
 	crypto_op_args_t *op_ptr[burst_sz];
 
+	if (!input_msg) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
+
 	memset(op_ptr, 0, sizeof(op_ptr));
 
 	/* open prime service */
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
 	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
 
-	ASSERT_EQUAL(randomize(test_msg, sizeof(test_msg)), sizeof(test_msg));
-	ASSERT_EQUAL(randomize(hmac_key, sizeof(hmac_key)), sizeof(hmac_key));
+	randomize(input_msg, MAX_PAYLOAD_SIZE);
+	randomize(hmac_key, sizeof(hmac_key));
 
 	for (t = 0; t < NUM_KEY_SIZE; t++) {
 		/* load hmac key */
@@ -102,7 +104,7 @@ int hmac(void)
 			op.op_auth_args.dir = CRYPTO_AUTH_OP_HMAC_GEN;
 
 			/* copy the test vector input data */
-			prime_mcopy(op.src.virt_addr, test_msg, op.src.len);
+			prime_mcopy(op.src.virt_addr, input_msg, op.src.len);
 
 			/* cache clean */
 			data_cache_clean(op.src.virt_addr, op.src.len, 1);
@@ -198,6 +200,9 @@ int hmac(void)
 	}
 
 out:
+	/* free memory allocated for input msg */
+	free(input_msg);
+
 	/* close prime service */
 	prime_close_service(serv_hdl);
 

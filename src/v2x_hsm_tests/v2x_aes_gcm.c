@@ -35,10 +35,10 @@ int v2x_aes_gcm(void)
 	uint8_t aad[16] = {0};
 
 	/* input buffer as random */
-	ASSERT_EQUAL(randomize(iv, sizeof(iv)), sizeof(iv));
-	ASSERT_EQUAL(randomize(fixed_iv, sizeof(fixed_iv)), sizeof(fixed_iv));
-	ASSERT_EQUAL(randomize(plaintext, MAX_MSG_SIZE), MAX_MSG_SIZE);
-	ASSERT_EQUAL(randomize(aad, sizeof(aad)), sizeof(aad));
+	randomize(iv, sizeof(iv));
+	randomize(fixed_iv, sizeof(fixed_iv));
+	randomize(plaintext, MAX_MSG_SIZE);
+	randomize(aad, sizeof(aad));
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;
@@ -65,9 +65,18 @@ int v2x_aes_gcm(void)
 	err = hsm_open_key_management_service(key_store_hdl,
 					      &key_mgmt_args,
 					      &key_mgmt_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_key_management_service failed err:0x%x\n", err);
+		goto out;
+	}
+
 	/* open cipher service */
 	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args,
 				      &cipher_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_cipher_service failed err:0x%x\n", err);
+		goto out;
+	}
 
 	/* generate aes 128bit key */
 	key_gen_args.key_identifier = &key_id_aes[0];
@@ -134,7 +143,7 @@ int v2x_aes_gcm(void)
 			err = memcmp(test_msg, plaintext, block_size[i]);
 			if (err != 0) {
 				printf("Decryption failed\n");
-				err = -1;
+				err = 1;
 				goto out;
 			}
 		}
@@ -168,7 +177,7 @@ int v2x_aes_gcm(void)
 			err = memcmp(test_msg, plaintext, block_size[i]);
 			if (err != 0) {
 				printf("Decryption failed\n");
-				err = -1;
+				err = 1;
 				goto out;
 			}
 		}

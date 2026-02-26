@@ -30,8 +30,8 @@ int v2x_sm4_cbc(void)
 	hsm_err_t err = 0;
 
 	/* input buffer as random */
-	ASSERT_EQUAL(randomize(msg_input, MAX_MSG_SIZE), MAX_MSG_SIZE);
-	ASSERT_EQUAL(randomize(iv, IV_SIZE), IV_SIZE);
+	randomize(msg_input, MAX_MSG_SIZE);
+	randomize(iv, IV_SIZE);
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;

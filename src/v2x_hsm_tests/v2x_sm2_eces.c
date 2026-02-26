@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -28,16 +28,22 @@ int v2x_sm2_eces(void)
 	hsm_err_t err = 0;
 	hsm_hdl_t key_mgmt_hdl = 0, sm2_eces_hdl = 0;
 	uint32_t key_id = 0;
-	uint8_t plaintext[MAX_MSG_SIZE] = {0};
-	uint8_t ciphertext[MAX_CIPHER_SIZE] = {0};
-	uint8_t test_msg[MAX_MSG_SIZE] = {0};
+	uint8_t *plaintext = malloc(MAX_MSG_SIZE);
+	uint8_t *ciphertext = malloc(MAX_CIPHER_SIZE);
+	uint8_t *test_msg = malloc(MAX_MSG_SIZE);
 	uint32_t block_size[] = {16, 64, 256};
 	uint32_t i = 0, j = 0, iter = NUM_OPERATIONS;
 	uint8_t pub_key[SIZE_PUB_KEY] = {0};
 	timer_perf_t t_perf = {0};
 
+	if (!plaintext || !ciphertext || !test_msg) {
+		printf("Message buffers could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
+
 	/* input buffer as random */
-	ASSERT_EQUAL(randomize(plaintext, MAX_MSG_SIZE), MAX_MSG_SIZE);
+	randomize(plaintext, MAX_MSG_SIZE);
 
 	/* open session for V2X HSM SG MU */
 	open_session_args.mu_type = V2X_SG0;
@@ -147,7 +153,7 @@ int v2x_sm2_eces(void)
 			err = memcmp(test_msg, plaintext, block_size[i]);
 			if (err != 0) {
 				printf("Decryption failed\n");
-				err = -1;
+				err = 1;
 				goto out;
 			}
 			/* Stop the timer */
@@ -159,6 +165,11 @@ int v2x_sm2_eces(void)
 	}
 
 out:
+	/* free memory allocated in heap */
+	free(plaintext);
+	free(ciphertext);
+	free(test_msg);
+
 	if (sm2_eces_hdl)
 		hsm_close_sm2_eces_service(sm2_eces_hdl);
 	if (key_mgmt_hdl)
@@ -168,7 +179,7 @@ out:
 	hsm_close_session(hsm_session_hdl);
 
 	if (err)
-		return -1;
+		return FALSE_TEST;
 
 	return TRUE_TEST;
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  */
 
 #include <stdio.h>
@@ -45,13 +45,19 @@ int v2x_hash(void)
 	timer_perf_t t_perf = {0};
 	open_svc_hash_args_t hash_srv_args = {0};
 	op_hash_one_go_args_t hash_args = {0};
-	uint8_t dgst_in_buff[MAX_MSG_SIZE] = {0};
+	uint8_t *dgst_in_buff = malloc(MAX_MSG_SIZE);
 	uint8_t dgst_out_buff[MAX_DGST_SIZE] = {0};
 	uint8_t dgst_expected[MAX_DGST_SIZE] = {0};
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint32_t size_input = 0;
+	size_t size_input = 0;
 	uint32_t i = 0, j = 0, k = 0, iter = NUM_OPERATIONS;
 	hsm_err_t err = 0;
+
+	if (!dgst_in_buff) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
 
 	open_session_args.mu_type = V2X_SV0;
 	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
@@ -70,7 +76,7 @@ int v2x_hash(void)
 	for (i = 0; i < NB_ALGO; i++) {
 		for (k = 0; k < NUM_MSG_SIZE; k++) {
 			size_input = block_size[k];
-			ITEST_LOG("Doing %s for 1s on %d byte block: ",
+			ITEST_LOG("Doing %s for 1s on %lu byte block: ",
 				  algos_str[i], size_input);
 			// GEN HASH Mu SV0
 			hash_args.input = dgst_in_buff;
@@ -103,7 +109,7 @@ int v2x_hash(void)
 							  algos_str[i], size_input);
 				if (err != dgst_size[i]) {
 					printf("Hash generation failed\n");
-					err = -1;
+					err = 1;
 					goto out;
 				}
 				// CHECK HASH OUTPUT
@@ -122,6 +128,9 @@ int v2x_hash(void)
 	}
 
 out:
+	/* free memory allocated for input msg */
+	free(dgst_in_buff);
+
 	if (hash_serv)
 		hsm_close_hash_service(hash_serv);
 	hsm_close_session(hsm_session_hdl);

@@ -29,7 +29,7 @@ int v2x_aes_cmac(void)
 	uint32_t key_size[] = {128, 192, 256};
 	uint32_t key_id_aes[NUM_KEY_SIZE] = {0};
 
-	ASSERT_EQUAL(randomize(test_msg, sizeof(test_msg)), sizeof(test_msg));
+	randomize(test_msg, sizeof(test_msg));
 
 	open_session_args.mu_type = V2X_SG0;
 	err = hsm_open_session(&open_session_args,

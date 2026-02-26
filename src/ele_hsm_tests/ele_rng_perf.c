@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -17,12 +17,18 @@
 int ele_rng_perf(void)
 {
 	uint32_t buff_size[] = {16, 64, 256, 1024, 8192, 16384};
-	uint8_t rng_out_buff[MAX_BUFF_SZ] = {0};
+	uint8_t *rng_output = malloc(MAX_BUFF_SZ);
 	open_session_args_t args = {0};
 	op_get_random_args_t rng_get_random_args = {0};
 	uint32_t i = 0, j = 0, iter = NUM_OPERATIONS;
 	timer_perf_t t_perf = {0};
 	hsm_err_t err = 0;
+
+	if (!rng_output) {
+		printf("Input message buffer could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
 
 	// ELE OPEN SESSION
 	args.mu_type = HSM1;
@@ -33,7 +39,7 @@ int ele_rng_perf(void)
 	}
 
 	// GET RANDOM Mu SV/SG
-	rng_get_random_args.output = rng_out_buff;
+	rng_get_random_args.output = rng_output;
 
 	for (i = 0; i < NUM_BUFF_SZ; i++) {
 		ITEST_LOG("Generating %d byte random number for 1s: ",
@@ -60,6 +66,9 @@ int ele_rng_perf(void)
 	}
 
 out:
+	/* free memory allocated on heap */
+	free(rng_output);
+
 	hsm_close_session(hsm_session_hdl);
 
 	if (err)

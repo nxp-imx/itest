@@ -13,7 +13,7 @@
 
 prime_hdl_t serv_hdl;
 
-int get_soc(void)
+uint16_t get_soc(void)
 {
 	char soc_val[MAX_SOC_VAL];
 
@@ -21,16 +21,18 @@ int get_soc(void)
 
 	if (file == NULL) {
 		perror("Error opening the /sys/devices/soc0/soc_id file");
-		return -1;
+		return 1;
 	}
 
 	if (fgets(soc_val, MAX_SOC_VAL, file) == NULL) {
 		perror("Error reading the /sys/devices/soc0/soc_id file");
-		fclose(file);
-		return -1;
+		if (fclose(file) != 0)
+			perror("Error closing /sys/devices/soc0/soc_id file");
+		return 1;
 	}
 
-	fclose(file);
+	if (fclose(file) != 0)
+		printf("Error closing /sys/devices/soc0/soc_id file");
 
 	soc_val[strcspn(soc_val, "\t\n")] = 0;
 
@@ -40,7 +42,7 @@ int get_soc(void)
 		soc = SOC_IMX952;
 	else {
 		perror("Undefined SOC\n");
-		return -1;
+		return 1;
 	}
 
 	return soc;
@@ -54,7 +56,7 @@ void print_help(void)
 	ITEST_LOG("  -h : Print this help\n");
 	ITEST_LOG("  -v : Print test suite version\n");
 	ITEST_LOG("  -l : List all tests\n");
-	ITEST_LOG("  -t < test_name > [-b < burst size > -i < iteration count >] : ");
+	ITEST_LOG("  -t <test_name> [-b <burst size[1, 252]> -i <iteration count[1, 100000]>] : ");
 	ITEST_LOG("Run test test_name\n");
 }
 

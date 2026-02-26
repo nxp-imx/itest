@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023,2025 NXP
+ * Copyright 2023,2025-2026 NXP
  */
 
 #include <stdio.h>
 #include <openssl/evp.h>
 #include "itest.h"
 
-
-int icrypto_hash_one_go(unsigned char *in, unsigned char *out, char *dgst_type, int size)
+int icrypto_hash_one_go(unsigned char *in, unsigned char *out,
+			char *dgst_type, size_t size)
 {
 	EVP_MD_CTX *mdctx = 0;
 	const EVP_MD *md = 0;

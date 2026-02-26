@@ -125,7 +125,7 @@ void print_perf(timer_perf_t *timer, uint32_t nb_iter)
 	double lib_response_t_per_op = timer->lib_response_t/nb_iter;
 	double fw_t_per_op = timer->fw_t/nb_iter;
 
-	ITEST_LOG("%d ops (%.2lfus/op)\n", timer->op_sec,
+	ITEST_LOG("%lu ops (%.2lfus/op)\n", timer->op_sec,
 					   timer->t_per_op);
 	ITEST_LOG("%20s %12s %23s\n", "SE LIB -> Kernel",
 #ifdef PSA_COMPLIANT

@@ -27,13 +27,13 @@ itest_ctx_t itest_ctx = {0};
 /* Used to store total test run and test failures */
 static int total_run = 0, fails = 0;
 
-static inline void print_version()
+static inline void print_version(void)
 {
 	ITEST_LOG("itest %d.%d commit: %s %s\n",
 		  Itest_VERSION_MAJOR, Itest_VERSION_MINOR, GIT_SHA1, GIT_DATE);
 }
 
-static inline void print_stats()
+static inline void print_stats(void)
 {
 	ITEST_LOG("+------------------------------------------------------\n");
 	ITEST_LOG("Tests Run  : %d\n", total_run);
@@ -56,55 +56,31 @@ void print_test_suite(testsuite *ts)
 	}
 }
 
-static void catch_failure(int signo) {
-	int err = signo;
-	fails++;
-	ITEST_LOG("FAIL: tests interrupted by signal %d\n", err);
+static _Noreturn void catch_failure(int signo) {
 #ifdef V2X_SHE_MU
 	if (key_store_hdl)
-		err = she_close_key_store_service(key_store_hdl);
-	if (err != SHE_NO_ERROR) {
-		printf("she_close_key_store_service failed err:0x%x\n", err);
-		return;
-	}
+		she_close_key_store_service(key_store_hdl);
 
-	err = she_close_session(she_session_hdl);
-	if (err != SHE_NO_ERROR) {
-		printf("she_close_session failed err:0x%x\n", err);
-		return;
-	}
+	she_close_session(she_session_hdl);
 #elif defined(ENABLED_PRIME)
 	if (serv_hdl)
 		prime_close_service(serv_hdl);
 #else
 	if (key_store_hdl)
-		err = hsm_close_key_store_service(key_store_hdl);
-	if (err != HSM_NO_ERROR) {
-		printf("hsm_close_key_store_service failed err:0x%x\n", err);
-		return;
-	}
+		hsm_close_key_store_service(key_store_hdl);
 
-	err = hsm_close_session(hsm_session_hdl);
-	if (err != HSM_NO_ERROR) {
-		printf("hsm_close_session failed err:0x%x\n", err);
-		return;
-	}
+	hsm_close_session(hsm_session_hdl);
 
 	/* close the second session hdl if opened */
 	if (hsm_session_hdl2) {
 		hsm_close_session(hsm_session_hdl2);
-		if (err != HSM_NO_ERROR)
-			printf("hsm_close_session failed for hdl2 err:0x%x\n",
-					err);
 	}
 #endif
-	print_stats();
-	exit(signo);
+	_exit(signo);
 }
 
 static void catch_failure_continue(int signo) {
 	(void)(signo);
-	itest_ctx.nb_assert_fails++;
 }
 
 static int itest_init(void)
@@ -129,7 +105,7 @@ int main(int argc, char *argv[]){
 	ret = itest_init();
 	if (ret) {
 		ITEST_LOG("itest init failed\n");
-		return -1;
+		return 1;
 	}
 
 	opterr = 0;
@@ -148,6 +124,8 @@ int main(int argc, char *argv[]){
 
 #ifdef ENABLED_PRIME
 	while ((c = getopt(argc, argv, ":hlvt:b:i:")) != -1) {
+		int16_t burst_sz;
+		int32_t iterations;
 #else
 	while ((c = getopt(argc, argv, ":hlvt:")) != -1) {
 #endif
@@ -158,18 +136,22 @@ int main(int argc, char *argv[]){
 			break;
 #ifdef ENABLED_PRIME
 		case 'b':
-			if (!itest_ctx.test_name) {
+			burst_sz = atoi(optarg);
+			if (!itest_ctx.test_name || burst_sz <= 0 ||
+			    burst_sz > BURST_SZ) {
 				print_help();
 				return 1;
 			}
-			itest_ctx.burst_size = atoi(optarg);
+			itest_ctx.burst_size = burst_sz;
 			break;
 		case 'i':
-			if (!itest_ctx.test_name) {
+			iterations = atoi(optarg);
+			if (!itest_ctx.test_name || iterations <= 0 ||
+			    iterations > NUM_OPERATIONS) {
 				print_help();
 				return 1;
 			}
-			itest_ctx.iterations = atoi(optarg);
+			itest_ctx.iterations = iterations;
 			break;
 #endif
 		case 'v':
@@ -192,12 +174,11 @@ int main(int argc, char *argv[]){
 				return 1;
 			return 0;
 		case ':':
-			fprintf(stderr, "Option -%c requires an argument.\n",
-				optopt);
+			ITEST_LOG("Option -%c requires an argument.\n", optopt);
 			print_help();
 			return 1;
 		case '?':
-			fprintf(stderr, "Unknown option character.\n");
+			ITEST_LOG("Unknown option character.\n");
 			print_help();
 			return 1;
 		default:
@@ -224,8 +205,7 @@ int main(int argc, char *argv[]){
 	}
 	if ((signal(SIGINT, catch_failure) == SIG_ERR)
 	|| (signal(SIGUSR1, catch_failure_continue) == SIG_ERR)) {
-		fputs("An error occurred while setting a signal handler.\n",
-		      stderr);
+		ITEST_LOG("An error occurred while setting a signal handler.\n");
 		return 1;
 	}
 	for (i = 0; itest_ctx.ts[i].tc_ptr != NULL; i++) {

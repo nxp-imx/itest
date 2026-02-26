@@ -12,7 +12,7 @@
 
 hsm_hdl_t hsm_session_hdl, hsm_session_hdl2, key_store_hdl;
 
-int get_soc(void)
+uint16_t get_soc(void)
 {
 	hsm_hdl_t hsm_session_hdl = 0;
 	open_session_args_t open_session_args = {0};
@@ -23,16 +23,18 @@ int get_soc(void)
 
 	if (file == NULL) {
 		perror("Error opening the /sys/devices/soc0/soc_id file");
-		return -1;
+		return 1;
 	}
 
 	if (fgets(soc_val, MAX_SOC_VAL, file) == NULL) {
 		perror("Error reading the /sys/devices/soc0/soc_id file");
-		fclose(file);
-		return -1;
+		if (fclose(file) != 0)
+			perror("Error closing /sys/devices/soc0/soc_id file");
+		return 1;
 	}
 
-	fclose(file);
+	if (fclose(file) != 0)
+		printf("Error closing /sys/devices/soc0/soc_id file");
 
 	soc_val[strcspn(soc_val, "\t\n")] = 0;
 
@@ -54,7 +56,7 @@ int get_soc(void)
 		soc = SOC_IMX952;
 	else {
 		perror("Undefined SOC\n");
-		return -1;
+		return 1;
 	}
 
 
@@ -67,7 +69,7 @@ int get_soc(void)
 	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
 	if (err != HSM_NO_ERROR) {
 		printf("hsm_open_session failed err:0x%x\n", err);
-		return -1;
+		return 1;
 	}
 
 	soc_rev = se_get_soc_rev();
@@ -76,7 +78,7 @@ int get_soc(void)
 	err = hsm_close_session(hsm_session_hdl);
 	if (err != HSM_NO_ERROR) {
 		printf("hsm_close_session failed err:0x%x\n", err);
-		return -1;
+		return 1;
 	}
 	return soc;
 }
@@ -174,7 +176,7 @@ hsm_err_t cmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 		stop_timer(&t_perf);
 		if (flags == HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION) {
 			if (mac_status != HSM_MAC_VERIFICATION_STATUS_SUCCESS)
-				return -1;
+				return 1;
 		}
 	}
 	/* Finalize time to get stats */
@@ -388,7 +390,7 @@ hsm_err_t hsm_generate_key_request(hsm_hdl_t key_mgmt_hdl, uint32_t *key_id,
 
 hsm_err_t hmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 		    uint8_t *payload, uint32_t payload_size,
-		    uint8_t *mac, uint32_t mac_size,
+		    uint8_t *mac, uint16_t mac_size,
 		    hsm_op_mac_one_go_algo_t algorithm,
 		    hsm_op_mac_one_go_flags_t flags, uint32_t session_hdl)
 {
@@ -422,7 +424,7 @@ hsm_err_t hmac_test(hsm_hdl_t mac_hdl, uint32_t key_identifier,
 		if (flags == HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION) {
 			if (mac_status != HSM_MAC_VERIFICATION_STATUS_SUCCESS) {
 				printf("MAC Verification failed\n");
-				err = -1;
+				err = 1;
 				break;
 			}
 		}
@@ -467,7 +469,7 @@ void print_perf_rsa(timer_perf_t *timer, uint32_t nb_iter)
 	double lib_response_t_per_op = timer->lib_response_t/nb_iter;
 	double fw_t_per_op = timer->fw_t/nb_iter;
 
-	ITEST_LOG("%d ops (%.2lfsec/op)\n", timer->op_sec,
+	ITEST_LOG("%lu ops (%.2lfsec/op)\n", timer->op_sec,
 			timer->t_per_op * 0.000001);
 	ITEST_LOG("%20s %12s %23s\n", "SE LIB -> Kernel",
 #ifdef PSA_COMPLIANT

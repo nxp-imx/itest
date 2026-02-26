@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -26,13 +26,19 @@ int ele_gcm(void)
 	uint32_t key_id_aes[NUM_KEY_SIZE] = {0};
 	uint32_t key_size[] = {128, 192, 256};
 	uint8_t iv[IV_SIZE] = {0};
-	uint8_t plaintext[MAX_MSG_SIZE] = {0};
-	uint8_t ciphertext[MAX_MSG_SIZE] = {0};
-	uint8_t test_msg[MAX_MSG_SIZE] = {0};
+	uint8_t *plaintext = malloc(MAX_MSG_SIZE);
+	uint8_t *ciphertext = malloc(MAX_MSG_SIZE);
+	uint8_t *decrypted_msg = malloc(MAX_MSG_SIZE);
 	uint32_t block_size[] = {16, 64, 256, 1024, 8192, 16384};
 	uint32_t i = 0, j = 0;
 	uint8_t aad[16] = {0};
 	uint8_t tag[AUTH_TAG_SIZE] = {0};
+
+	if (!plaintext || !ciphertext || !decrypted_msg) {
+		printf("Message buffers could not be allocated on heap\n");
+		err = 1;
+		goto out;
+	}
 
 	// INPUT BUFF AS RANDOM
 	randomize(iv, sizeof(iv));
@@ -125,7 +131,7 @@ int ele_gcm(void)
 			ITEST_LOG("AES-%d-GCM decryption for 1s on %d byte blocks: ",
 				  key_size[j], block_size[i]);
 			err = auth_test_new(cipher_hdl, key_id_aes[j], ciphertext,
-					    block_size[i], test_msg,
+					    block_size[i], decrypted_msg,
 					    block_size[i], iv, sizeof(iv), NULL,
 					    aad, sizeof(aad),
 					    ALGO_GCM, HSM_AUTH_ENC_FLAGS_DECRYPT |
@@ -133,7 +139,7 @@ int ele_gcm(void)
 					    AUTH_TAG_SIZE, tag, hsm_session_hdl);
 			if (err)
 				goto out;
-			err = memcmp(test_msg, plaintext, block_size[i]);
+			err = memcmp(decrypted_msg, plaintext, block_size[i]);
 			if (err != 0) {
 				printf("Decryption failed\n");
 				goto out;
@@ -142,6 +148,11 @@ int ele_gcm(void)
 	}
 
 out:
+	/* free memory allocated on heap */
+	free(plaintext);
+	free(ciphertext);
+	free(decrypted_msg);
+
 	hsm_close_cipher_service(cipher_hdl);
 	hsm_close_key_management_service(key_mgmt_hdl);
 	hsm_close_key_store_service(key_store_hdl);

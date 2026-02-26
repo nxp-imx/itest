@@ -122,7 +122,7 @@ int ele_randomness_gcm(void)
 	}
 	if (num_matching_bytes >= 4) {
 		printf("WEAK RANDOMNESS TEST failed\n");
-		err = -1;
+		err = 1;
 		goto out;
 	}
 
@@ -171,7 +171,7 @@ int ele_randomness_gcm(void)
 
 	// VERIFY COUNTER WAS INCREMENTED
 	if (counter_val2 != counter_val1 + 1) {
-		err = -1;
+		err = 1;
 		goto out;
 	}
 
@@ -214,7 +214,7 @@ int ele_randomness_gcm(void)
 	// VERIFY FIXED PART
 	err = memcmp(iv1, fixed_iv, sizeof(fixed_iv));
 	if (err != 0) {
-		err = -1;
+		err = 1;
 		goto out;
 	}
 	// EXTRACT COUNTER
@@ -222,7 +222,7 @@ int ele_randomness_gcm(void)
 
 	// VERIFY COUNTER WAS INCREMENTED
 	if (counter_val1 != counter_val2 + 1) {
-		err = -1;
+		err = 1;
 		goto out;
 	}
 
@@ -242,7 +242,7 @@ int ele_randomness_gcm(void)
 	// VERIFY FIXED PART
 	err = memcmp(iv2, fixed_iv, sizeof(fixed_iv));
 	if (err != 0) {
-		err = -1;
+		err = 1;
 		goto out;
 	}
 	// EXTRACT COUNTER
@@ -250,7 +250,7 @@ int ele_randomness_gcm(void)
 
 	// VERIFY COUNTER WAS INCREMENTED
 	if (counter_val2 != counter_val1 + 1) {
-		err = -1;
+		err = 1;
 		goto out;
 	}
 
