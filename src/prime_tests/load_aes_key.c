@@ -21,7 +21,14 @@ int load_aes_key(void)
 
 	/* open prime service */
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
-	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
+	op_serv_args.size  = SIZE_256MB;
+
+	err = prime_open_service(&op_serv_args, &serv_hdl);
+	if (err) {
+		printf("Failed to open prime service\n");
+		err = 1;
+		goto out;
+	}
 
 	randomize(aes_key, sizeof(aes_key));
 

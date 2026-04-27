@@ -65,7 +65,13 @@ int hmac(void)
 
 	/* open prime service */
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
-	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
+	op_serv_args.size  = SIZE_256MB;
+
+	err = prime_open_service(&op_serv_args, &serv_hdl);
+	if (err) {
+		printf("Failed to open prime service\n");
+		goto out;
+	}
 
 	randomize(input_msg, MAX_PAYLOAD_SIZE);
 	randomize(hmac_key, sizeof(hmac_key));
@@ -83,25 +89,25 @@ int hmac(void)
 		}
 
 		for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
-			/* allocate input buffer from reserved memory */
 			op.src.len = payload_size[i];
-			prime_malloc(serv_hdl,
-					 &op.src.virt_addr,
-					 &op.src.phys_addr,
-					 op.src.len);
+			op.src.virt_addr = (uint8_t *)op_serv_args.virtual_addr;
+			op.src.phys_addr = op_serv_args.physical_addr;
 
-			/* allocate digest buffer from reserved memory */
 			op.op_auth_args.digest.len = digest_sz[t];
-			prime_malloc(serv_hdl,
-					 &op.op_auth_args.digest.virt_addr,
-					 &op.op_auth_args.digest.phys_addr,
-					 op.op_auth_args.digest.len);
+			op.op_auth_args.digest.virt_addr = op.src.virt_addr + op.src.len;
+			op.op_auth_args.digest.phys_addr = op.src.phys_addr + op.src.len;
 
 			/* prepare op */
 			op.op_type = CRYPTO_OP_TYPE_HMAC;
 			op.op_auth_args.sha_algo = key_args.sha_algo;
 			op.op_auth_args.keyslot = key_args.keyslot;
 			op.op_auth_args.dir = CRYPTO_AUTH_OP_HMAC_GEN;
+			op.crypto_status.phys_addr =
+					(status_buf_t *)(op.op_auth_args.digest.phys_addr +
+					ALIGN_UP(op.op_auth_args.digest.len, DMA_ALIGN_SIZE));
+			op.crypto_status.virt_addr =
+					(status_buf_t *)(op.op_auth_args.digest.virt_addr +
+					ALIGN_UP(op.op_auth_args.digest.len, DMA_ALIGN_SIZE));
 
 			/* copy the test vector input data */
 			prime_mcopy(op.src.virt_addr, input_msg, op.src.len);
@@ -192,10 +198,6 @@ int hmac(void)
 			/* cache clean and invalidate */
 			data_cache_clean(op.op_auth_args.digest.virt_addr,
 					 op.op_auth_args.digest.len, 0);
-
-			/* free memory*/
-			prime_mfree(serv_hdl, op.op_auth_args.digest.len);
-			prime_mfree(serv_hdl, op.src.len);
 		}
 	}
 
