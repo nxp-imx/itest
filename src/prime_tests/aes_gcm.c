@@ -56,7 +56,13 @@ int aes_gcm(void)
 
 	/* open prime service */
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
-	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
+	op_serv_args.size  = SIZE_256MB;
+
+	err = prime_open_service(&op_serv_args, &serv_hdl);
+	if (err) {
+		printf("Failed to open prime service\n");
+		goto out;
+	}
 
 	randomize(aad, sizeof(aad));
 	randomize(iv, sizeof(iv));
@@ -75,19 +81,15 @@ int aes_gcm(void)
 		}
 
 		for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
-			/* allocate input buffer from reserved memory */
+			/* setup input buffer */
 			op.src.len = payload_size[i];
-			prime_malloc(serv_hdl,
-					 &op.src.virt_addr,
-					 &op.src.phys_addr,
-					 op.src.len);
+			op.src.virt_addr = (uint8_t *)op_serv_args.virtual_addr;
+			op.src.phys_addr = op_serv_args.physical_addr;
 
-			/* allocate output buffer from reserved memory */
+			/* setup output buffer */
 			op.dst.len = op.src.len;
-			prime_malloc(serv_hdl,
-					&op.dst.virt_addr,
-					&op.dst.phys_addr,
-					op.dst.len);
+			op.dst.virt_addr = op.src.virt_addr;
+			op.dst.phys_addr = op.src.phys_addr;
 
 			/* copy the test vector input data */
 			prime_mcopy(op.src.virt_addr, input_msg, op.src.len);
@@ -95,12 +97,10 @@ int aes_gcm(void)
 			/* cache clean */
 			data_cache_clean(op.src.virt_addr, op.src.len, 1);
 
-			/* allocate aad buffer */
+			/* setup aad buffer */
 			op.op_aead_args.aad.len = sizeof(aad);
-			prime_malloc(serv_hdl,
-					 &op.op_aead_args.aad.virt_addr,
-					 &op.op_aead_args.aad.phys_addr,
-					 op.op_aead_args.aad.len);
+			op.op_aead_args.aad.virt_addr = op.dst.virt_addr + op.src.len;
+			op.op_aead_args.aad.phys_addr = op.dst.phys_addr + op.src.len;
 
 			/* copy aad & cache clean */
 			prime_mcopy(op.op_aead_args.aad.virt_addr, aad,
@@ -110,10 +110,10 @@ int aes_gcm(void)
 
 			/* allocate tag buffer from reserved memory  */
 			op.op_aead_args.tag.len = TAG_SZ;
-			prime_malloc(serv_hdl,
-					 &op.op_aead_args.tag.virt_addr,
-					 &op.op_aead_args.tag.phys_addr,
-					 op.op_aead_args.tag.len);
+			op.op_aead_args.tag.virt_addr = op.op_aead_args.aad.virt_addr +
+							op.op_aead_args.aad.len;
+			op.op_aead_args.tag.phys_addr = op.op_aead_args.aad.phys_addr +
+							op.op_aead_args.aad.len;
 
 			/* prepare op for encrypt operation */
 			op.op_type = CRYPTO_OP_TYPE_AEAD;
@@ -122,6 +122,12 @@ int aes_gcm(void)
 			op.op_aead_args.enc = CRYPTO_CIPHER_OP_ENCRYPT;
 			op.op_aead_args.iv = iv;
 			op.op_aead_args.ivlen = sizeof(iv);
+			op.crypto_status.phys_addr =
+					(status_buf_t *)(op.op_aead_args.tag.phys_addr +
+					ALIGN_UP(op.op_aead_args.tag.len, DMA_ALIGN_SIZE));
+			op.crypto_status.virt_addr =
+					(status_buf_t *)(op.op_aead_args.tag.virt_addr +
+					ALIGN_UP(op.op_aead_args.tag.len, DMA_ALIGN_SIZE));
 
 			/* invoke fast crypto engine */
 			for (k = 0; k < burst_sz; k++)
@@ -216,14 +222,6 @@ int aes_gcm(void)
 			if (prime_mcompare(op.dst.virt_addr, input_msg,
 					   op.dst.len))
 				printf("Decryption failed\n");
-
-			/* free memory*/
-			if (op.dst.virt_addr != op.src.virt_addr)
-				prime_mfree(serv_hdl, op.dst.len);
-
-			prime_mfree(serv_hdl, op.src.len);
-			prime_mfree(serv_hdl, op.op_aead_args.aad.len);
-			prime_mfree(serv_hdl, op.op_aead_args.tag.len);
 		}
 	}
 

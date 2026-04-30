@@ -51,7 +51,13 @@ int aes_ecb(void)
 
 	/* open prime service */
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
-	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
+	op_serv_args.size  = SIZE_256MB;
+
+	err = prime_open_service(&op_serv_args, &serv_hdl);
+	if (err) {
+		printf("Failed to open prime service\n");
+		goto out;
+	}
 
 	randomize(input_msg, MAX_PAYLOAD_SIZE);
 	randomize(aes_key, sizeof(aes_key));
@@ -68,12 +74,9 @@ int aes_ecb(void)
 		}
 
 		for (i = 0; i < NUM_PAYLOAD_SIZE; i++) {
-			/* allocate input buffer from reserved memory */
 			op.src.len = payload_size[i];
-			prime_malloc(serv_hdl,
-					 &op.src.virt_addr,
-					 &op.src.phys_addr,
-					 op.src.len);
+			op.src.virt_addr = (uint8_t *)op_serv_args.virtual_addr;
+			op.src.phys_addr = op_serv_args.physical_addr;
 
 			/* output buffer */
 			op.dst.len = op.src.len;
@@ -93,6 +96,10 @@ int aes_ecb(void)
 			op.op_aes_args.enc = CRYPTO_CIPHER_OP_ENCRYPT;
 			op.op_aes_args.iv = 0;
 			op.op_aes_args.ivlen = 0;
+			op.crypto_status.phys_addr = (status_buf_t *)(op.src.phys_addr +
+						     ALIGN_UP(op.src.len, DMA_ALIGN_SIZE));
+			op.crypto_status.virt_addr = (status_buf_t *)(op.src.virt_addr +
+						     ALIGN_UP(op.src.len, DMA_ALIGN_SIZE));
 
 			/* invoke fast crypto engine */
 			for (k = 0; k < burst_sz; k++)
@@ -179,12 +186,6 @@ int aes_ecb(void)
 			if (prime_mcompare(op.dst.virt_addr, input_msg,
 					   op.dst.len))
 				printf("Decryption failed\n");
-
-			/* free memory*/
-			if (op.dst.virt_addr != op.src.virt_addr)
-				prime_mfree(serv_hdl, op.dst.len);
-
-			prime_mfree(serv_hdl, op.src.len);
 		}
 	}
 
