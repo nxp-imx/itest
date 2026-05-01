@@ -178,13 +178,6 @@ int aes_gcm(void)
 			memset(&t_perf, 0, sizeof(t_perf));
 			unused_ops = iter;
 
-			for (k = 0; k < payload_size[i]; k++) {
-				uint8_t virt_buff =  op.dst.virt_addr[k];
-
-				op.dst.virt_addr[k] = op.src.virt_addr[k];
-				op.src.virt_addr[k] = virt_buff;
-			}
-
 			ITEST_LOG("AES-%d-GCM decryption for 1s on %d byte blocks\n",
 				  key_sz[t] * 8, payload_size[i]);
 			for (j = 0; j < iter; j = j + enq_ops) {
