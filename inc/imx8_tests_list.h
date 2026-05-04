@@ -39,6 +39,7 @@ int v2x_cmac(void);
 int hmac(void);
 int aes_cbc(void);
 int aes_ecb(void);
+int aes_ctr(void);
 int aes_gcm(void);
 int load_hmac_key(void);
 int load_aes_key(void);
@@ -463,6 +464,13 @@ testsuite imx8_ts[] = {
 },
 
 {aes_ecb, "aes_ecb", {
+	{SOC_IMX943, 0, 0},
+	{SOC_IMX952, 0, 0},
+	{0, 0, 0},
+	}
+},
+
+{aes_ctr, "aes_ctr", {
 	{SOC_IMX943, 0, 0},
 	{SOC_IMX952, 0, 0},
 	{0, 0, 0},
