@@ -82,9 +82,9 @@ int hmac(void)
 		key_args.key = hmac_key;
 		key_args.keyslot = 0;
 		key_args.sha_algo = sha_algo[t];
-		err = prime_auth_init(&key_args);
+		err = prime_mac_init(&key_args);
 		if (err) {
-			printf("prime_auth_init failed err: 0x%x\n", err);
+			printf("prime_mac_init failed err: 0x%x\n", err);
 			goto out;
 		}
 
@@ -93,21 +93,21 @@ int hmac(void)
 			op.src.virt_addr = (uint8_t *)op_serv_args.virtual_addr;
 			op.src.phys_addr = op_serv_args.physical_addr;
 
-			op.op_auth_args.digest.len = digest_sz[t];
-			op.op_auth_args.digest.virt_addr = op.src.virt_addr + op.src.len;
-			op.op_auth_args.digest.phys_addr = op.src.phys_addr + op.src.len;
+			op.op_mac_args.digest.len = digest_sz[t];
+			op.op_mac_args.digest.virt_addr = op.src.virt_addr + op.src.len;
+			op.op_mac_args.digest.phys_addr = op.src.phys_addr + op.src.len;
 
 			/* prepare op */
 			op.op_type = CRYPTO_OP_TYPE_HMAC;
-			op.op_auth_args.sha_algo = key_args.sha_algo;
-			op.op_auth_args.keyslot = key_args.keyslot;
-			op.op_auth_args.dir = CRYPTO_AUTH_OP_HMAC_GEN;
+			op.op_mac_args.sha_algo = key_args.sha_algo;
+			op.op_mac_args.keyslot = key_args.keyslot;
+			op.op_mac_args.dir = CRYPTO_AUTH_OP_HMAC_GEN;
 			op.crypto_status.phys_addr =
-					(status_buf_t *)(op.op_auth_args.digest.phys_addr +
-					ALIGN_UP(op.op_auth_args.digest.len, DMA_ALIGN_SIZE));
+					(status_buf_t *)(op.op_mac_args.digest.phys_addr +
+					ALIGN_UP(op.op_mac_args.digest.len, DMA_ALIGN_SIZE));
 			op.crypto_status.virt_addr =
-					(status_buf_t *)(op.op_auth_args.digest.virt_addr +
-					ALIGN_UP(op.op_auth_args.digest.len, DMA_ALIGN_SIZE));
+					(status_buf_t *)(op.op_mac_args.digest.virt_addr +
+					ALIGN_UP(op.op_mac_args.digest.len, DMA_ALIGN_SIZE));
 
 			/* copy the test vector input data */
 			prime_mcopy(op.src.virt_addr, input_msg, op.src.len);
@@ -154,11 +154,11 @@ int hmac(void)
 			print_perf_prime(&t_perf, iter, payload_size[i]);
 
 			/* cache clean and invalidate */
-			data_cache_clean(op.op_auth_args.digest.virt_addr,
-					 op.op_auth_args.digest.len, 0);
+			data_cache_clean(op.op_mac_args.digest.virt_addr,
+					 op.op_mac_args.digest.len, 0);
 
 			/* prepare op for hmac verify operation */
-			op.op_auth_args.dir = CRYPTO_AUTH_OP_HMAC_VERIFY;
+			op.op_mac_args.dir = CRYPTO_AUTH_OP_HMAC_VERIFY;
 
 			/* clear the time structure */
 			memset(&t_perf, 0, sizeof(t_perf));
@@ -196,8 +196,8 @@ int hmac(void)
 
 
 			/* cache clean and invalidate */
-			data_cache_clean(op.op_auth_args.digest.virt_addr,
-					 op.op_auth_args.digest.len, 0);
+			data_cache_clean(op.op_mac_args.digest.virt_addr,
+					 op.op_mac_args.digest.len, 0);
 		}
 	}
 
