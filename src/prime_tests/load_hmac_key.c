@@ -27,8 +27,7 @@ int load_hmac_key(void)
 	err = prime_open_service(&op_serv_args, &serv_hdl);
 	if (err) {
 		printf("Failed to open prime service\n");
-		err = 1;
-		goto out;
+		return FALSE_TEST;
 	}
 
 	randomize(hmac_key, sizeof(hmac_key));
@@ -39,7 +38,7 @@ int load_hmac_key(void)
 		key_args.key = hmac_key;
 		key_args.keyslot = i;
 		key_args.sha_algo = sha_algo;
-		err = prime_auth_init(&key_args);
+		err = prime_mac_init(&key_args);
 		if (err) {
 			ITEST_LOG("HMAC_SHA512 LOAD 64 Keys failed err: 0x%x\n", err);
 			goto out;
