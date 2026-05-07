@@ -67,7 +67,7 @@ int aes_ecb(void)
 		key_args.keylen = key_sz[t];
 		key_args.key = aes_key;
 		key_args.keyslot = 0;
-		err = prime_cipher_init(&key_args);
+		err = prime_cipher_init(serv_hdl, &key_args);
 		if (err) {
 			printf("prime_cipher_init failed err: 0x%x\n", err);
 			goto out;

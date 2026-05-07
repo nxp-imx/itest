@@ -38,7 +38,7 @@ int load_hmac_key(void)
 		key_args.key = hmac_key;
 		key_args.keyslot = i;
 		key_args.sha_algo = sha_algo;
-		err = prime_mac_init(&key_args);
+		err = prime_mac_init(serv_hdl, &key_args);
 		if (err) {
 			ITEST_LOG("HMAC_SHA512 LOAD 64 Keys failed err: 0x%x\n", err);
 			goto out;
