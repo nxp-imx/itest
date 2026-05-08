@@ -82,7 +82,7 @@ int hmac(void)
 		key_args.key = hmac_key;
 		key_args.keyslot = 0;
 		key_args.sha_algo = sha_algo[t];
-		err = prime_mac_init(&key_args);
+		err = prime_mac_init(serv_hdl, &key_args);
 		if (err) {
 			printf("prime_mac_init failed err: 0x%x\n", err);
 			goto out;

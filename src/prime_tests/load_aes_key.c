@@ -37,7 +37,7 @@ int load_aes_key(void)
 		key_args.keylen = KEY_SZ;
 		key_args.key = aes_key;
 		key_args.keyslot = t;
-		err = prime_cipher_init(&key_args);
+		err = prime_cipher_init(serv_hdl, &key_args);
 		if (err) {
 			ITEST_LOG("Load 64 AES Keys failed err: 0x%x\n", err);
 			goto out;
