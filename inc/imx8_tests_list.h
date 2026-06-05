@@ -82,6 +82,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -101,6 +102,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -120,6 +122,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -139,6 +142,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -158,6 +162,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -177,6 +182,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -194,6 +200,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX943, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -213,6 +220,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -229,6 +237,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -248,6 +257,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -274,6 +284,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -293,6 +304,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -309,6 +321,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -328,6 +341,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -344,6 +358,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -360,6 +375,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -376,6 +392,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -392,6 +409,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -408,6 +426,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -421,6 +440,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -432,6 +452,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_A1, 0},
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -444,6 +465,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX95, SOC_REV_B0, 0},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -517,6 +539,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL2},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -533,6 +556,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL2},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -554,6 +578,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL2},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -569,6 +594,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL1},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -582,6 +608,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL1},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -595,6 +622,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL1},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -608,6 +636,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL1},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -622,6 +651,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL2},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -636,6 +666,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL2},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -650,6 +681,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL2},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -664,6 +696,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL2},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -677,6 +710,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL1},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
@@ -690,6 +724,7 @@ testsuite imx8_ts[] = {
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL1},
 	{SOC_IMX8DXL, SOC_REV_B0, IMX8DXL_DL3},
 	{SOC_IMX952, SOC_REV_A0, 0},
+	{SOC_IMX952, SOC_REV_A1, 0},
 	{0, 0, 0},
 	}
 },
