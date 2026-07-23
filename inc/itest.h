@@ -18,6 +18,8 @@
 #endif
 #define NUM_SOCS 20
 #define MAX_SOC_VAL 10
+#define SOC_IMX941  0x9410
+#define SOC_IMX942  0x9420
 #define SOC_IMX943  0x9430
 #define SOC_IMX952  0x9520
 
