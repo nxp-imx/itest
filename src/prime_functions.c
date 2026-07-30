@@ -40,6 +40,8 @@ uint16_t get_soc(void)
 		soc = SOC_IMX943;
 	else if (strcmp(soc_val, "i.MX952") == 0)
 		soc = SOC_IMX952;
+	else if (strcmp(soc_val, "i.MX937") == 0)
+		soc = SOC_IMX937;
 	else {
 		perror("Undefined SOC\n");
 		return 1;
