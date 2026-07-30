@@ -105,8 +105,6 @@ target_link_libraries(
   ${LIB_PATH}/libcrypto.a
   ${LIB_PATH}/libssl.a
   ${LIB_PATH}/libele_hsm.so
-  ${LIB_PATH}/libele_hsm.so.1
-  ${LIB_PATH}/libele_hsm.so.1.0
   gomp.a
   pthread
   dl
@@ -131,8 +129,6 @@ if (DEFINED V2X)
   ${LIB_PATH}/libcrypto.a
   ${LIB_PATH}/libssl.a
   ${LIB_PATH}/lib_she.so
-  ${LIB_PATH}/lib_she.so.0
-  ${LIB_PATH}/lib_she.so.0.1
   gomp.a
   pthread
   dl
@@ -154,8 +150,6 @@ if (DEFINED V2X)
   ${LIB_PATH}/libcrypto.a
   ${LIB_PATH}/libssl.a
   ${LIB_PATH}/lib_hsm.so
-  ${LIB_PATH}/lib_hsm.so.0
-  ${LIB_PATH}/lib_hsm.so.0.1
   gomp.a
   pthread
   dl
@@ -179,8 +173,6 @@ if(DEFINED PRIME)
  target_link_libraries(
    itest_prime
    ${LIB_PATH}/libprime.so
-   ${LIB_PATH}/libprime.so.1
-   ${LIB_PATH}/libprime.so.1.0
    gomp.a
    pthread
    dl
