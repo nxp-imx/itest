@@ -16,7 +16,7 @@
 static uint8_t sha_algo[NUM_KEY_SIZE] = {
 	CRYPTO_AUTH_SHA_256,
 	CRYPTO_AUTH_SHA_384,
-	CRYPTO_AUTH_SHA_521,
+	CRYPTO_AUTH_SHA_512,
 };
 
 static uint16_t key_sz[NUM_KEY_SIZE] = {
