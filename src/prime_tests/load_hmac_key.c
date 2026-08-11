@@ -18,7 +18,7 @@ int load_hmac_key(void)
 	uint32_t i = 0;
 	uint8_t hmac_key[KEY_SZ] = {0};
 	open_service_args_t op_serv_args = {0};
-	uint8_t sha_algo = CRYPTO_AUTH_SHA_521;
+	uint8_t sha_algo = CRYPTO_AUTH_SHA_512;
 
 	/* open prime service */
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
