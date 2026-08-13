@@ -102,6 +102,9 @@ int main(int argc, char *argv[]){
 	int c = 0;
 	int print_ts = 0, ret = 0;
 
+	/* Print itest version at the beginning of the test */
+	print_version();
+
 	ret = itest_init();
 	if (ret) {
 		ITEST_LOG("itest init failed\n");
@@ -196,8 +199,6 @@ int main(int argc, char *argv[]){
 		return 0;
 	}
 
-	/* Print itest version at the beginning of the test */
-	print_version();
 	if (itest_ctx.test_name == NULL) {
 		ITEST_LOG("No tests provided! Please, insert a test:\n");
 		print_test_suite(itest_ctx.ts);
