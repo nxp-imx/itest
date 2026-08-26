@@ -64,8 +64,8 @@ uint16_t get_soc(void)
 		return 1;
 	}
 
-	/* Only SHE1 MU supported on iMX943 platform */
-	if (soc == SOC_IMX943)
+	/* Only SHE1 MU supported on iMX94x platforms */
+	if ((soc & SOC_MASK_IMX94) == SOC_IMX94)
 		open_session_args.mu_type = V2X_SHE1;
 
 	else

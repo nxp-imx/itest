@@ -30,8 +30,8 @@ int v2x_fast_mac_mubuff_v2(void)
 	// Randomizing input message
 	randomize(message, MAX_MSG_SIZE);
 
-	/* Only SHE1 MU supported on iMX943 platform */
-	if (soc == SOC_IMX943) {
+	/* Only SHE1 MU supported on iMX94x platforms */
+	if ((soc & SOC_MASK_IMX94) == SOC_IMX94) {
 		open_session_args.mu_type = V2X_SHE1;
 		num_msg_size = num_msg_size - 2;
 	} else
