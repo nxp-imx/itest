@@ -1,0 +1,35 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2026-08-25T03:42:47Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.28"
+  },
+  "name": "itest-lf-6.18.37-2.1.0",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/e1f22509-f454-42c8-8649-cfdce06ca784",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-e1f22509-f454-42c8-8649-cfdce06ca784",
+      "name": "itest",
+      "versionInfo": "lf-6.18.37-2.1.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://github.com/nxp-imx/itest -b lf-6.18.37-2.1.0",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-e1f22509-f454-42c8-8649-cfdce06ca784"
+    }
+  ]
+}
